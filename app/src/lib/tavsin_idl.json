@@ -1,0 +1,979 @@
+{
+  "address": "2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy",
+  "metadata": {
+    "name": "tavsin",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Policy-enforced smart wallet for AI agents on Solana"
+  },
+  "instructions": [
+    {
+      "name": "create_wallet",
+      "discriminator": [
+        82,
+        172,
+        128,
+        18,
+        161,
+        207,
+        88,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "docs": [
+            "The human owner creating the wallet."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent",
+          "docs": [
+            "The agent's public key (not a signer — just an identifier)."
+          ]
+        },
+        {
+          "name": "wallet",
+          "docs": [
+            "The smart wallet PDA."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "agent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy",
+          "docs": [
+            "The policy PDA tied to this wallet."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tracker",
+          "docs": [
+            "The spend tracker PDA tied to this wallet."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  99,
+                  107,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "max_per_tx",
+          "type": "u64"
+        },
+        {
+          "name": "max_daily",
+          "type": "u64"
+        },
+        {
+          "name": "allowed_programs",
+          "type": {
+            "vec": "pubkey"
+          }
+        },
+        {
+          "name": "time_window_start",
+          "type": {
+            "option": "i64"
+          }
+        },
+        {
+          "name": "time_window_end",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "execute",
+      "discriminator": [
+        130,
+        221,
+        242,
+        154,
+        13,
+        193,
+        189,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "docs": [
+            "The AI agent requesting the transaction."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "docs": [
+            "The smart wallet PDA (source of funds)."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy",
+          "docs": [
+            "The policy governing this wallet."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tracker",
+          "docs": [
+            "The spend tracker for budget enforcement."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  99,
+                  107,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "audit_entry",
+          "docs": [
+            "The audit entry PDA for this transaction."
+          ],
+          "writable": true
+        },
+        {
+          "name": "recipient",
+          "docs": [
+            "The recipient of the SOL transfer."
+          ],
+          "writable": true
+        },
+        {
+          "name": "target_program",
+          "docs": [
+            "The target program the agent wants to interact with (for allowlist checking)."
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "memo",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "freeze_wallet",
+      "discriminator": [
+        93,
+        202,
+        159,
+        167,
+        22,
+        246,
+        255,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fund_wallet",
+      "discriminator": [
+        211,
+        148,
+        179,
+        170,
+        52,
+        18,
+        154,
+        0
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "docs": [
+            "The owner funding the wallet."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "docs": [
+            "The smart wallet PDA to fund."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "unfreeze_wallet",
+      "discriminator": [
+        246,
+        148,
+        196,
+        60,
+        209,
+        142,
+        99,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_policy",
+      "discriminator": [
+        212,
+        245,
+        246,
+        7,
+        163,
+        151,
+        18,
+        57
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "max_per_tx",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "max_daily",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "allowed_programs",
+          "type": {
+            "option": {
+              "vec": "pubkey"
+            }
+          }
+        },
+        {
+          "name": "time_window_start",
+          "type": {
+            "option": "i64"
+          }
+        },
+        {
+          "name": "time_window_end",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wallet.owner",
+                "account": "SmartWallet"
+              },
+              {
+                "kind": "account",
+                "path": "wallet.agent",
+                "account": "SmartWallet"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AuditEntry",
+      "discriminator": [
+        254,
+        88,
+        234,
+        107,
+        205,
+        16,
+        148,
+        113
+      ]
+    },
+    {
+      "name": "Policy",
+      "discriminator": [
+        222,
+        135,
+        7,
+        163,
+        235,
+        177,
+        33,
+        68
+      ]
+    },
+    {
+      "name": "SmartWallet",
+      "discriminator": [
+        67,
+        59,
+        220,
+        179,
+        41,
+        10,
+        60,
+        177
+      ]
+    },
+    {
+      "name": "SpendTracker",
+      "discriminator": [
+        180,
+        17,
+        195,
+        180,
+        162,
+        207,
+        239,
+        205
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ExceedsPerTxLimit",
+      "msg": "Transaction amount exceeds per-transaction limit"
+    },
+    {
+      "code": 6001,
+      "name": "ExceedsDailyBudget",
+      "msg": "Transaction would exceed daily budget"
+    },
+    {
+      "code": 6002,
+      "name": "ProgramNotAllowed",
+      "msg": "Target program is not on the allowlist"
+    },
+    {
+      "code": 6003,
+      "name": "OutsideTimeWindow",
+      "msg": "Transaction is outside the allowed time window"
+    },
+    {
+      "code": 6004,
+      "name": "WalletFrozen",
+      "msg": "Wallet is frozen"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: only the wallet owner can perform this action"
+    },
+    {
+      "code": 6006,
+      "name": "UnauthorizedAgent",
+      "msg": "Unauthorized agent: caller is not the authorized agent"
+    },
+    {
+      "code": 6007,
+      "name": "InsufficientBalance",
+      "msg": "Insufficient wallet balance"
+    },
+    {
+      "code": 6008,
+      "name": "TooManyAllowedPrograms",
+      "msg": "Too many allowed programs (max 10)"
+    },
+    {
+      "code": 6009,
+      "name": "MemoTooLong",
+      "msg": "Memo too long (max 64 characters)"
+    }
+  ],
+  "types": [
+    {
+      "name": "AuditEntry",
+      "docs": [
+        "On-chain audit log entry for each transaction decision.",
+        "PDA seeds: [b\"audit\", wallet.key(), &total_tx_count.to_le_bytes()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet this entry belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "approved",
+            "docs": [
+              "Was the transaction approved?"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Amount requested."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "target_program",
+            "docs": [
+              "Target program the agent wanted to call."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "denial_reason",
+            "docs": [
+              "Denial reason (0 = approved, 1 = exceeds per-tx, 2 = exceeds daily, 3 = program not allowed, 4 = outside time window, 5 = wallet frozen)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "memo",
+            "docs": [
+              "Human-readable memo from the agent."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the decision."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Policy",
+      "docs": [
+        "Spending policy tied to a wallet.",
+        "PDA seeds: [b\"policy\", wallet.key()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet this policy governs."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "max_per_tx",
+            "docs": [
+              "Max lamports/tokens per single transaction."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_daily",
+            "docs": [
+              "Max lamports/tokens per rolling daily period."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "allowed_programs",
+            "docs": [
+              "Allowed target program IDs (max 10). Empty = allow all."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "time_window_start",
+            "docs": [
+              "Optional: earliest unix timestamp in day the agent can transact (seconds from midnight UTC)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "time_window_end",
+            "docs": [
+              "Optional: latest unix timestamp in day the agent can transact (seconds from midnight UTC)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed for the PDA."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SmartWallet",
+      "docs": [
+        "Smart wallet account — agent funds live here.",
+        "PDA seeds: [b\"wallet\", owner.key(), agent.key()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "The human owner who controls the wallet and policy."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "agent",
+            "docs": [
+              "The AI agent authorized to request transactions."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "frozen",
+            "docs": [
+              "Whether the wallet is frozen (kill switch)."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed for the PDA."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "total_approved",
+            "docs": [
+              "Total approved transactions."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_denied",
+            "docs": [
+              "Total denied transactions."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "Timestamp of wallet creation."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SpendTracker",
+      "docs": [
+        "Tracks cumulative spending for a wallet within a budget period.",
+        "PDA seeds: [b\"tracker\", wallet.key()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet this tracker belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "spent_in_period",
+            "docs": [
+              "Cumulative spend in the current period."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "period_start",
+            "docs": [
+              "Unix timestamp when the current period started."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "period_duration",
+            "docs": [
+              "Period duration in seconds (default: 86400 = 24 hours)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "WALLET_SEED",
+      "docs": [
+        "Seed prefixes for PDAs."
+      ],
+      "type": "bytes",
+      "value": "[119, 97, 108, 108, 101, 116]"
+    }
+  ]
+}
