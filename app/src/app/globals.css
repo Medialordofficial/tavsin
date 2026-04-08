@@ -19,18 +19,43 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.08), transparent 18%),
+    linear-gradient(180deg, #0a0f1e 0%, #08101c 100%);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.22);
+  color: #f8fafc;
+}
+
+.tavsin-grid-mask {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 92%);
 }
 
 /* Wallet adapter overrides */
 .wallet-adapter-button {
-  background: linear-gradient(135deg, #38bdf8, #6366f1) !important;
-  border-radius: 12px !important;
+  background: linear-gradient(135deg, #f8fafc, #cbd5e1) !important;
+  color: #020617 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px !important;
   font-weight: 600 !important;
   height: 44px !important;
+  box-shadow: 0 12px 40px rgba(148, 163, 184, 0.12) !important;
 }
+
+.wallet-adapter-button:hover {
+  background: linear-gradient(135deg, #ffffff, #e2e8f0) !important;
+}
+
 .wallet-adapter-modal-wrapper {
   background: #111827 !important;
   border: 1px solid #1e293b !important;
