@@ -107,18 +107,23 @@ export default function CreateWalletModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg mx-4 bg-[#111827] border border-[#1e293b] rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-md">
+      <div className="tavsin-fade-up w-full max-w-lg rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.96),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.45)]">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-300">
+              Wallet Creation
+            </div>
+            <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
             Create Smart Wallet
-          </h2>
+            </h2>
+          </div>
           <button
             onClick={() => {
               onClose();
               resetForm();
             }}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-2xl leading-none text-slate-400 transition-colors hover:text-white"
           >
             ×
           </button>
@@ -126,7 +131,7 @@ export default function CreateWalletModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="mb-1 block text-sm font-medium text-slate-300">
               Agent Public Key *
             </label>
             <input
@@ -135,13 +140,13 @@ export default function CreateWalletModal({
               value={agentKey}
               onChange={(e) => setAgentKey(e.target.value)}
               placeholder="Enter agent's Solana address"
-              className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Max Per Transaction (SOL)
               </label>
               <input
@@ -151,11 +156,11 @@ export default function CreateWalletModal({
                 required
                 value={maxPerTx}
                 onChange={(e) => setMaxPerTx(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Max Daily Budget (SOL)
               </label>
               <input
@@ -165,30 +170,30 @@ export default function CreateWalletModal({
                 required
                 value={maxDaily}
                 onChange={(e) => setMaxDaily(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="mb-1 block text-sm font-medium text-slate-300">
               Allowed Programs{" "}
-              <span className="text-gray-500">(one per line, leave empty for all)</span>
+              <span className="text-slate-500">(one per line, leave empty for all)</span>
             </label>
             <textarea
               value={allowedPrograms}
               onChange={(e) => setAllowedPrograms(e.target.value)}
               rows={3}
               placeholder="11111111111111111111111111111111"
-              className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm font-mono"
+              className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 font-mono text-sm text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Time Window Start{" "}
-                <span className="text-gray-500">(hour UTC)</span>
+                <span className="text-slate-500">(hour UTC)</span>
               </label>
               <input
                 type="number"
@@ -197,13 +202,13 @@ export default function CreateWalletModal({
                 value={timeStart}
                 onChange={(e) => setTimeStart(e.target.value)}
                 placeholder="e.g. 9"
-                className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Time Window End{" "}
-                <span className="text-gray-500">(hour UTC)</span>
+                <span className="text-slate-500">(hour UTC)</span>
               </label>
               <input
                 type="number"
@@ -212,13 +217,13 @@ export default function CreateWalletModal({
                 value={timeEnd}
                 onChange={(e) => setTimeEnd(e.target.value)}
                 placeholder="e.g. 17"
-                className="w-full px-3 py-2 bg-[#0a0f1e] border border-[#1e293b] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
               />
             </div>
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
               {error}
             </div>
           )}
@@ -226,7 +231,7 @@ export default function CreateWalletModal({
           <button
             type="submit"
             disabled={submitting || !agentKey}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Creating..." : "Create Wallet"}
           </button>

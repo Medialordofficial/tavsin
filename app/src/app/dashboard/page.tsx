@@ -23,130 +23,184 @@ export default function DashboardPage() {
 
   if (!connected) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-        <Image
-          src="/logo.png"
-          alt="TavSin"
-          width={80}
-          height={80}
-          className="mb-6 rounded-xl"
-        />
-        <h2 className="text-2xl font-bold text-white mb-3">
+      <div className="relative min-h-[80vh] overflow-hidden px-4">
+        <div className="pointer-events-none absolute inset-0 opacity-70">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_22%),radial-gradient(circle_at_82%_15%,rgba(245,158,11,0.12),transparent_18%)]" />
+          <div className="absolute left-0 right-0 top-20 h-[420px] tavsin-grid-mask" />
+        </div>
+        <div className="relative flex min-h-[80vh] flex-col items-center justify-center">
+          <div className="tavsin-fade-up rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.92),rgba(8,12,24,0.98))] px-8 py-10 text-center shadow-[0_30px_120px_rgba(0,0,0,0.45)]">
+            <Image
+              src="/logo.png"
+              alt="TavSin"
+              width={80}
+              height={80}
+              className="mx-auto mb-6 rounded-2xl ring-1 ring-white/10"
+            />
+            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+              Dashboard Access
+            </div>
+            <h2 className="mb-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           Connect Your Wallet
-        </h2>
-        <p className="text-gray-400 mb-8 text-center max-w-md">
-          Connect a Solana wallet to create and manage smart wallets for your AI
-          agents.
-        </p>
-        <WalletMultiButton />
+            </h2>
+            <p className="mb-8 max-w-md text-center leading-7 text-slate-400">
+              Connect a Solana wallet to access your smart-wallet control
+              surface, funding rails, and policy management flows.
+            </p>
+            <WalletMultiButton />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <p className="text-gray-400 mt-1">
-            Manage your AI agent smart wallets
-          </p>
-        </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/25"
-        >
-          + Create Wallet
-        </button>
+    <div className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_90%_8%,rgba(245,158,11,0.1),transparent_14%)]" />
+        <div className="absolute left-0 right-0 top-16 h-[380px] tavsin-grid-mask" />
       </div>
 
-      {/* Stats Overview */}
-      {wallets.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            label="Total Wallets"
-            value={wallets.length.toString()}
-          />
-          <StatCard
-            label="Total Balance"
-            value={`${wallets
-              .reduce((sum, w) => sum + w.balance, 0)
-              .toFixed(4)} SOL`}
-          />
-          <StatCard
-            label="Active"
-            value={wallets
-              .filter((w) => !w.account.frozen)
-              .length.toString()}
-          />
-          <StatCard
-            label="Frozen"
-            value={wallets
-              .filter((w) => w.account.frozen)
-              .length.toString()}
-          />
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="tavsin-fade-up">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+              Protocol Dashboard
+            </div>
+            <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
+              Manage agent capital like an operator, not a spectator.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
+              View wallet state, monitor approvals, control freeze status, and
+              create new capital mandates for autonomous agents.
+            </p>
+          </div>
+          <div className="tavsin-fade-up tavsin-delay-1">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
+            >
+              Create Wallet
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Wallet List */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-cyan-500 border-t-transparent" />
-          <span className="ml-3 text-gray-400">Loading wallets...</span>
-        </div>
-      ) : error ? (
-        <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center">
-          <p className="text-red-400 mb-3">{error}</p>
-          <button
-            onClick={refresh}
-            className="text-sm text-cyan-400 hover:text-cyan-300"
-          >
-            Try again
-          </button>
-        </div>
-      ) : wallets.length === 0 ? (
-        <div className="p-12 rounded-2xl border border-[#1e293b] bg-[#111827]/50 text-center">
-          <div className="text-4xl mb-4">🛡️</div>
-          <h3 className="text-xl font-semibold text-white mb-2">
-            No wallets yet
-          </h3>
-          <p className="text-gray-400 mb-6 max-w-md mx-auto">
-            Create your first smart wallet to start securing AI agent
-            transactions with on-chain spending policies.
-          </p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all"
-          >
-            Create First Wallet
-          </button>
-        </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {wallets.map((w) => (
-            <WalletCard key={w.publicKey.toBase58()} wallet={w} />
-          ))}
-        </div>
-      )}
+        {wallets.length > 0 && (
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard
+              label="Total Wallets"
+              value={wallets.length.toString()}
+              tone="cyan"
+            />
+            <StatCard
+              label="Total Balance"
+              value={`${wallets
+                .reduce((sum, w) => sum + w.balance, 0)
+                .toFixed(4)} SOL`}
+              tone="slate"
+            />
+            <StatCard
+              label="Active"
+              value={wallets
+                .filter((w) => !w.account.frozen)
+                .length.toString()}
+              tone="emerald"
+            />
+            <StatCard
+              label="Frozen"
+              value={wallets
+                .filter((w) => w.account.frozen)
+                .length.toString()}
+              tone="amber"
+            />
+          </div>
+        )}
 
-      {/* Create Modal */}
-      <CreateWalletModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSuccess={refresh}
-      />
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+            <span className="ml-3 text-slate-400">Loading protocol state...</span>
+          </div>
+        ) : error ? (
+          <div className="tavsin-fade-up rounded-[1.75rem] border border-red-500/20 bg-red-500/5 p-6 text-center">
+            <p className="mb-3 text-red-400">{error}</p>
+            <button
+              onClick={refresh}
+              className="text-sm font-medium text-cyan-300 hover:text-cyan-200"
+            >
+              Retry fetch
+            </button>
+          </div>
+        ) : wallets.length === 0 ? (
+          <div className="tavsin-fade-up rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.9),rgba(8,12,24,0.98))] p-12 text-center shadow-[0_30px_120px_rgba(0,0,0,0.35)]">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">
+              Capital Setup
+            </div>
+            <div className="mb-4 text-4xl">🛡️</div>
+            <h3 className="mb-3 text-2xl font-semibold tracking-[-0.03em] text-white">
+              No wallets created yet
+            </h3>
+            <p className="mx-auto mb-7 max-w-xl leading-7 text-slate-400">
+              Create your first TavSin wallet to define spend limits, attach an
+              agent identity, and establish the first policy envelope for
+              autonomous execution.
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="rounded-2xl bg-white px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 transition-colors hover:bg-slate-100"
+            >
+              Create First Wallet
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {wallets.map((w, index) => (
+              <div
+                key={w.publicKey.toBase58()}
+                className={`tavsin-fade-up ${index === 1 ? "tavsin-delay-1" : ""} ${index >= 2 ? "tavsin-delay-2" : ""}`}
+              >
+                <WalletCard wallet={w} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <CreateWalletModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={refresh}
+        />
+      </div>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "cyan" | "slate" | "emerald" | "amber";
+}) {
+  const toneClasses = {
+    cyan: "from-cyan-400/12 to-sky-400/5 border-cyan-400/12",
+    slate: "from-white/6 to-white/[0.02] border-white/8",
+    emerald: "from-emerald-400/12 to-emerald-400/5 border-emerald-400/12",
+    amber: "from-amber-300/12 to-amber-300/5 border-amber-300/12",
+  };
+
   return (
-    <div className="p-4 rounded-xl border border-[#1e293b] bg-[#111827]/50">
-      <div className="text-xs text-gray-500 uppercase tracking-wider">
+    <div
+      className={`rounded-[1.5rem] border bg-gradient-to-b p-5 shadow-[0_10px_50px_rgba(0,0,0,0.18)] ${toneClasses[tone]}`}
+    >
+      <div className="text-[11px] uppercase tracking-[0.26em] text-slate-500">
         {label}
       </div>
-      <div className="text-xl font-bold text-white mt-1">{value}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
+        {value}
+      </div>
     </div>
   );
 }

@@ -22,31 +22,36 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-[#1e293b] bg-[#0a0f1e]/90 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#08101c]/80 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-3">
+        <div className="flex min-h-[72px] items-center justify-between gap-4 py-3">
+          <div className="flex items-center gap-4 sm:gap-8">
+            <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.01]">
               <Image
                 src="/logo.png"
                 alt="TavSin"
                 width={36}
                 height={36}
-                className="rounded-lg"
+                className="rounded-xl ring-1 ring-white/10 shadow-[0_0_30px_rgba(56,189,248,0.1)]"
               />
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-                TavSin
-              </span>
+              <div>
+                <div className="bg-gradient-to-r from-cyan-300 via-sky-400 to-amber-300 bg-clip-text text-xl font-semibold tracking-[-0.04em] text-transparent">
+                  TavSin
+                </div>
+                <div className="hidden text-[10px] uppercase tracking-[0.28em] text-slate-500 sm:block">
+                  Agent Wallet Protocol
+                </div>
+              </div>
             </Link>
-            <div className="hidden sm:flex items-center gap-1">
+            <div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 sm:flex">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
                     pathname === link.href
-                      ? "bg-[#1e293b] text-cyan-400"
-                      : "text-gray-400 hover:text-white hover:bg-[#1e293b]/50"
+                      ? "bg-white text-slate-950"
+                      : "text-slate-400 hover:bg-white/6 hover:text-white"
                   }`}
                 >
                   {link.label}
@@ -54,7 +59,9 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-          <WalletMultiButton />
+          <div className="tavsin-fade-up tavsin-delay-2">
+            <WalletMultiButton />
+          </div>
         </div>
       </div>
     </nav>
