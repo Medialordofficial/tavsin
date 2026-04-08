@@ -1,9 +1,38 @@
 # AEGIS — COLOSSEUM FRONTIER HACKATHON: STRATEGIC RESEARCH & BATTLE PLAN
 
 > **CONFIDENTIAL** — Internal strategy document
-> Last updated: April 8, 2026
+> Last updated: April 8, 2026 (v2 — Post-Copilot research)
 
 ---
+
+## 0. WHAT CHANGED (v2)
+
+We ran the idea through Colosseum Copilot's published data and found:
+
+1. The "AI Agent Payments" Copilot example **literally names our gap as the #1 underexplored opportunity**
+2. The cluster "Solana AI Agent Infrastructure" has **325 projects** — but **zero have built spending governance**
+3. MCPay (1st Place Stablecoins/Cypherpunk, C4 Accelerator) and Latinum (1st Place AI/Breakout) are the closest — but both **delegate budget management to application code**
+4. Copilot explicitly states: *"Spending policy engine / risk layer: Nobody's built it"*
+5. The top opportunity is described as **"Brex for AI Agents"** — spending controls + policy enforcement
+
+**We pivoted from vague "trust layer" to concrete "on-chain spending policy engine for AI agents."**
+
+---
+
+## 0.1 LOOPHOLES WE FIXED
+
+| Loophole in v1 | Why it would lose | Fix in v2 |
+|---|---|---|
+| "Trust layer" framing | Too abstract — judges can't visualize it | "Spending policy engine" — concrete, demo-able |
+| No mention of x402, MCP, MCPay | Ignores the existing ecosystem that judges know | Positioned as the missing layer on top of x402/MCPay |
+| "AI agent executes blockchain transactions" | Covers everything, says nothing | "Per-agent budgets, per-tx limits, program allowlists" |
+| Off-chain middleware design | Agents could bypass; not trustless | On-chain Solana program via CPI — unbypassable |
+| "Risk simulation" as a feature | Sounds like Blowfish; already exists | Cut. Focus on policy enforcement, not risk scoring |
+| Multi-chain in scope | Scope creep; judges want depth | Solana only. Deep, not wide |
+| No revenue model | Judges look for viable business | 0.05-0.1% on policy-checked txs + SaaS dashboard |
+| No existing ecosystem awareness | Looks like you didn't research | Name competitors by name: MCPay, Latinum, Agent-Cred |
+| "AI-powered intent execution" | That's the agent's job, not ours | Aegis doesn't parse intents — it enforces policies |
+| Generic architecture diagram | Pretty but says nothing technical | Specific: PDAs, CPI, spend tracker, audit log |
 
 ## 1. HACKATHON OVERVIEW
 
@@ -61,233 +90,227 @@
 
 ---
 
-## 2. COMPETITOR LANDSCAPE ANALYSIS
+## 2. COMPETITOR LANDSCAPE (UPDATED WITH COPILOT DATA)
 
-### Direct Competitors (Policy/Security for AI Agents On-Chain)
+### What Colosseum Copilot Revealed
 
-**VERDICT: NO DIRECT COMPETITOR EXISTS ON SOLANA.**
+The AI Agent Payments example on Copilot (docs.colosseum.com/copilot/examples/ai-agent-payments) is the most relevant intelligence we have. Key findings:
 
-No project currently offers a policy-driven execution engine specifically for AI agents on Solana. Here's the landscape:
+**Cluster stats:**
+- "Solana AI Agent Infrastructure" cluster: **crowdedness 325** (325 projects)
+- x402 is the converging standard for agent payments
+- MCPay won 1st Place Stablecoins (Cypherpunk) + C4 Accelerator
+- Latinum won 1st Place AI (Breakout) at $25K
 
-#### Tier 1: Adjacent Infrastructure (Established Companies)
+**What exists (payment rails):**
+- MCPay — x402 MCP tool monetization (1 person team, @microchipgnu)
+- Latinum — Payment middleware + MCP-compatible wallet (live at latinum.ai)
+- Corbits.dev — x402 API payment proxy (2nd Place Infrastructure, Cypherpunk)
+- Agent-Cred — Hotkey/coldkey dual-key for agent wallets
+- AEP — Service discovery → price negotiation → escrow → settlement
 
-| Project | What They Do | Why They're NOT Aegis |
+**What does NOT exist (Copilot's own words):**
+> "No project has built spending policy engines (per-category limits, anomaly detection, compliance rules)"
+> "No project has built credit rails for agents"
+> "Convergent finding: Security model for agent wallets is unsolved"
+> "MCPay and Latinum delegate budget management to developers (hardcoded limits in code). Neither provides a policy engine, a dashboard, or a credit facility."
+
+**Copilot's top opportunity:** "Brex for AI Agents" — spending controls, policy enforcement, agent fleet management.
+
+**THIS IS EXACTLY AEGIS.**
+
+### Updated Competitor Map
+
+| Layer | What exists | Gap (Aegis) |
 |---|---|---|
-| **Blowfish** | Transaction simulation / scam detection for wallets (Phantom uses it) | **Passive warning system** — shows risk to humans. Does NOT enforce policies, does NOT work with AI agents, and does NOT provide a decision engine. It's a wallet security API, not an agent trust layer. |
-| **Turnkey** | Wallet infrastructure — creates wallets for AI agents using TEEs, has a "policy engine" | **Wallet infra, not a trust layer.** Their policies are about key access control (who can sign), NOT about transaction-level risk analysis or spend limits for autonomous AI. They're the plumbing; Aegis is the governance layer on top. |
-| **Fireblocks** | Enterprise digital asset infrastructure — custody, treasury, policies | **Enterprise-only, EVM-focused, $100K+ pricing.** Their policy engine is for institutional treasury ops, not for consumer AI agents. Not on Solana. |
-| **Squads Protocol** | Multisig + smart accounts on Solana | **Multi-signature approval, not AI agent policy.** Squads is about multi-party human approval. Aegis is about automated policy enforcement for AI agents. Complementary, not competitive. |
+| **Payment protocol** | x402 (Coinbase, 2025) | Payment protocol doesn't control spending |
+| **Payment rails** | MCPay, Latinum, Corbits | Rails don't enforce budgets |
+| **Wallet creation** | Turnkey (TEE-based) | Creating a wallet ≠ governing it |
+| **Key separation** | Agent-Cred (hotkey/coldkey) | Key architecture ≠ spending rules |
+| **Scam detection** | Blowfish (passive warnings) | Warnings to humans ≠ enforcement for agents |
+| **Multi-party approval** | Squads (human multisig) | Human consensus ≠ automated policy |
+| **Spending policy engine** | **NOTHING** | **← AEGIS** |
 
-#### Tier 2: Agent Hackathon Honorable Mentions (Feb 2026)
+### Why This Positioning Wins
 
-| Project | What They Did | Status |
-|---|---|---|
-| **Sentry Agent Economy** | Mentioned as honorable mention in agent hackathon | No details available — likely concept-stage |
-| **StableGuard** | Honorable mention | No details available |
-| **SolShield** | Honorable mention | No details available |
-| **AgentOS** (2nd place, $30K) | Agent operating system | Broader AI agent platform, not security-focused |
-
-**Critical insight:** None of the Agent Hackathon winners focused on the trust/security layer. The top 3 were: DegenDome (betting), AgentOS (general agent platform), BlockHelix (unknown). The security-adjacent honorable mentions (Sentry, StableGuard, SolShield) didn't win prizes and likely haven't continued development.
-
-#### Tier 3: Broader AI Agent Ecosystem
-
-| Project | Relevance |
-|---|---|
-| **Lit Protocol** | Programmable key pairs / PKPs — decentralized key management. Different layer (key infra, not policy) |
-| **Privy** | Embedded wallets, auth — a hackathon sponsor, not a competitor |
-| **Arcium** | Confidential computing on Solana — different problem (privacy, not policy) |
-
-### Uniqueness Assessment: ✅ CONFIRMED UNIQUE
-
-**What makes Aegis genuinely novel:**
-1. **No one is building "policy-as-infrastructure" for on-chain AI agents on Solana**
-2. Blowfish = passive risk warnings for humans
-3. Turnkey = wallet key management
-4. Squads = multi-party human approval
-5. Fireblocks = enterprise custody
-
-**Aegis' unique position:** Active, real-time policy enforcement + risk simulation as a middleware layer between AI agents and the blockchain, on Solana.
+1. **Copilot literally calls it the #1 gap** — we're not guessing, we have data
+2. **325-project cluster, zero competitors in our specific layer** — the entire ecosystem is building rails, nobody is building governance
+3. **MCPay and Latinum validate demand** — they exist, they're funded, and they explicitly lack what we build
+4. **x402 adoption creates urgency** — as more agents transact via x402, the "who controls spending" question gets louder
+5. **On-chain enforcement is the moat** — off-chain policy middleware can be bypassed; CPI-enforced policies on Solana cannot
 
 ---
 
-## 3. RISK ANALYSIS & FAILURE POINTS
+## 3. RISK ANALYSIS & FAILURE POINTS (v2)
 
-### Risk 1: "Too Conceptual" — Judges Want Working Demos
-**Severity: HIGH**
-**Mitigation:**
-- Build a functional demo on Solana devnet in the first 3 weeks
-- Show a live transaction being proposed by an AI agent, evaluated against a policy, and either executed or blocked
-- The demo doesn't need to be production-ready — it needs to provoke an "aha moment"
-- Prioritize: Policy Engine + one AI agent flow + visual dashboard over breadth
+### Risk 1: "Just a Middleware / Off-Chain Service"
+**Severity: CRITICAL** → **RESOLVED**
+- v1 had Aegis as off-chain middleware agents could bypass
+- v2 is an **on-chain Solana program** using CPI — agent wallets MUST call Aegis to transact
+- Policy PDAs are on-chain, spend tracking is on-chain, audit log is on-chain
+- This is the #1 thing that differentiates us from MCPay's hardcoded-in-code approach
 
-### Risk 2: "Just Another Multisig/Wallet Feature"
+### Risk 2: "Looks Like Blowfish / Squads"
 **Severity: MEDIUM**
-**Mitigation:**
-- Clearly differentiate from Squads (multisig = human consensus; Aegis = automated policy enforcement)
-- Clearly differentiate from Blowfish (passive warnings vs. active enforcement)
-- Frame Aegis as **infrastructure**, not a wallet feature
-- Position: "This is the missing layer that wallets and agent platforms will integrate"
+- Blowfish: passive warnings for humans → Aegis: active enforcement for agents (agents can't read warnings)
+- Squads: multi-party human consensus → Aegis: automated policy evaluation (no human in the loop)
+- **Demo must show the difference live**: "Here's what happens when an agent hits a Blowfish warning [nothing, it proceeds]. Here's what happens with Aegis [transaction blocked on-chain]."
 
-### Risk 3: Scope Creep — Building Too Much
+### Risk 3: "Too Narrow / Not a Business"
 **Severity: MEDIUM**
-**Mitigation:**
-- Follow the hackathon guide: "Prioritize features that create an amazing working demo"
-- MVP scope: Policy definition → AI intent parsing → Risk check → Execute/Block → Audit log
-- Do NOT try to build multi-chain, full dashboard, or complex risk simulation in 5 weeks
-- Nail one flow perfectly: User sets policy → AI agent tries to send tokens → Aegis approves or blocks
+- Copilot data proves demand: 325 projects need this, MCPay/Latinum are funded and lack it
+- Revenue: 0.05-0.1% on policy-checked txs + SaaS dashboard for fleet operators
+- Expansion: credit rails for agents (Copilot's #2 opportunity) feeds into v2
 
-### Risk 4: Team Size / Capacity
+### Risk 4: Another Team Builds the Same Thing
+**Severity: LOW**
+- Copilot says nobody has built it across 5,400+ submissions
+- Our speed advantage: we start with Copilot's exact thesis already framed
+- Even if someone builds adjacent, execution + positioning wins
+
+### Risk 5: Team Size / Capacity
 **Severity: HIGH if solo**
-**Mitigation:**
-- Average winning team is 3+ members
-- Use Colosseum's Cofounder Directory to find teammates
-- Ideal team: 1 Solana smart contract dev + 1 backend/AI dev + 1 frontend/design
-- If solo: focus on smart contract + minimal CLI demo, skip fancy frontend
+- Average winning team: 3+ members
+- Use Colosseum Cofounder Directory + Discord to recruit
+- Ideal: 1 Anchor/Rust dev + 1 TypeScript/SDK dev + 1 frontend/pitch
+- Solo fallback: CLI demo + on-chain program, skip dashboard frontend
 
-### Risk 5: Not "Building in the Open"
-**Severity: MEDIUM**
-**Mitigation:**
-- Colosseum explicitly recommends building in public
-- Create a Twitter/X account for Aegis immediately
-- Share weekly progress updates publicly
-- Find beta testers through crypto Twitter
-- This also helps with weekly update submissions
-
-### Risk 6: Weak Presentation / Pitch Video
+### Risk 6: Weak Demo / Presentation
 **Severity: HIGH**
-**Mitigation:**
-- Judges review hundreds of submissions — presentation is make-or-break
-- Use Loom (recommended by Colosseum)
-- Follow the pitch structure: Team → Problem → Solution → Market → Demo → Why Now
-- Keep under 3 minutes, be concise
-- Show the working demo, don't just talk about it
-- Use the pitch script from PITCH.md as foundation
-
-### Risk 7: Similar Project Submitted by Another Team
-**Severity: LOW-MEDIUM**
-**Mitigation:**
-- Use Colosseum Copilot to check against 5,400+ past submissions (available at arena.colosseum.org/copilot)
-- Even if similar ideas exist, judges value execution and differentiation
-- Colosseum guide: "Don't be afraid to build products that have been attempted before. Timing and execution matter."
-- Our edge: clear positioning, strong narrative, working demo
+- Demo script is concrete (see PITCH.md): create policy → agent swaps 30 USDC ✅ → agent tries 200 USDC ❌ → agent tries Raydium ❌
+- Judges must SEE the block happen on-chain, not hear about it
+- Use Loom, keep under 3 min, show terminal + explorer side by side
 
 ---
 
-## 4. STRATEGIC RECOMMENDATIONS
+## 4. TECHNICAL ARCHITECTURE (v2)
 
-### 4.1 Positioning Strategy
-Frame Aegis NOT as a security tool, but as **infrastructure for autonomous finance**:
-> "We're not building a wallet feature. We're building the trust layer that makes autonomous on-chain finance possible."
+### On-Chain Program (Anchor/Rust)
 
-This resonates because:
-- Judges want **ambitious, long-term visions** (from the guide)
-- "Wildly ambitious products" is explicitly encouraged
-- Infrastructure plays win accelerators (see: Jito, Helius, Switchboard, Squads — all infra)
+```
+aegis-program/
+├── instructions/
+│   ├── create_policy.rs    — Owner defines policy PDA (limits, allowlist, budget period)
+│   ├── check_transaction.rs — CPI entry: agent calls before executing tx
+│   ├── record_spend.rs     — Updates cumulative spend tracker after successful tx
+│   └── revoke_agent.rs     — Owner freezes an agent immediately
+├── state/
+│   ├── policy.rs           — Policy PDA: per-tx limit, daily budget, program allowlist
+│   ├── spend_tracker.rs    — Rolling spend tracker per agent per budget period
+│   └── audit_entry.rs      — On-chain log of every check (approved/denied + reason)
+└── errors.rs               — Custom error codes (ExceedsLimit, ProgramNotAllowed, BudgetExhausted)
+```
 
-### 4.2 Build Path Alignment
-Target the **"Agents + Tokenization"** and **"Treasury + Security"** build paths simultaneously. This shows cross-cutting relevance.
+### CPI Flow (How It Works)
 
-### 4.3 Sprint Plan (5 Weeks)
+```
+Agent wallet → calls target program (e.g., Jupiter swap)
+         ↓
+Target program CPI → aegis::check_transaction(policy_pda, amount, target_program_id)
+         ↓
+Aegis program:
+  1. Load policy PDA for this agent
+  2. Check: amount ≤ per_tx_limit?
+  3. Check: cumulative_spend + amount ≤ daily_budget?
+  4. Check: target_program_id ∈ program_allowlist?
+  5. If all pass → return Ok, record spend
+  6. If any fail → return Err(AegisError::PolicyViolation)
+         ↓
+Target program: proceeds only if Aegis returns Ok
+```
 
-| Week | Focus | Deliverable |
+### Key Design Decisions
+
+1. **PDAs, not accounts** — Policies stored as PDAs derived from `[owner_pubkey, agent_pubkey, "policy"]`. No rent drama.
+2. **CPI enforcement** — Target programs call Aegis via CPI. Agent can't bypass because the target program requires the Aegis check.
+3. **Budget periods** — Spend tracker resets per configurable period (hourly/daily/weekly). Uses Solana clock sysvar.
+4. **Audit log** — Every check emits a program log + writes an audit PDA. On-chain, immutable, queryable.
+
+### Tech Stack
+
+| Component | Technology | Why |
 |---|---|---|
-| **Week 1** (Apr 6-12) | Architecture + Solana program skeleton | Policy data structures on-chain, basic Anchor program |
-| **Week 2** (Apr 13-19) | Core policy engine | On-chain policy evaluation, spend limit checks, contract allowlisting |
-| **Week 3** (Apr 20-26) | Agent SDK + integration | Simple AI agent that proposes txs → Aegis evaluates → execute/block |
-| **Week 4** (Apr 27-May 3) | Risk simulation + dashboard | Basic risk scoring, minimal web dashboard showing tx audit log |
-| **Week 5** (May 4-11) | Polish, testing, pitch video | Bug fixes, demo recording, submission preparation |
-
-### 4.4 MVP Feature Priority (What to Ship)
-
-**MUST HAVE (Core demo):**
-1. On-chain policy program (Anchor/Solana) — spending limits, contract allowlist
-2. Policy evaluation logic — check tx against user-defined rules
-3. Simple AI agent integration — natural language → tx proposal → policy check
-4. Execute or Block decision
-5. On-chain audit log of all decisions
-
-**NICE TO HAVE (If time permits):**
-6. Web dashboard showing policies + audit trail
-7. Risk scoring (contract verification status)
-8. Multiple policy templates
-
-**CUT (Save for post-hackathon):**
-- Multi-chain support
-- Complex risk simulation
-- Advanced NLP intent parsing
-- Mobile support
-
-### 4.5 Tech Stack Recommendation
-
-| Component | Technology |
-|---|---|
-| Smart Contracts | **Anchor** (Solana framework) |
-| Backend/Agent | **TypeScript + @solana/web3.js** |
-| AI Integration | **OpenAI API** or similar for intent parsing |
-| Frontend | **Next.js** (minimal dashboard) |
-| RPC | **Helius** (50% off for hackathon, see resources page) |
-| Demo | **Solana Devnet** |
-
-### 4.6 Narrative Hooks for Judges
-
-These specific angles will resonate with the Frontier judges:
-
-1. **For Anatoly Yakovenko / Lily Liu:** "Aegis makes Solana the safest chain for AI agents — it's native infrastructure that brings institutional-grade safety to consumer AI wallets."
-
-2. **For Squads/Phantom judges:** "We complement Squads (multi-party security) and Phantom (user-facing wallet). Aegis is the policy middleware that wallets and protocols will integrate."
-
-3. **For DeFi judges (Drift, Raydium):** "Every DeFi protocol that wants AI-agent users needs Aegis to ensure agents don't drain liquidity or execute toxic trades."
-
-4. **Business model angle:** "B2B SaaS — wallets and agent platforms pay for Aegis policy-engine-as-a-service. Or protocol-level fee on every policy-checked transaction."
-
-### 4.7 Colosseum Copilot
-**Use it immediately.** Available at arena.colosseum.org/copilot. It lets you pressure-test your idea against 5,400+ past hackathon submissions. Run Aegis through it to:
-- Confirm no direct overlap with past winners
-- Get AI feedback on positioning
-- Find angles you might be missing
+| Smart Contract | Anchor (Rust) | Standard for Solana programs, judges expect it |
+| SDK | TypeScript (`@aegis/sdk`) | Wraps CPI calls, policy CRUD, audit queries |
+| Frontend | Next.js | Minimal dashboard — policy management + audit viewer |
+| RPC | Helius | 50% hackathon discount, built-in DAS API |
+| Testing | Bankrun + anchor test | Fast local testing without validator overhead |
+| AI Agent Demo | TypeScript + OpenAI | Simple agent that proposes swaps, calls Aegis SDK |
 
 ---
 
-## 5. WHAT JUDGES LOOK AT IN GITHUB REPOS
+## 5. SPRINT PLAN (v2 — 5 Weeks)
+
+| Week | Focus | Deliverable | Weekly Update |
+|---|---|---|---|
+| **Week 1** (Apr 6-12) | Anchor program skeleton + policy PDA | `create_policy` + `check_transaction` instructions working on localnet | "Policy engine deployed to devnet. Here's the PDA structure." |
+| **Week 2** (Apr 13-19) | Spend tracking + CPI integration | `record_spend` + budget period logic + CPI from mock program | "Spending limits enforced via CPI. Agent blocked live on devnet. [Video]" |
+| **Week 3** (Apr 20-26) | TypeScript SDK + agent demo | `@aegis/sdk` package, demo agent that swaps on Jupiter via Aegis | "End-to-end: AI agent → policy check → swap executed or blocked. [Video]" |
+| **Week 4** (Apr 27-May 3) | Dashboard + audit viewer | Next.js dashboard: create policies, view audit log, revoke agents | "Dashboard live. Fleet operators can manage 10 agents from one screen." |
+| **Week 5** (May 4-11) | Polish + pitch video + submission | Bug fixes, README cleanup, Loom video, submission on arena | "Submitted. Here's our pitch video and demo link." |
+
+### Week 1 Detailed Breakdown
+
+| Day | Task |
+|---|---|
+| Day 1 | `anchor init aegis-program`, define Policy and SpendTracker state structs |
+| Day 2 | Implement `create_policy` instruction (owner sets limits) |
+| Day 3 | Implement `check_transaction` instruction (CPI-callable) |
+| Day 4 | Write tests: policy creation, valid tx check, blocked tx check |
+| Day 5 | Deploy to devnet, verify with Solana Explorer |
+| Day 6 | Start TypeScript SDK scaffold |
+| Day 7 | Buffer / catchup / first weekly update |
+
+---
+
+## 6. WHAT JUDGES LOOK AT IN GITHUB REPOS
 
 From Colosseum's FAQ and guide:
-- **Code quality** — Clean, well-organized code
-- **README** — Clear project description (we already have a strong one)
-- **Commit history** — Shows consistent work throughout the hackathon (don't commit everything at once)
-- **Working demo** — Code actually runs on devnet
-- **Documentation** — How to set up and test
-- **Architecture** — Clear separation of concerns
 
-**Action items:**
-- Commit code regularly throughout the 5 weeks
-- Include setup instructions that judges can follow
-- Have a `/demo` or `/examples` folder showing usage
-- Include the devnet program address in README
+- **Code quality** — Clean Anchor code, idiomatic Rust, proper error handling
+- **README** — Clear "spending policy engine" framing (already done)
+- **Commit history** — Regular commits throughout 5 weeks (NOT a last-day dump)
+- **Working demo** — Program deployed to devnet with verifiable address
+- **Documentation** — Setup instructions that judges can follow to test
+- **Architecture** — Clear program structure, SDK separate from frontend
 
----
-
-## 6. WEEKLY UPDATE STRATEGY
-
-Colosseum requires weekly updates. Make them count:
-
-**Week 1:** "Defined architecture. Policy program skeleton deployed to devnet. Here's our on-chain policy data structure."
-**Week 2:** "Core policy engine working. Can enforce spending limits and contract allowlists on devnet. [Video demo]"
-**Week 3:** "AI agent integrated. Natural language → transaction proposal → policy check → execute/block. End-to-end flow working."
-**Week 4:** "Risk scoring added. Dashboard live. Audit trail visible. Seeking beta testers."
-**Week 5:** "Final polish. Pitch video recorded. Full demo ready."
+**Repo structure to aim for:**
+```
+aegis/
+├── programs/aegis/          — Anchor program (Rust)
+├── sdk/                     — @aegis/sdk TypeScript package
+├── app/                     — Next.js dashboard
+├── demo/                    — Demo agent script (run to see it work)
+├── tests/                   — Anchor tests
+├── README.md                — Judge-facing (already written)
+├── PITCH.md                 — Pitch script + summaries
+└── STRATEGY.md              — This file (internal)
+```
 
 ---
 
-## 7. IMMEDIATE ACTION ITEMS (NEXT 48 HOURS)
+## 7. NARRATIVE HOOKS FOR SPECIFIC JUDGES
+
+| Judge | Hook |
+|---|---|
+| **Anatoly Yakovenko** (Solana) | "Aegis makes Solana the default chain for agent commerce — on-chain policy enforcement that EVM can't replicate at this speed/cost" |
+| **Lily Liu** (Solana Foundation) | "325 agent projects on Solana, zero governance layer. Aegis is the missing infrastructure." |
+| **Squads Labs judge** | "Squads = multi-party human approval. Aegis = automated policy for non-human agents. Complementary — we integrate, not compete." |
+| **Phantom judge** | "Every Phantom user who delegates to an AI agent needs spending controls. Aegis is the policy engine Phantom integrates." |
+| **Drift / Raydium judges** | "DeFi protocols that want agent users need to ensure agents don't drain pools. Aegis enforces per-agent, per-protocol limits." |
+| **Clay Robbins** (Colosseum) | "Full-time founder intent. This is our startup, not a weekend project. Copilot confirmed the gap — we're filling it." |
+
+---
+
+## 8. IMMEDIATE ACTION ITEMS (NEXT 48 HOURS)
 
 - [ ] Register on arena.colosseum.org for Frontier hackathon
-- [ ] Run idea through Colosseum Copilot
+- [ ] Run idea through Colosseum Copilot (live version at arena)
 - [ ] Create @AegisProtocol Twitter/X account
 - [ ] Join Colosseum Discord
-- [ ] Attend Frontier Kickoff workshop (April 7)
-- [ ] Set up Anchor development environment
-- [ ] Set up Helius RPC (50% off deal)
-- [ ] Find 1-2 cofounders via Colosseum Cofounder Directory
-- [ ] Initialize Anchor project in repo
-- [ ] Deploy first empty program to devnet
-- [ ] First public tweet about Aegis
+- [ ] Set up Anchor development environment (`anchor init aegis-program`)
+- [ ] Set up Helius RPC (50% off hackathon deal)
+- [ ] Find 1-2 cofounders via Colosseum Cofounder Directory + Discord
+- [ ] Deploy empty Anchor program to devnet
+- [ ] First public tweet: "Building the spending policy engine for AI agents on Solana. 325 projects building agent payments — zero building governance. @colaboratorio @solana #SolanaFrontier"
+- [ ] Build in public: share architecture diagram from README on Twitter

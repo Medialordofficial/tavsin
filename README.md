@@ -2,208 +2,242 @@
 
 # 🛡️ Aegis
 
-### The Trust Layer for Autonomous On-Chain Finance
+### The On-Chain Spending Policy Engine for AI Agents
 
-**Aegis lets AI act on your behalf — without ever putting your money at risk.**
+**Every AI agent that touches money will need Aegis.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)]()
+[![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)]()
+[![Frontier Hackathon](https://img.shields.io/badge/Colosseum-Frontier%202026-orange)]()
 
 </div>
 
 ---
 
-## 🧠 What is Aegis?
+## The Problem — in 30 seconds
 
-**Aegis is the security and decision layer that every AI wallet and financial agent will rely on.**
+AI agents can now browse the web, write code, and call APIs autonomously. The next step is obvious: **agents that move money on-chain.**
 
-It enables AI agents to safely execute blockchain transactions on behalf of users — within strict, user-defined security policies. No blind trust. No unrestricted access. Just programmable trust for AI-driven money movement.
+But right now, giving an AI agent a wallet is binary:
+- **Lock it down** → the agent can't do anything useful
+- **Give it access** → one bad transaction drains the wallet
 
-> AI agents are the future of finance — but they cannot be trusted with funds today. Aegis changes that.
+MCPay and Latinum solved *how* agents pay. Nobody has solved **who controls the spending.**
+
+There is no spending policy engine. No per-agent limits. No anomaly detection. No on-chain enforcement of budget rules. Developers hardcode limits in application code and hope for the best.
+
+**This is the gap. Aegis fills it.**
 
 ---
 
-## 🔴 The Problem
+## What Aegis Is
 
-Interacting with crypto today requires constant manual oversight:
+Aegis is an **on-chain spending policy engine** for autonomous AI agents on Solana.
 
-| Pain Point | Impact |
+It's the programmable layer between an agent's wallet and the blockchain that enforces spending rules — per-agent budgets, per-vendor limits, time-bounded allowances, contract allowlists, and anomaly detection — **enforced by a Solana program, not application code.**
+
+Think of it as **Brex corporate card controls, but for AI agent wallets, enforced on-chain.**
+
+```
+Agent wants to spend → Aegis checks policy on-chain → ✅ Execute | ⚠️ Escalate | ❌ Block
+```
+
+---
+
+## Why This Wins
+
+| What exists today | What's missing (Aegis) |
 |---|---|
-| Verify every smart contract | Slows users down, creates fatigue |
-| Assess risk across protocols & chains | Requires expertise most users lack |
-| Approve every single transaction | Makes automation impossible |
-| No safety net for AI agents | One bad tx = total fund loss |
+| x402 — agents can pay per-request | No one controls *how much* they pay |
+| MCP — thousands of tool servers | No spending governance across tools |
+| MCPay / Latinum — payment rails | Budget management delegated to devs |
+| Turnkey — agent wallet creation | No transaction-level policy enforcement |
+| Blowfish — passive risk warnings | Active enforcement, not warnings |
+| Squads — human multisig approval | Automated policy for autonomous agents |
 
-**The result:** Users lose **billions** annually to scams, exploits, and poor decisions. And the promise of autonomous finance remains unfulfilled — because there is **no standard for safe autonomous execution on-chain**.
-
----
-
-## ✅ The Solution
-
-Aegis introduces a **policy-driven execution engine** that allows AI to act — but never outside the boundaries of user trust.
-
-Instead of choosing between:
-- 🐌 **Fully manual wallets** (safe but slow)  
-- 💀 **Fully autonomous agents** (fast but dangerous)
-
-Aegis creates a new paradigm:
-
-> **Constrained autonomy — AI agents that are powerful but bounded.**
+**Aegis is the missing layer in the stack.**
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
+### 1. Create a Policy (on-chain)
+
+```typescript
+const policy = await aegis.createPolicy({
+  agent: agentPublicKey,
+  rules: {
+    maxPerTransaction: 50_000_000,  // 50 USDC (6 decimals)
+    maxDaily:         500_000_000,  // 500 USDC/day
+    allowedPrograms:  [JUPITER_V6, RAYDIUM_AMM],
+    blockedTokens:    [KNOWN_SCAM_MINT],
+    requireApproval:  { above: 200_000_000 },  // Human confirm > 200 USDC
+    timeWindow:       { activeHours: [9, 17] }, // 9am-5pm UTC only
+  }
+});
 ```
-User Intent → AI Agent → Aegis Policy Engine → Risk Simulation → Decision → Blockchain
+
+Policies are stored **on-chain** as Solana accounts. The agent cannot modify its own policy — only the policy owner (user) can.
+
+### 2. Agent Proposes a Transaction
+
+The agent builds a transaction using any framework (LangChain, AutoGPT, custom) and submits it through the Aegis SDK:
+
+```typescript
+const result = await aegis.execute({
+  agent: agentKeypair,
+  transaction: swapInstruction,  // e.g. Jupiter swap
+});
+// Returns: { status: 'approved' | 'escalated' | 'blocked', txSignature?, reason? }
 ```
 
-### 1. 📋 User-Defined Policies
-Users set the rules:
-- Spending limits (per-tx, daily, weekly)
-- Approved smart contracts & protocols
-- Risk thresholds & token exposure limits
-- Confirmation requirements for high-value actions
-- Chain restrictions & time-based controls
+### 3. Aegis Evaluates On-Chain
 
-### 2. 🤖 AI-Powered Intent Execution
-Users give simple, natural-language instructions:
-> *"Send $50 to John"*  
-> *"Rebalance my portfolio to 60/40 ETH/SOL"*  
-> *"Harvest all pending yield rewards"*
+The Solana program checks:
+- Does this transaction exceed the per-tx spend limit?
+- Would this push the agent over its daily/weekly budget?
+- Is the target program on the allowlist?
+- Is the token mint flagged?
+- Does the amount trigger human escalation?
+- Is this within the allowed time window?
 
-The AI agent interprets intent and proposes the optimal transaction(s).
+### 4. Enforce the Decision
 
-### 3. 🔍 Real-Time Risk Simulation
-Before anything touches the chain, every transaction is analyzed:
-- **Contract risk scoring** — is this contract verified, audited, flagged?
-- **Token exposure analysis** — does this exceed portfolio risk limits?
-- **Fund loss simulation** — what's the worst-case outcome?
-- **Pattern detection** — does this resemble known exploit vectors?
-
-### 4. 🛡️ Enforced Decision Layer
-Based on policy + risk analysis, Aegis makes the call:
-
-| Decision | Action |
+| Check Result | Action |
 |---|---|
-| ✅ **Safe** | Execute immediately |
-| ⚠️ **Needs review** | Request user confirmation |
-| ❌ **Unsafe** | Block and alert user |
+| All rules pass | Transaction executes on-chain |
+| Escalation threshold hit | Tx held; notification sent to owner |
+| Any rule violated | Transaction rejected; logged to audit trail |
+
+Every decision — approve, escalate, reject — is recorded on-chain in an immutable audit log.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                        USER LAYER                            │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐  │
-│  │  Policy      │  │  Dashboard   │  │  Notification      │  │
-│  │  Manager     │  │  & Logs      │  │  & Alerts          │  │
-│  └──────┬───────┘  └──────┬───────┘  └────────┬───────────┘  │
-└─────────┼─────────────────┼───────────────────┼──────────────┘
-          │                 │                   │
-┌─────────▼─────────────────▼───────────────────▼──────────────┐
-│                     AEGIS CORE ENGINE                        │
-│                                                              │
-│  ┌──────────────┐  ┌───────────────┐  ┌─────────────────┐   │
-│  │  Policy       │  │  Risk          │  │  Decision        │  │
-│  │  Evaluator    │  │  Simulator     │  │  Engine          │  │
-│  └──────┬────────┘  └───────┬────────┘  └────────┬────────┘  │
-│         │                   │                    │            │
-│  ┌──────▼───────────────────▼────────────────────▼────────┐  │
-│  │                   Audit Logger                         │  │
-│  └────────────────────────────────────────────────────────┘  │
-└──────────────────────────┬───────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                   AGENT LAYER                        │
+│  Any AI agent framework: LangChain, AutoGPT,        │
+│  MCP tools, custom bots                              │
+│                                                      │
+│  ┌────────────────────────────────────────────────┐  │
+│  │            Aegis TypeScript SDK                 │  │
+│  │   aegis.execute()  aegis.createPolicy()        │  │
+│  └──────────────────────┬─────────────────────────┘  │
+└─────────────────────────┼────────────────────────────┘
+                          │ CPI
+┌─────────────────────────▼────────────────────────────┐
+│              AEGIS SOLANA PROGRAM (Anchor)            │
+│                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │
+│  │ Policy    │  │ Spend    │  │ Decision         │   │
+│  │ Store     │  │ Tracker  │  │ Engine           │   │
+│  │ (PDA)     │  │ (PDA)    │  │ (evaluate_tx)    │   │
+│  └──────────┘  └──────────┘  └──────────────────┘   │
+│                                                      │
+│  ┌──────────────────────────────────────────────┐    │
+│  │            Audit Log (PDA per decision)       │   │
+│  └──────────────────────────────────────────────┘    │
+└──────────────────────────┬───────────────────────────┘
                            │
-┌──────────────────────────▼───────────────────────────────────┐
-│                     AGENT INTERFACE                           │
-│  ┌──────────────┐  ┌───────────────┐  ┌──────────────────┐  │
-│  │  Agent SDK    │  │  Intent        │  │  Tx Builder      │  │
-│  │              │  │  Parser        │  │  & Signer        │  │
-│  └──────┬───────┘  └───────┬────────┘  └────────┬─────────┘  │
-└─────────┼──────────────────┼────────────────────┼────────────┘
-          │                  │                    │
-┌─────────▼──────────────────▼────────────────────▼────────────┐
-│                     BLOCKCHAIN LAYER                         │
-│         Solana  ·  Ethereum  ·  Multi-Chain                  │
-└──────────────────────────────────────────────────────────────┘
+┌──────────────────────────▼───────────────────────────┐
+│                   SOLANA BLOCKCHAIN                   │
+│       Token transfers · DeFi swaps · Any ix          │
+└──────────────────────────────────────────────────────┘
 ```
 
+**Key design decision:** Policy enforcement happens inside a Solana program via CPI (Cross-Program Invocation), not in off-chain middleware. The agent *cannot* bypass the policy — it's at the protocol level.
+
 ---
 
-## 🔥 Key Innovation
+## Concrete Use Cases
 
-Aegis introduces a **"trust boundary" for AI in finance** — a concept that doesn't exist today.
+### 1. DeFi Agent with Spending Controls
+A yield-farming agent autonomously harvests rewards and rebalances — but capped at 500 USDC/day, restricted to Jupiter and Raydium only.
 
-| Without Aegis | With Aegis |
+### 2. MCP Tool Payments
+An AI agent paying for MCP tool calls via x402 — Aegis enforces per-vendor caps so a malfunctioning agent can't drain the wallet on a single API.
+
+### 3. Agent Fleet Management
+A company running 50 AI agents — each with individual budgets, shared audit logs, and anomaly detection. The operator dashboard shows spend per agent in real-time.
+
+### 4. Delegated Trading
+User delegates trading to an AI agent — Aegis ensures it can only trade approved token pairs, with max position sizes, and auto-blocks if portfolio drops below a threshold.
+
+---
+
+## Revenue Model
+
+| Revenue Stream | Description |
 |---|---|
-| AI has full wallet access | AI operates within policy boundaries |
-| One exploit = total loss | Risk is simulated before execution |
-| No audit trail | Every action logged & traceable |
-| Users must verify everything | Policies automate safety checks |
-| Binary choice: manual or risky | Constrained autonomy: safe + fast |
+| **Protocol fee** | 0.05-0.1% on policy-checked transactions |
+| **SDK SaaS** | Monthly fee for managed dashboard + analytics |
+| **Enterprise** | Custom policy templates for agent fleet operators |
+
+**TAM:** Every AI agent that moves value on Solana is a potential customer. The "Solana AI Agent Infrastructure" cluster already has 325+ projects — all of which need spending controls.
 
 ---
 
-## 🧩 Key Features
+## Tech Stack
 
-- **Policy Engine** — Declarative, composable security rules (spend limits, contract allowlists, chain restrictions, time gates)
-- **Risk Simulator** — Pre-execution analysis of every transaction against known threat patterns
-- **Agent SDK** — Secure interface for AI agents to propose & execute on-chain transactions
-- **Decision Engine** — Real-time approve / confirm / block logic based on policy + risk score
-- **Audit Trail** — Immutable log of every action, approval, and rejection for full transparency
-- **Multi-Chain Support** — Solana-first, expanding to EVM-compatible chains
-- **Composable Policies** — Stack & combine policies for granular control across different agents and use cases
+| Component | Technology |
+|---|---|
+| **On-chain program** | Anchor (Rust) on Solana |
+| **Policy storage** | PDAs (Program Derived Addresses) |
+| **Spend tracking** | On-chain rolling windows per agent |
+| **Agent SDK** | TypeScript (`@aegis/sdk`) |
+| **Dashboard** | Next.js + Helius RPC |
+| **Testing** | Bankrun (Solana local test) |
+| **AI Integration** | Compatible with any agent framework |
 
 ---
 
-## 🗺️ Roadmap
+## What We're Building (Hackathon Scope)
 
-| Phase | Milestone | Status |
+**Week 1-2:** Anchor program — policy creation, spend tracking, transaction evaluation via CPI
+**Week 3:** TypeScript SDK + demo AI agent that proposes transactions through Aegis
+**Week 4:** Minimal dashboard showing policies, spend tracking, and audit log
+**Week 5:** Polish, real demo on devnet, pitch video
+
+**MVP deliverable:** An AI agent that autonomously executes Solana transactions — where every tx is checked against on-chain spending policies, and violations are blocked at the protocol level.
+
+---
+
+## Differentiation
+
+| Project | What they do | How Aegis is different |
 |---|---|---|
-| **Phase 1** | Core policy engine & rule evaluator | 🔨 In Progress |
-| **Phase 1** | Solana transaction validation & simulation | 🔨 In Progress |
-| **Phase 2** | Agent SDK & intent parser | 📋 Planned |
-| **Phase 2** | Risk simulation engine | 📋 Planned |
-| **Phase 3** | Policy templates (DeFi, NFT, governance) | 📋 Planned |
-| **Phase 3** | Dashboard for policy management | 📋 Planned |
-| **Phase 4** | Multi-chain expansion (EVM) | 📋 Planned |
-| **Phase 4** | Audit log viewer & analytics | 📋 Planned |
+| **MCPay** | x402 payments for MCP tools | No spending governance; Aegis adds policy layer on top |
+| **Latinum** | Agent payment middleware | Budget management in app code; Aegis enforces on-chain |
+| **Blowfish** | Scam detection for wallets | Passive warnings to humans; Aegis actively blocks for agents |
+| **Turnkey** | Wallet infra for agents | Key management, not transaction policy enforcement |
+| **Squads** | Multisig | Human consensus model; Aegis is automated policy for agents |
+| **Agent-Cred** | Hotkey/coldkey architecture | Key separation; no spending rules or anomaly detection |
 
 ---
 
-## 🌍 Why It Matters
-
-- **$3.8B+** lost to crypto exploits and scams in 2025 alone
-- **AI agents are inevitable** — but there's no trust infrastructure for them
-- **No existing standard** for safe autonomous execution on-chain
-- Aegis becomes the **default trust layer** that every AI wallet, agent, and protocol integrates
-
----
-
-## 🏆 Vision
-
-To become the **default trust infrastructure for autonomous finance** —
-powering AI agents that can safely manage money, assets, and transactions at global scale.
-
----
-
-## 🚀 Getting Started
-
-> Aegis is under active development. Early access coming soon.
+## Getting Started
 
 ```bash
 git clone https://github.com/Medialordofficial/aegis.git
 cd aegis
+
+# Install dependencies
+yarn install
+
+# Build the Solana program
+anchor build
+
+# Run tests
+anchor test
+
+# Deploy to devnet
+anchor deploy --provider.cluster devnet
 ```
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome. Open an issue or submit a pull request.
-
-## 📄 License
+## License
 
 MIT — see [LICENSE](LICENSE)
