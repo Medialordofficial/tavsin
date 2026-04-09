@@ -354,32 +354,120 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/8 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="TavSin" width={24} height={24} />
-            <span className="text-sm text-slate-500">
-              © 2026 TavSin Protocol
-            </span>
-          </div>
-          <div className="flex gap-6 text-sm text-slate-500">
-            <a
-              href="https://github.com/Medialordofficial/tavsin"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              GitHub
-            </a>
-            <a
-              href="https://explorer.solana.com/address/2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy?cluster=devnet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Explorer
-            </a>
-            <span>Solana Devnet</span>
+      <footer className="border-t border-white/8 bg-[linear-gradient(180deg,rgba(8,12,24,0.2),rgba(8,12,24,0.96))] py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_26%),radial-gradient(circle_at_85%_15%,rgba(245,158,11,0.1),transparent_22%),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(8,12,24,0.99))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
+            <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                  TavSin Protocol
+                  <span className="h-1 w-1 rounded-full bg-cyan-300" />
+                  Devnet live
+                </div>
+                <div className="flex items-center gap-3">
+                  <Image src="/logo.png" alt="TavSin" width={40} height={40} className="rounded-xl ring-1 ring-white/10" />
+                  <div>
+                    <div className="text-xl font-semibold tracking-[-0.04em] text-white sm:text-2xl">
+                      TavSin for autonomous finance
+                    </div>
+                    <p className="mt-2 max-w-xl text-sm leading-7 text-slate-300">
+                      Policy-enforced smart wallets for AI agents, built to look and behave like serious crypto infrastructure.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {[
+                    ["Policy rails", "Amount, budget, time, and program rules"],
+                    ["Audit trail", "On-chain approvals and denials"],
+                    ["Kill switch", "Owner freeze control in one action"],
+                  ].map(([title, text]) => (
+                    <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300">
+                        {title}
+                      </div>
+                      <div className="mt-2 text-sm leading-6 text-slate-400">
+                        {text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-300">
+                    Product
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm text-slate-300">
+                    <Link href="/dashboard" className="block transition-colors hover:text-white">
+                      Dashboard
+                    </Link>
+                    <Link href="/" className="block transition-colors hover:text-white">
+                      Landing
+                    </Link>
+                    <a
+                      href="https://explorer.solana.com/address/2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy?cluster=devnet"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block transition-colors hover:text-white"
+                    >
+                      Program Explorer
+                    </a>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300">
+                    Network
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm text-slate-300">
+                    <a
+                      href="https://github.com/Medialordofficial/tavsin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block transition-colors hover:text-white"
+                    >
+                      GitHub
+                    </a>
+                    <span className="block">Solana Devnet</span>
+                    <span className="block">Wallet adapter enabled</span>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2 rounded-2xl border border-white/8 bg-black/18 p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                        Status
+                      </div>
+                      <div className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
+                        Live wallet protocol on Solana
+                      </div>
+                    </div>
+                    <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                      Operational
+                    </div>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">PDA custody</span>
+                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">Policy checks</span>
+                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">On-chain audit</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 border-t border-white/8 pt-6">
+              <div className="flex flex-col gap-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                <div>© 2026 TavSin Protocol</div>
+                <div className="flex flex-wrap gap-4">
+                  <span>Built for autonomous finance</span>
+                  <span>Policy-enforced custody</span>
+                  <span>Solana devnet</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
