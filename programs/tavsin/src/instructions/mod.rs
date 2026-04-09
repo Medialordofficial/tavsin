@@ -1,15 +1,27 @@
 pub mod create_wallet;
 pub mod execute;
+pub mod execute_request;
 pub mod freeze_wallet;
 pub mod fund_wallet;
+pub mod approve_request;
+pub mod reject_request;
+pub mod shared;
+pub mod submit_request;
 pub mod unfreeze_wallet;
 pub mod update_policy;
+pub mod upsert_counterparty_policy;
 pub mod withdraw;
 
+pub use approve_request::*;
 pub use create_wallet::*;
 pub use execute::*;
+pub use execute_request::*;
 pub use freeze_wallet::*;
 pub use fund_wallet::*;
+pub use reject_request::*;
+pub use shared::*;
+pub use submit_request::*;
 pub use unfreeze_wallet::*;
 pub use update_policy::*;
+pub use upsert_counterparty_policy::*;
 pub use withdraw::*;

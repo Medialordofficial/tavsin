@@ -2,66 +2,28 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
-import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { BN, Program } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
 import {
+  type CounterpartyPolicyData,
+  type AssetSpendTrackerData,
+  type AuditEntryData,
+  type ExecutionRequestData,
+  fetchCounterpartyPoliciesForWallet,
+  fetchWalletDetail,
+  fetchWalletsForOwner,
   getProgram,
-  getWalletPda,
-  getPolicyPda,
-  getTrackerPda,
-  getAuditPda,
-  PROGRAM_ID,
+  type LegacySpendTrackerData,
+  type PolicyAccountData,
+  type WalletSummary,
 } from "@/lib/program";
 
-export interface WalletAccount {
-  publicKey: PublicKey;
-  account: {
-    owner: PublicKey;
-    agent: PublicKey;
-    frozen: boolean;
-    bump: number;
-    totalApproved: BN;
-    totalDenied: BN;
-    createdAt: BN;
-  };
-  balance: number; // in SOL
-  policy: {
-    maxPerTx: BN;
-    maxDaily: BN;
-    allowedPrograms: PublicKey[];
-    timeWindowStart: BN | null;
-    timeWindowEnd: BN | null;
-  } | null;
-  tracker: {
-    spentInPeriod: BN;
-    periodStart: BN;
-    periodDuration: BN;
-  } | null;
-}
-
-export interface PolicyAccount {
-  maxPerTx: BN;
-  maxDaily: BN;
-  allowedPrograms: PublicKey[];
-  timeWindowStart: BN | null;
-  timeWindowEnd: BN | null;
-}
-
-export interface TrackerAccount {
-  spentInPeriod: BN;
-  periodStart: BN;
-  periodDuration: BN;
-}
-
-export interface AuditEntryAccount {
-  wallet: PublicKey;
-  approved: boolean;
-  amount: BN;
-  targetProgram: PublicKey;
-  denialReason: number;
-  memo: string;
-  timestamp: BN;
-}
+export type WalletAccount = WalletSummary;
+export type PolicyAccount = PolicyAccountData;
+export type TrackerAccount = LegacySpendTrackerData;
+export type AuditEntryAccount = AuditEntryData;
+export type RequestAccount = ExecutionRequestData;
+export type AssetTrackerAccount = AssetSpendTrackerData;
+export type CounterpartyPolicyAccount = CounterpartyPolicyData;
 
 export function useTavsinProgram() {
   const { connection } = useConnection();
@@ -90,61 +52,7 @@ export function useWallets() {
       setLoading(true);
       setError(null);
       const program = getProgram(connection, wallet);
-
-      // Fetch all SmartWallet accounts owned by connected wallet
-      const allWallets = await (program.account as any).smartWallet.all([
-        {
-          memcmp: {
-            offset: 8, // after discriminator
-            bytes: wallet.publicKey.toBase58(),
-          },
-        },
-      ]);
-
-      const walletsWithBalance = await Promise.all(
-        allWallets.map(async (w: any) => {
-          const balance = await connection.getBalance(w.publicKey);
-          const [policyPda] = getPolicyPda(w.publicKey);
-          const [trackerPda] = getTrackerPda(w.publicKey);
-
-          let policy: WalletAccount["policy"] = null;
-          let tracker: WalletAccount["tracker"] = null;
-
-          try {
-            const policyData = await (program.account as any).policy.fetch(policyPda);
-            policy = {
-              maxPerTx: policyData.maxPerTx,
-              maxDaily: policyData.maxDaily,
-              allowedPrograms: policyData.allowedPrograms,
-              timeWindowStart: policyData.timeWindowStart,
-              timeWindowEnd: policyData.timeWindowEnd,
-            };
-          } catch {
-            policy = null;
-          }
-
-          try {
-            const trackerData = await (program.account as any).spendTracker.fetch(trackerPda);
-            tracker = {
-              spentInPeriod: trackerData.spentInPeriod,
-              periodStart: trackerData.periodStart,
-              periodDuration: trackerData.periodDuration,
-            };
-          } catch {
-            tracker = null;
-          }
-
-          return {
-            publicKey: w.publicKey,
-            account: w.account,
-            balance: balance / LAMPORTS_PER_SOL,
-            policy,
-            tracker,
-          };
-        })
-      );
-
-      setWallets(walletsWithBalance);
+      setWallets(await fetchWalletsForOwner(program as any, connection, wallet.publicKey));
       setLastSyncedAt(Date.now());
     } catch (err: any) {
       console.error("Error fetching wallets:", err);
@@ -177,7 +85,10 @@ export function useWalletDetail(walletAddress: string | null) {
   );
   const [policy, setPolicy] = useState<PolicyAccount | null>(null);
   const [tracker, setTracker] = useState<TrackerAccount | null>(null);
+  const [nativeAssetTracker, setNativeAssetTracker] = useState<AssetTrackerAccount | null>(null);
   const [auditEntries, setAuditEntries] = useState<AuditEntryAccount[]>([]);
+  const [requests, setRequests] = useState<RequestAccount[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<RequestAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -192,59 +103,15 @@ export function useWalletDetail(walletAddress: string | null) {
       setError(null);
       const program = getProgram(connection, anchorWallet);
       const walletPubkey = new PublicKey(walletAddress);
+      const detail = await fetchWalletDetail(program as any, connection, walletPubkey);
 
-      // Fetch wallet
-      const walletData = await (program.account as any).smartWallet.fetch(
-        walletPubkey
-      );
-      const balance = await connection.getBalance(walletPubkey);
-      setWalletAccount({
-        publicKey: walletPubkey,
-        account: walletData,
-        balance: balance / LAMPORTS_PER_SOL,
-        policy: null,
-        tracker: null,
-      });
-
-      // Fetch policy
-      const [policyPda] = getPolicyPda(walletPubkey);
-      try {
-        const policyData = await (program.account as any).policy.fetch(
-          policyPda
-        );
-        setPolicy(policyData);
-      } catch {
-        setPolicy(null);
-      }
-
-      // Fetch tracker
-      const [trackerPda] = getTrackerPda(walletPubkey);
-      try {
-        const trackerData = await (program.account as any).spendTracker.fetch(
-          trackerPda
-        );
-        setTracker(trackerData);
-      } catch {
-        setTracker(null);
-      }
-
-      // Fetch audit entries
-      const totalTx =
-        walletData.totalApproved.toNumber() +
-        walletData.totalDenied.toNumber();
-      const entries: AuditEntryAccount[] = [];
-      for (let i = 0; i < Math.min(totalTx, 50); i++) {
-        try {
-          const [auditPda] = getAuditPda(walletPubkey, i);
-          const entry = await (program.account as any).auditEntry.fetch(
-            auditPda
-          );
-          entries.push(entry);
-        } catch {
-          // Entry may not exist or be pruned
-        }
-      }
-      setAuditEntries(entries.reverse()); // newest first
+      setWalletAccount(detail.walletAccount);
+      setPolicy(detail.policy);
+      setTracker(detail.tracker);
+      setNativeAssetTracker(detail.nativeAssetTracker);
+      setAuditEntries(detail.auditEntries);
+      setRequests(detail.requests);
+      setPendingRequests(detail.pendingRequests);
     } catch (err: any) {
       console.error("Error fetching wallet detail:", err);
       setError(err.message);
@@ -257,5 +124,56 @@ export function useWalletDetail(walletAddress: string | null) {
     refresh();
   }, [refresh]);
 
-  return { walletAccount, policy, tracker, auditEntries, loading, error, refresh };
+  return {
+    walletAccount,
+    policy,
+    tracker,
+    nativeAssetTracker,
+    auditEntries,
+    requests,
+    pendingRequests,
+    loading,
+    error,
+    refresh,
+  };
+}
+
+export function useCounterpartyPolicies(walletAddress: string | null) {
+  const { connection } = useConnection();
+  const anchorWallet = useAnchorWallet();
+  const [policies, setPolicies] = useState<CounterpartyPolicyAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!anchorWallet || !walletAddress) {
+      setPolicies([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const program = getProgram(connection, anchorWallet);
+      const walletPubkey = new PublicKey(walletAddress);
+      setPolicies(await fetchCounterpartyPoliciesForWallet(program as any, walletPubkey));
+    } catch (err: any) {
+      console.error("Error fetching counterparty policies:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [connection, anchorWallet, walletAddress]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return {
+    policies,
+    loading,
+    error,
+    refresh,
+  };
 }

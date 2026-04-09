@@ -64,20 +64,30 @@ pub fn handler(
 
     // Initialize wallet
     let wallet = &mut ctx.accounts.wallet;
+    wallet.version = WALLET_VERSION;
     wallet.owner = ctx.accounts.owner.key();
     wallet.agent = ctx.accounts.agent.key();
     wallet.frozen = false;
     wallet.bump = ctx.bumps.wallet;
+    wallet.next_request_id = 0;
+    wallet.next_audit_id = 0;
     wallet.total_approved = 0;
     wallet.total_denied = 0;
+    wallet.total_pending = 0;
     wallet.created_at = clock.unix_timestamp;
 
     // Initialize policy
     let policy = &mut ctx.accounts.policy;
+    policy.version = POLICY_VERSION;
     policy.wallet = wallet.key();
     policy.max_per_tx = max_per_tx;
     policy.max_daily = max_daily;
+    policy.approval_threshold = None;
+    policy.require_approval_for_new_recipients = false;
     policy.allowed_programs = allowed_programs;
+    policy.allowed_recipients = Vec::new();
+    policy.blocked_mints = Vec::new();
+    policy.mint_rules = Vec::new();
     policy.time_window_start = time_window_start;
     policy.time_window_end = time_window_end;
     policy.bump = ctx.bumps.policy;

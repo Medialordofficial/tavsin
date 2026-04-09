@@ -20,6 +20,44 @@ pub enum TavsinError {
     InsufficientBalance,
     #[msg("Too many allowed programs (max 10)")]
     TooManyAllowedPrograms,
+    #[msg("Too many allowed recipients")]
+    TooManyAllowedRecipients,
+    #[msg("Too many blocked mints")]
+    TooManyBlockedMints,
+    #[msg("Too many mint rules")]
+    TooManyMintRules,
+    #[msg("Too many allowed mints for counterparty policy")]
+    TooManyCounterpartyMints,
     #[msg("Memo too long (max 64 characters)")]
     MemoTooLong,
+    #[msg("Asset mint is blocked by policy")]
+    BlockedMint,
+    #[msg("Recipient is not allowed by policy")]
+    RecipientNotAllowed,
+    #[msg("Request requires owner approval")]
+    ApprovalRequired,
+    #[msg("Request has expired")]
+    RequestExpired,
+    #[msg("Request is not pending")]
+    RequestNotPending,
+    #[msg("Request is not approved")]
+    RequestNotApproved,
+    #[msg("Request has already been executed")]
+    RequestAlreadyExecuted,
+    #[msg("Execution target is not supported by this instruction")]
+    UnsupportedExecutionTarget,
+    #[msg("Asset execution path is not supported yet")]
+    UnsupportedAssetExecution,
+    #[msg("Instruction payload does not match the approved request")]
+    RequestInstructionHashMismatch,
+    #[msg("Execution accounts do not match the approved request")]
+    RequestAccountsHashMismatch,
+    #[msg("Counterparty policy account does not match the request recipient")]
+    InvalidCounterpartyPolicy,
+    #[msg("Asset tracker account does not match the request asset")]
+    InvalidAssetTracker,
+    #[msg("Execution accounts do not satisfy preflight validation")]
+    InvalidExecutionAccounts,
+    #[msg("Execution payload does not satisfy preflight validation")]
+    InvalidExecutionPayload,
 }

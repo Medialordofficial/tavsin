@@ -42,7 +42,7 @@ pub struct Execute<'info> {
         seeds = [
             AUDIT_SEED,
             wallet.key().as_ref(),
-            &(wallet.total_approved + wallet.total_denied).to_le_bytes()
+            &wallet.next_audit_id.to_le_bytes()
         ],
         bump,
     )]
@@ -73,8 +73,11 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
 
     // Initialize audit entry fields that are always set
     audit.wallet = wallet.key();
+    audit.request_id = LEGACY_DIRECT_REQUEST_ID;
     audit.amount = amount;
+    audit.asset_mint = Pubkey::default();
     audit.target_program = target_program_key;
+    audit.recipient = ctx.accounts.recipient.key();
     audit.memo = memo;
     audit.timestamp = clock.unix_timestamp;
     audit.bump = ctx.bumps.audit_entry;
@@ -84,8 +87,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     // Check 1: Wallet frozen?
     if wallet.frozen {
         audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
         audit.denial_reason = REASON_WALLET_FROZEN;
         wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
         msg!("DENIED: Wallet is frozen");
         return Ok(());
     }
@@ -93,8 +98,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     // Check 2: Per-transaction limit
     if amount > policy.max_per_tx {
         audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
         audit.denial_reason = REASON_EXCEEDS_PER_TX;
         wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
         msg!(
             "DENIED: Amount {} exceeds per-tx limit {}",
             amount,
@@ -112,8 +119,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
 
     if tracker.spent_in_period + amount > policy.max_daily {
         audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
         audit.denial_reason = REASON_EXCEEDS_DAILY;
         wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
         msg!(
             "DENIED: Spend {} + {} would exceed daily budget {}",
             tracker.spent_in_period,
@@ -128,8 +137,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
         && !policy.allowed_programs.contains(&target_program_key)
     {
         audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
         audit.denial_reason = REASON_PROGRAM_NOT_ALLOWED;
         wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
         msg!(
             "DENIED: Program {} not on allowlist",
             target_program_key
@@ -143,8 +154,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
         let seconds_in_day = clock.unix_timestamp % 86_400;
         if seconds_in_day < start || seconds_in_day > end {
             audit.approved = false;
+            audit.outcome = OUTCOME_DENIED;
             audit.denial_reason = REASON_OUTSIDE_TIME_WINDOW;
             wallet.total_denied += 1;
+            wallet.next_audit_id += 1;
             msg!(
                 "DENIED: Current time {} outside window [{}, {}]",
                 seconds_in_day,
@@ -163,7 +176,15 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     let wallet_lamports = wallet.to_account_info().lamports();
     let rent = Rent::get()?.minimum_balance(wallet.to_account_info().data_len());
     let available = wallet_lamports.saturating_sub(rent);
-    require!(available >= amount, TavsinError::InsufficientBalance);
+    if available < amount {
+        audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
+        audit.denial_reason = REASON_INSUFFICIENT_BALANCE;
+        wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
+        msg!("DENIED: Wallet has insufficient balance for transfer");
+        return Ok(());
+    }
 
     **wallet.to_account_info().try_borrow_mut_lamports()? -= amount;
     **ctx.accounts.recipient.to_account_info().try_borrow_mut_lamports()? += amount;
@@ -176,7 +197,9 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
 
     // Record approval in audit
     audit.approved = true;
+    audit.outcome = OUTCOME_EXECUTED;
     audit.denial_reason = REASON_APPROVED;
+    wallet.next_audit_id += 1;
 
     msg!(
         "APPROVED: {} lamports sent to {}. Daily spend: {}/{}",

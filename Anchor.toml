@@ -2,7 +2,7 @@
 package_manager = "yarn"
 
 [features]
-resolution = true
+resolution = false
 skip-lint = false
 
 [test]
