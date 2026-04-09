@@ -18,8 +18,10 @@ const WalletMultiButton = dynamic(
 
 export default function DashboardPage() {
   const { connected } = useWallet();
-  const { wallets, loading, error, refresh } = useWallets();
+  const { wallets, loading, error, refresh, lastSyncedAt } = useWallets();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const policyCount = wallets.filter((wallet) => wallet.policy).length;
+  const trackerCount = wallets.filter((wallet) => wallet.tracker).length;
 
   if (!connected) {
     return (
@@ -74,13 +76,30 @@ export default function DashboardPage() {
               View wallet state, monitor approvals, control freeze status, and
               create new capital mandates for autonomous agents.
             </p>
+            <div className="mt-5 flex flex-wrap gap-3 text-xs text-slate-400">
+              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+                {policyCount}/{wallets.length || 0} wallets with policies
+              </div>
+              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+                {trackerCount}/{wallets.length || 0} wallets with live trackers
+              </div>
+              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+                {lastSyncedAt ? `Synced ${new Date(lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Syncing live state"}
+              </div>
+            </div>
           </div>
-          <div className="tavsin-fade-up tavsin-delay-1">
+          <div className="tavsin-fade-up tavsin-delay-1 flex flex-col gap-3">
             <button
               onClick={() => setShowCreateModal(true)}
               className="rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
             >
               Create Wallet
+            </button>
+            <button
+              onClick={refresh}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/6"
+            >
+              Refresh Live Data
             </button>
           </div>
         </div>
@@ -100,17 +119,13 @@ export default function DashboardPage() {
               tone="slate"
             />
             <StatCard
-              label="Active"
-              value={wallets
-                .filter((w) => !w.account.frozen)
-                .length.toString()}
+              label="Policy Coverage"
+              value={`${policyCount}/${wallets.length}`}
               tone="emerald"
             />
             <StatCard
-              label="Frozen"
-              value={wallets
-                .filter((w) => w.account.frozen)
-                .length.toString()}
+              label="Tracker Coverage"
+              value={`${trackerCount}/${wallets.length}`}
               tone="amber"
             />
           </div>

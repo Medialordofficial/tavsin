@@ -13,6 +13,18 @@ export interface WalletAccount {
     createdAt: BN;
   };
   balance: number;
+  policy?: {
+    maxPerTx: BN;
+    maxDaily: BN;
+    allowedPrograms: PublicKey[];
+    timeWindowStart: BN | null;
+    timeWindowEnd: BN | null;
+  } | null;
+  tracker?: {
+    spentInPeriod: BN;
+    periodStart: BN;
+    periodDuration: BN;
+  } | null;
 }
 
 const LAMPORTS = 1_000_000_000;

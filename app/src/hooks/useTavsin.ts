@@ -25,6 +25,18 @@ export interface WalletAccount {
     createdAt: BN;
   };
   balance: number; // in SOL
+  policy: {
+    maxPerTx: BN;
+    maxDaily: BN;
+    allowedPrograms: PublicKey[];
+    timeWindowStart: BN | null;
+    timeWindowEnd: BN | null;
+  } | null;
+  tracker: {
+    spentInPeriod: BN;
+    periodStart: BN;
+    periodDuration: BN;
+  } | null;
 }
 
 export interface PolicyAccount {
@@ -65,6 +77,7 @@ export function useWallets() {
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
     if (!wallet) {
@@ -91,15 +104,48 @@ export function useWallets() {
       const walletsWithBalance = await Promise.all(
         allWallets.map(async (w: any) => {
           const balance = await connection.getBalance(w.publicKey);
+          const [policyPda] = getPolicyPda(w.publicKey);
+          const [trackerPda] = getTrackerPda(w.publicKey);
+
+          let policy: WalletAccount["policy"] = null;
+          let tracker: WalletAccount["tracker"] = null;
+
+          try {
+            const policyData = await (program.account as any).policy.fetch(policyPda);
+            policy = {
+              maxPerTx: policyData.maxPerTx,
+              maxDaily: policyData.maxDaily,
+              allowedPrograms: policyData.allowedPrograms,
+              timeWindowStart: policyData.timeWindowStart,
+              timeWindowEnd: policyData.timeWindowEnd,
+            };
+          } catch {
+            policy = null;
+          }
+
+          try {
+            const trackerData = await (program.account as any).spendTracker.fetch(trackerPda);
+            tracker = {
+              spentInPeriod: trackerData.spentInPeriod,
+              periodStart: trackerData.periodStart,
+              periodDuration: trackerData.periodDuration,
+            };
+          } catch {
+            tracker = null;
+          }
+
           return {
             publicKey: w.publicKey,
             account: w.account,
             balance: balance / LAMPORTS_PER_SOL,
+            policy,
+            tracker,
           };
         })
       );
 
       setWallets(walletsWithBalance);
+      setLastSyncedAt(Date.now());
     } catch (err: any) {
       console.error("Error fetching wallets:", err);
       setError(err.message);
@@ -112,7 +158,15 @@ export function useWallets() {
     refresh();
   }, [refresh]);
 
-  return { wallets, loading, error, refresh };
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      refresh();
+    }, 30000);
+
+    return () => window.clearInterval(interval);
+  }, [refresh]);
+
+  return { wallets, loading, error, refresh, lastSyncedAt };
 }
 
 export function useWalletDetail(walletAddress: string | null) {
@@ -148,6 +202,8 @@ export function useWalletDetail(walletAddress: string | null) {
         publicKey: walletPubkey,
         account: walletData,
         balance: balance / LAMPORTS_PER_SOL,
+        policy: null,
+        tracker: null,
       });
 
       // Fetch policy

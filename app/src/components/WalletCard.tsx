@@ -8,15 +8,25 @@ interface WalletCardProps {
 }
 
 export default function WalletCard({ wallet }: WalletCardProps) {
-  const { publicKey, account, balance } = wallet;
-  const totalTx =
-    account.totalApproved.toNumber() + account.totalDenied.toNumber();
+  const { publicKey, account, balance, policy, tracker } = wallet;
+  const totalTx = account.totalApproved.toNumber() + account.totalDenied.toNumber();
   const approvalRate =
     totalTx > 0
-      ? Math.round(
-          (account.totalApproved.toNumber() / totalTx) * 100
-        )
+      ? Math.round((account.totalApproved.toNumber() / totalTx) * 100)
       : 100;
+  const utilization =
+    policy && tracker
+      ? Math.min(
+          100,
+          (tracker.spentInPeriod.toNumber() / Math.max(policy.maxDaily.toNumber(), 1)) * 100
+        )
+      : null;
+  const timeWindow =
+    policy?.timeWindowStart && policy?.timeWindowEnd
+      ? `${Math.floor(policy.timeWindowStart.toNumber() / 3600)}:00-${Math.floor(
+          policy.timeWindowEnd.toNumber() / 3600
+        )}:00 UTC`
+      : "24/7";
 
   return (
     <Link
@@ -35,8 +45,8 @@ export default function WalletCard({ wallet }: WalletCardProps) {
         <div
           className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
             account.frozen
-              ? "bg-red-500/10 text-red-400 border border-red-500/20"
-              : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+              ? "border border-red-500/20 bg-red-500/10 text-red-400"
+              : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
           }`}
         >
           {account.frozen ? "Frozen" : "Active"}
@@ -69,12 +79,64 @@ export default function WalletCard({ wallet }: WalletCardProps) {
         </div>
       </div>
 
+      <div className="mb-5 space-y-3 rounded-[1.25rem] border border-white/7 bg-black/15 p-4">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <span>Policy Envelope</span>
+          <span>{policy ? "On-chain" : "Not set"}</span>
+        </div>
+        {policy ? (
+          <>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                  Max / Tx
+                </div>
+                <div className="mt-1 text-white">
+                  {(policy.maxPerTx.toNumber() / 1_000_000_000).toFixed(4)} SOL
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                  Daily Cap
+                </div>
+                <div className="mt-1 text-white">
+                  {(policy.maxDaily.toNumber() / 1_000_000_000).toFixed(4)} SOL
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-sm text-slate-400">
+              <span>
+                {policy.allowedPrograms.length === 0
+                  ? "All programs"
+                  : `${policy.allowedPrograms.length} allowlisted`}
+              </span>
+              <span>{timeWindow}</span>
+            </div>
+            {utilization !== null && (
+              <div>
+                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                  <span>Daily utilization</span>
+                  <span>{utilization.toFixed(0)}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-white/8">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-amber-300"
+                    style={{ width: `${utilization}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-sm leading-6 text-slate-400">
+            No policy account found. Create or sync the wallet to enable live spending controls.
+          </p>
+        )}
+      </div>
+
       <div className="flex items-center justify-between text-sm">
         <div className="text-slate-400">
-          Agent:{" "}
-          <span className="font-mono text-slate-300">
-            {shortenAddress(account.agent.toBase58())}
-          </span>
+          Agent: <span className="font-mono text-slate-300">{shortenAddress(account.agent.toBase58())}</span>
         </div>
         <div className="text-cyan-300 opacity-0 transition-opacity group-hover:opacity-100">
           Manage →
