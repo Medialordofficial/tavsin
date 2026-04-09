@@ -49,6 +49,8 @@ export default function Navbar() {
   const handleWalletSelect = async (walletName: string) => {
     try {
       if (wallet?.adapter.name === walletName && connected) {
+        await disconnect();
+        select(null);
         setMenuOpen(false);
         return;
       }
@@ -148,6 +150,27 @@ export default function Navbar() {
                   </div>
                 </div>
 
+                <div className="px-1 pb-2">
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    disabled={!connected || connecting}
+                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-left transition-colors hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <div>
+                      <div className="text-sm font-semibold text-white">
+                        Disconnect wallet
+                      </div>
+                      <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                        Clear the current selection
+                      </div>
+                    </div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                      Clear
+                    </div>
+                  </button>
+                </div>
+
                 <div className="max-h-[280px] space-y-2 overflow-y-auto px-1 pb-2">
                   {orderedWallets.map((entry) => {
                     const isCurrent = wallet?.adapter.name === entry.adapter.name;
@@ -184,11 +207,11 @@ export default function Navbar() {
                             {entry.adapter.name}
                           </div>
                           <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">
-                            {isCurrent ? "Current" : statusLabel}
+                            {isCurrent ? "Selected" : statusLabel}
                           </div>
                         </div>
                         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                          {isCurrent ? "Active" : "Select"}
+                          {isCurrent ? "Clear" : "Select"}
                         </div>
                       </button>
                     );
