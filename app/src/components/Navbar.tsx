@@ -66,7 +66,7 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-          <div className="tavsin-fade-up tavsin-delay-2">
+          <div className="tavsin-fade-up tavsin-delay-2 flex flex-col items-end gap-2">
             {connected ? (
               <div className="flex items-center gap-2">
                 <div className="hidden rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 sm:block">
@@ -97,6 +97,9 @@ export default function Navbar() {
                 Connect Wallet
               </button>
             )}
+            <div className="max-w-[260px] text-right text-[11px] leading-5 text-slate-400">
+              Choose a wallet, then use Switch Wallet anytime if you want a different option.
+            </div>
           </div>
         </div>
       </div>
