@@ -151,13 +151,13 @@ export default function WalletDetailPage({
         </div>
         <div className="relative flex min-h-[80vh] items-center justify-center">
           <div className="tavsin-fade-up rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.92),rgba(8,12,24,0.98))] px-8 py-10 text-center shadow-[0_30px_120px_rgba(0,0,0,0.45)]">
-            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
               Access Required
             </div>
             <h1 className="mb-3 text-2xl font-semibold tracking-[-0.04em] text-white">
               Connect your wallet to continue
             </h1>
-            <p className="max-w-md leading-7 text-slate-400">
+            <p className="max-w-md leading-7 text-slate-300">
               The wallet console requires an active Solana wallet connection so you can view balances, manage policy state, and control funding.
             </p>
           </div>
@@ -170,7 +170,7 @@ export default function WalletDetailPage({
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-        <span className="ml-3 text-slate-400">Loading wallet state...</span>
+            <span className="ml-3 text-slate-300">Loading wallet state...</span>
       </div>
     );
   }
@@ -182,7 +182,7 @@ export default function WalletDetailPage({
           <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-red-300">
             Wallet Lookup Failed
           </div>
-          <p className="mb-5 text-red-300">{error || "Wallet not found"}</p>
+          <p className="mb-5 text-red-100">{error || "Wallet not found"}</p>
           <Link
             href="/dashboard"
             className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 transition-colors hover:bg-slate-100"
@@ -214,7 +214,7 @@ export default function WalletDetailPage({
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/dashboard"
-            className="text-sm font-medium text-slate-400 transition-colors hover:text-cyan-300"
+            className="text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
           >
             ← Back to Dashboard
           </Link>
@@ -235,13 +235,13 @@ export default function WalletDetailPage({
           <section className="tavsin-fade-up rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.42)]">
             <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-white/8 pb-6">
               <div>
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200">
                   Wallet Console
                 </div>
                 <h1 className="text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">
                   {shortenAddress(address, 10)}
                 </h1>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400">
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
                   This account stores agent capital inside the TavSin PDA wallet. Policy checks, freeze controls, and audit records are enforced on-chain.
                 </p>
               </div>
@@ -252,18 +252,18 @@ export default function WalletDetailPage({
             </div>
 
             {txPending && (
-              <div className="mb-5 flex items-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-200">
+              <div className="mb-5 flex items-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-100">
                 <div className="mr-3 h-4 w-4 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent" />
                 {txPending}
               </div>
             )}
             {txSuccess && (
-              <div className="mb-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="mb-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
                 {txSuccess}
               </div>
             )}
             {txError && (
-              <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
                 {txError}
               </div>
             )}
@@ -356,13 +356,13 @@ export default function WalletDetailPage({
                   />
                 </div>
               ) : (
-                <p className="text-sm leading-7 text-slate-400">Policy account not found for this wallet.</p>
+                <p className="text-sm leading-7 text-slate-300">Policy account not found for this wallet.</p>
               )}
 
               {tracker && policy && (
                 <div className="mt-5 rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
                   <div className="mb-3 flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Spent in period</span>
+                    <span className="text-slate-300">Spent in period</span>
                     <span className="font-semibold text-white">
                       {(tracker.spentInPeriod.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL
                     </span>
@@ -400,7 +400,7 @@ export default function WalletDetailPage({
             </section>
 
             <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.36)]">
-              <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+              <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
                 Audit Summary
               </div>
               <div className="grid gap-3">
@@ -416,27 +416,27 @@ export default function WalletDetailPage({
         <section className="tavsin-fade-up tavsin-delay-2 mt-6 rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.36)]">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
                 Audit Trail
               </div>
               <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white">
                 Protocol decisions, recorded transparently
               </h2>
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-slate-300">
               {auditEntries.length} entries
             </div>
           </div>
 
           {auditEntries.length === 0 ? (
-            <div className="rounded-[1.5rem] border border-white/8 bg-black/15 px-5 py-8 text-sm leading-7 text-slate-400">
+            <div className="rounded-[1.5rem] border border-white/8 bg-black/15 px-5 py-8 text-sm leading-7 text-slate-300">
               No decisions recorded yet. Once the agent starts spending, each approval and denial will appear here as an on-chain audit record.
             </div>
           ) : (
             <div className="overflow-x-auto rounded-[1.5rem] border border-white/8 bg-black/10">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-left text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                  <tr className="border-b border-white/8 text-left text-[11px] uppercase tracking-[0.24em] text-slate-300">
                     <th className="px-4 py-4">Status</th>
                     <th className="px-4 py-4">Amount</th>
                     <th className="px-4 py-4">Target</th>
@@ -459,13 +459,13 @@ export default function WalletDetailPage({
                       <td className="px-4 py-4 font-mono text-slate-300">
                         {shortenAddress(entry.targetProgram.toBase58(), 6)}
                       </td>
-                      <td className="px-4 py-4 text-slate-400">
+                      <td className="px-4 py-4 text-slate-300">
                         {DENIAL_REASONS[entry.denialReason] || `Code ${entry.denialReason}`}
                       </td>
-                      <td className="max-w-[260px] px-4 py-4 text-slate-400">
+                      <td className="max-w-[260px] px-4 py-4 text-slate-300">
                         <span className="block truncate">{entry.memo || "—"}</span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-slate-500">
+                      <td className="px-4 py-4 whitespace-nowrap text-slate-300">
                         {new Date(entry.timestamp.toNumber() * 1000).toLocaleString()}
                       </td>
                     </tr>
@@ -493,14 +493,14 @@ function Metric({
     tone === "cyan"
       ? "border-cyan-400/12 bg-cyan-400/10 text-cyan-200"
       : tone === "emerald"
-      ? "border-emerald-400/12 bg-emerald-400/10 text-emerald-200"
+      ? "border-emerald-400/12 bg-emerald-400/10 text-emerald-100"
       : tone === "red"
-      ? "border-red-500/12 bg-red-500/10 text-red-200"
+      ? "border-red-500/12 bg-red-500/10 text-red-100"
       : "border-white/8 bg-white/[0.03] text-white";
 
   return (
     <div className={`rounded-[1.5rem] border p-4 ${toneClass}`}>
-      <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">{label}</div>
+      <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">{label}</div>
       <div className="mt-2 text-xl font-semibold tracking-[-0.04em] text-white">{value}</div>
     </div>
   );
@@ -509,7 +509,7 @@ function Metric({
 function InfoPanel({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
-      <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">{label}</div>
+      <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">{label}</div>
       <div className="mt-2 text-sm text-white">{value}</div>
     </div>
   );
@@ -527,7 +527,7 @@ function ActionCard({
   return (
     <div className="rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
       <div className="text-sm font-semibold text-white">{title}</div>
-      <p className="mt-2 mb-4 text-sm leading-7 text-slate-400">{desc}</p>
+      <p className="mt-2 mb-4 text-sm leading-7 text-slate-300">{desc}</p>
       {children}
     </div>
   );
@@ -536,7 +536,7 @@ function ActionCard({
 function MiniRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/15 px-4 py-3 text-sm">
-      <span className="text-slate-400">{label}</span>
+      <span className="text-slate-300">{label}</span>
       <span className="font-medium text-white">{value}</span>
     </div>
   );
@@ -676,7 +676,7 @@ function PolicyEditor({
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
           {error}
         </div>
       )}
@@ -703,10 +703,10 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+      <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
         {label}
       </div>
-      {helper && <div className="mb-2 text-xs text-slate-500">{helper}</div>}
+      {helper && <div className="mb-2 text-xs text-slate-300">{helper}</div>}
       {children}
     </label>
   );

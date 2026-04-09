@@ -39,13 +39,13 @@ export default function DashboardPage() {
               height={80}
               className="mx-auto mb-6 rounded-2xl ring-1 ring-white/10"
             />
-            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
               Dashboard Access
             </div>
             <h2 className="mb-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-          Connect Your Wallet
+              Connect Your Wallet
             </h2>
-            <p className="mb-8 max-w-md text-center leading-7 text-slate-400">
+            <p className="mb-8 max-w-md text-center leading-7 text-slate-300">
               Connect a Solana wallet to access your smart-wallet control
               surface, funding rails, and policy management flows.
             </p>
@@ -66,24 +66,24 @@ export default function DashboardPage() {
       <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="tavsin-fade-up">
-            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
               Protocol Dashboard
             </div>
             <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
               Manage agent capital like an operator, not a spectator.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300">
               View wallet state, monitor approvals, control freeze status, and
               create new capital mandates for autonomous agents.
             </p>
             <div className="mt-5 flex flex-wrap gap-3 text-xs text-slate-400">
-              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+              <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 uppercase tracking-[0.22em] text-slate-300">
                 {policyCount}/{wallets.length || 0} wallets with policies
               </div>
-              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+              <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 uppercase tracking-[0.22em] text-slate-300">
                 {trackerCount}/{wallets.length || 0} wallets with live trackers
               </div>
-              <div className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 uppercase tracking-[0.22em]">
+              <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 uppercase tracking-[0.22em] text-slate-300">
                 {lastSyncedAt ? `Synced ${new Date(lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Syncing live state"}
               </div>
             </div>
@@ -91,13 +91,13 @@ export default function DashboardPage() {
           <div className="tavsin-fade-up tavsin-delay-1 flex flex-col gap-3">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
+              className="rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-300 to-sky-400 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
             >
               Create Wallet
             </button>
             <button
               onClick={refresh}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/6"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8"
             >
               Refresh Live Data
             </button>

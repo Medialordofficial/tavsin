@@ -38,7 +38,7 @@ export default function Navbar() {
                 <div className="bg-gradient-to-r from-cyan-300 via-sky-400 to-amber-300 bg-clip-text text-xl font-semibold tracking-[-0.04em] text-transparent">
                   TavSin
                 </div>
-                <div className="hidden text-[10px] uppercase tracking-[0.28em] text-slate-500 sm:block">
+                <div className="hidden text-[10px] uppercase tracking-[0.28em] text-slate-300 sm:block">
                   Agent Wallet Protocol
                 </div>
               </div>
@@ -51,7 +51,7 @@ export default function Navbar() {
                   className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
                     pathname === link.href
                       ? "bg-white text-slate-950"
-                      : "text-slate-400 hover:bg-white/6 hover:text-white"
+                      : "text-slate-300 hover:bg-white/6 hover:text-white"
                   }`}
                 >
                   {link.label}

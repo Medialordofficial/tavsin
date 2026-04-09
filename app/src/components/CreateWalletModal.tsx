@@ -111,7 +111,7 @@ export default function CreateWalletModal({
       <div className="tavsin-fade-up w-full max-w-lg rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.96),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.45)]">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-300">
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-200">
               Wallet Creation
             </div>
             <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
@@ -123,7 +123,7 @@ export default function CreateWalletModal({
               onClose();
               resetForm();
             }}
-            className="text-2xl leading-none text-slate-400 transition-colors hover:text-white"
+            className="text-2xl leading-none text-slate-300 transition-colors hover:text-white"
           >
             ×
           </button>
@@ -178,7 +178,7 @@ export default function CreateWalletModal({
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-300">
               Allowed Programs{" "}
-              <span className="text-slate-500">(one per line, leave empty for all)</span>
+              <span className="text-slate-300">(one per line, leave empty for all)</span>
             </label>
             <textarea
               value={allowedPrograms}
@@ -193,7 +193,7 @@ export default function CreateWalletModal({
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-300">
                 Time Window Start{" "}
-                <span className="text-slate-500">(hour UTC)</span>
+                <span className="text-slate-300">(hour UTC)</span>
               </label>
               <input
                 type="number"
@@ -208,7 +208,7 @@ export default function CreateWalletModal({
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-300">
                 Time Window End{" "}
-                <span className="text-slate-500">(hour UTC)</span>
+                <span className="text-slate-300">(hour UTC)</span>
               </label>
               <input
                 type="number"

@@ -2,7 +2,7 @@
 
 :root {
   --background: #0a0f1e;
-  --foreground: #e2e8f0;
+  --foreground: #f8fafc;
   --accent: #38bdf8;
   --accent-amber: #f59e0b;
   --card: #111827;
@@ -26,6 +26,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
@@ -67,9 +69,9 @@ body {
 
 /* Wallet adapter overrides */
 .wallet-adapter-button {
-  background: linear-gradient(135deg, #f8fafc, #cbd5e1) !important;
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1) !important;
   color: #020617 !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   border-radius: 16px !important;
   font-weight: 600 !important;
   height: 44px !important;

@@ -35,7 +35,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
     >
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <div className="mb-1 text-[11px] uppercase tracking-[0.24em] text-slate-500">
+          <div className="mb-1 text-[11px] uppercase tracking-[0.24em] text-slate-300">
             Wallet PDA
           </div>
           <div className="font-mono text-sm text-white">
@@ -55,22 +55,22 @@ export default function WalletCard({ wallet }: WalletCardProps) {
 
       <div className="mb-5 grid grid-cols-3 gap-4 rounded-[1.25rem] border border-white/7 bg-black/15 p-4">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">
             Balance
           </div>
           <div className="mt-2 text-lg font-semibold text-white">
             {balance.toFixed(4)}
-            <span className="ml-1 text-sm text-slate-400">SOL</span>
+            <span className="ml-1 text-sm text-slate-300">SOL</span>
           </div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">
             Transactions
           </div>
           <div className="mt-2 text-lg font-semibold text-white">{totalTx}</div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">
             Approval Rate
           </div>
           <div className="mt-2 text-lg font-semibold text-white">
@@ -80,7 +80,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
       </div>
 
       <div className="mb-5 space-y-3 rounded-[1.25rem] border border-white/7 bg-black/15 p-4">
-        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-500">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-300">
           <span>Policy Envelope</span>
           <span>{policy ? "On-chain" : "Not set"}</span>
         </div>
@@ -88,7 +88,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
           <>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">
                   Max / Tx
                 </div>
                 <div className="mt-1 text-white">
@@ -96,7 +96,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-slate-300">
                   Daily Cap
                 </div>
                 <div className="mt-1 text-white">
@@ -104,7 +104,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-400">
+            <div className="flex items-center justify-between text-sm text-slate-300">
               <span>
                 {policy.allowedPrograms.length === 0
                   ? "All programs"
@@ -114,7 +114,7 @@ export default function WalletCard({ wallet }: WalletCardProps) {
             </div>
             {utilization !== null && (
               <div>
-                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-300">
                   <span>Daily utilization</span>
                   <span>{utilization.toFixed(0)}%</span>
                 </div>
@@ -128,17 +128,17 @@ export default function WalletCard({ wallet }: WalletCardProps) {
             )}
           </>
         ) : (
-          <p className="text-sm leading-6 text-slate-400">
+          <p className="text-sm leading-6 text-slate-300">
             No policy account found. Create or sync the wallet to enable live spending controls.
           </p>
         )}
       </div>
 
       <div className="flex items-center justify-between text-sm">
-        <div className="text-slate-400">
+        <div className="text-slate-300">
           Agent: <span className="font-mono text-slate-300">{shortenAddress(account.agent.toBase58())}</span>
         </div>
-        <div className="text-cyan-300 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="text-cyan-200 opacity-0 transition-opacity group-hover:opacity-100">
           Manage →
         </div>
       </div>
