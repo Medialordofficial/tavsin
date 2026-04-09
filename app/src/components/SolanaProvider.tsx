@@ -11,13 +11,33 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import {
+  SolanaMobileWalletAdapter,
+  createDefaultAddressSelector,
+  createDefaultAuthorizationResultCache,
+  createDefaultWalletNotFoundHandler,
+} from "@solana-mobile/wallet-adapter-mobile";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const SolanaProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const endpoint = useMemo(() => clusterApiUrl("devnet"), []);
   const wallets = useMemo(
-    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new SolanaMobileWalletAdapter({
+        addressSelector: createDefaultAddressSelector(),
+        appIdentity: {
+          name: "TavSin",
+          uri: "https://tavsin.xyz",
+          icon: "/logo.png",
+        },
+        authorizationResultCache: createDefaultAuthorizationResultCache(),
+        chain: "devnet",
+        onWalletNotFound: createDefaultWalletNotFoundHandler(),
+      }),
+    ],
     []
   );
 
