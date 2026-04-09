@@ -77,12 +77,37 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_80%_12%,rgba(245,158,11,0.16),transparent_22%),linear-gradient(180deg,rgba(10,15,30,0.92),rgba(10,15,30,1))]" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
         <div className="absolute left-0 right-0 top-24 h-[420px] tavsin-grid-mask" />
+        <div className="tavsin-drift absolute -left-24 top-24 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="tavsin-drift absolute right-[-4rem] top-36 h-72 w-72 rounded-full bg-amber-300/10 blur-3xl [animation-delay:1.8s]" />
+      </div>
+
+      <div className="relative border-b border-white/8 bg-white/[0.02]">
+        <div className="overflow-hidden py-3">
+          <div className="tavsin-marquee-track flex w-[200%] items-center gap-8 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-300">
+            {Array.from({ length: 2 }).map((_, groupIndex) => (
+              <div key={groupIndex} className="flex items-center gap-8">
+                {[
+                  "Policy enforced wallet custody",
+                  "Agent spend limits",
+                  "On-chain audit records",
+                  "Freeze and recovery controls",
+                  "Solana devnet live",
+                ].map((item) => (
+                  <span key={`${groupIndex}-${item}`} className="flex items-center gap-8">
+                    <span className="text-cyan-200">{item}</span>
+                    <span className="h-1 w-1 rounded-full bg-amber-300/80" />
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <section className="relative mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6 lg:px-8 lg:pt-16">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-          <div>
-            <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300 shadow-[0_0_40px_rgba(56,189,248,0.08)]">
+          <div className="tavsin-fade-up">
+            <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200 shadow-[0_0_40px_rgba(56,189,248,0.08)]">
               TavSin Protocol
               <span className="h-1 w-1 rounded-full bg-cyan-300" />
               Autonomous finance control layer
@@ -95,26 +120,26 @@ export default function Home() {
                 width={88}
                 height={88}
                 priority
-                className="rounded-2xl ring-1 ring-white/10 shadow-[0_0_60px_rgba(56,189,248,0.12)]"
+                className="tavsin-fade-scale rounded-2xl ring-1 ring-white/10 shadow-[0_0_60px_rgba(56,189,248,0.12)]"
               />
               <div>
-                <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                <div className="text-xs uppercase tracking-[0.3em] text-slate-300">
                   Solana Devnet Live
                 </div>
-                <div className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
+                <div className="mt-2 max-w-xl text-2xl font-semibold leading-tight text-white sm:text-3xl">
                   The operating system for agent wallets
                 </div>
               </div>
             </div>
 
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.92] tracking-[-0.05em] text-white sm:text-7xl lg:text-[5.5rem]">
+            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.92] tracking-[-0.05em] text-white sm:text-7xl lg:text-[5.5rem] tavsin-fade-scale">
               Risk rails for
               <span className="block bg-gradient-to-r from-cyan-300 via-sky-400 to-amber-300 bg-clip-text text-transparent">
                 autonomous capital
               </span>
             </h1>
 
-            <p className="mt-8 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+            <p className="mt-8 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
               TavSin gives AI agents controlled on-chain spending without giving
               them uncontrolled custody. Think protocol-grade wallet
               infrastructure, not a generic AI landing page. Capital stays in a
@@ -125,7 +150,7 @@ export default function Home() {
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center justify-center rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
+                className="tavsin-shimmer inline-flex items-center justify-center rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
               >
                 Enter Protocol App
               </Link>
@@ -143,7 +168,7 @@ export default function Home() {
               {rails.map((item) => (
                 <div
                   key={item}
-                  className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300 backdrop-blur-sm"
+                  className="tavsin-fade-up flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-200 backdrop-blur-sm"
                 >
                   <span className="inline-block h-2.5 w-2.5 rounded-full bg-gradient-to-r from-cyan-300 to-amber-300 shadow-[0_0_18px_rgba(56,189,248,0.8)]" />
                   {item}
@@ -152,12 +177,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-b from-cyan-400/10 via-transparent to-amber-300/10 blur-2xl" />
+          <div className="relative tavsin-fade-scale">
+            <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-b from-cyan-400/10 via-transparent to-amber-300/10 blur-2xl tavsin-glow-pulse" />
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.92),rgba(11,17,32,0.98))] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.45)]">
               <div className="mb-5 flex items-center justify-between border-b border-white/8 pb-4">
                 <div>
-                  <div className="text-[11px] uppercase tracking-[0.26em] text-slate-500">
+                  <div className="text-[11px] uppercase tracking-[0.26em] text-slate-300">
                     Capital Control Surface
                   </div>
                   <div className="mt-2 text-xl font-semibold text-white">
@@ -178,9 +203,9 @@ export default function Home() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-white/8 bg-black/20 p-4"
+                    className="rounded-2xl border border-white/8 bg-black/20 p-4 transition-transform duration-300 hover:-translate-y-0.5"
                   >
-                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-300">
                       {label}
                     </div>
                     <div className="mt-3 text-lg font-semibold text-white">
@@ -193,7 +218,7 @@ export default function Home() {
               <div className="mt-5 rounded-[1.5rem] border border-cyan-400/15 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_34%),rgba(255,255,255,0.025)] p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-300">
                       Core thesis
                     </div>
                     <div className="mt-2 text-lg font-semibold text-white">
@@ -201,7 +226,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                    <div className="text-[11px] uppercase tracking-[0.24em] text-slate-300">
                       Auditability
                     </div>
                     <div className="mt-2 text-lg font-semibold text-cyan-300">
@@ -218,9 +243,9 @@ export default function Home() {
                   ].map(([label, value]) => (
                     <div
                       key={label}
-                      className="flex items-center justify-between rounded-xl border border-white/7 bg-black/20 px-4 py-3 text-sm"
+                      className="flex items-center justify-between rounded-xl border border-white/7 bg-black/20 px-4 py-3 text-sm transition-colors hover:border-cyan-300/20"
                     >
-                      <span className="text-slate-400">{label}</span>
+                      <span className="text-slate-200">{label}</span>
                       <span className="font-medium text-white">{value}</span>
                     </div>
                   ))}
@@ -229,10 +254,10 @@ export default function Home() {
 
               <div className="mt-5 rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
                 <div className="mb-4 flex items-center justify-between">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                  <div className="text-[11px] uppercase tracking-[0.24em] text-slate-300">
                     Launch access
                   </div>
-                  <div className="text-xs text-slate-500">Connect on devnet</div>
+                  <div className="text-xs text-slate-300">Connect on devnet</div>
                 </div>
                 <WalletMultiButton />
               </div>
@@ -252,7 +277,7 @@ export default function Home() {
                 Designed like infrastructure, not marketing theatre.
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-7 text-slate-400 sm:text-base">
+            <p className="max-w-xl text-sm leading-7 text-slate-200 sm:text-base">
               The best crypto protocol homepages feel like they are exposing an
               operating model. TavSin should do the same: clear system design,
               visible risk posture, and credible execution language.
@@ -263,15 +288,15 @@ export default function Home() {
             {operatingModel.map((item) => (
               <div
                 key={item.index}
-                className="relative overflow-hidden rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-6 transition-colors hover:border-cyan-300/20"
+                className="relative overflow-hidden rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20"
               >
-                <div className="mb-5 text-5xl font-semibold tracking-[-0.06em] text-white/10">
+                <div className="mb-5 text-5xl font-semibold tracking-[-0.06em] text-white/12">
                   {item.index}
                 </div>
                 <h3 className="mb-3 text-xl font-semibold text-white">
                   {item.title}
                 </h3>
-                <p className="leading-7 text-slate-400">{item.desc}</p>
+                <p className="leading-7 text-slate-200">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -282,14 +307,14 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-14 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
+              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
                 Control Modules
               </div>
               <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
                 Every wallet behaves like a programmable mandate.
               </h2>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
+            <p className="max-w-2xl text-sm leading-7 text-slate-200 sm:text-base">
               Instead of selling abstract “AI safety”, TavSin defines concrete
               financial controls at the wallet layer. That is what makes the
               product feel credible in a crypto context.
@@ -300,15 +325,15 @@ export default function Home() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 transition-all hover:-translate-y-1 hover:border-cyan-300/20"
+                className="group rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20"
               >
-                <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500 transition-colors group-hover:text-cyan-300">
+                <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-300 transition-colors group-hover:text-cyan-200">
                   {f.eyebrow}
                 </div>
                 <h3 className="mb-3 text-xl font-semibold text-white">
                   {f.title}
                 </h3>
-                <p className="text-sm leading-7 text-slate-400">{f.desc}</p>
+                <p className="text-sm leading-7 text-slate-200">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -386,7 +411,7 @@ export default function Home() {
                       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300">
                         {title}
                       </div>
-                      <div className="mt-2 text-sm leading-6 text-slate-400">
+                      <div className="mt-2 text-sm leading-6 text-slate-200">
                         {text}
                       </div>
                     </div>
@@ -438,7 +463,7 @@ export default function Home() {
                 <div className="sm:col-span-2 rounded-2xl border border-white/8 bg-black/18 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-300">
                         Status
                       </div>
                       <div className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
@@ -449,7 +474,7 @@ export default function Home() {
                       Operational
                     </div>
                   </div>
-                  <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+                  <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200">
                     <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">PDA custody</span>
                     <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">Policy checks</span>
                     <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">On-chain audit</span>
@@ -459,7 +484,7 @@ export default function Home() {
             </div>
 
             <div className="mt-10 border-t border-white/8 pt-6">
-              <div className="flex flex-col gap-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 text-sm text-slate-300 sm:flex-row sm:items-center sm:justify-between">
                 <div>© 2026 TavSin Protocol</div>
                 <div className="flex flex-wrap gap-4">
                   <span>Built for autonomous finance</span>

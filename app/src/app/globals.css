@@ -67,6 +67,95 @@ body {
   }
 }
 
+.tavsin-fade-scale {
+  animation: tavsin-fade-scale 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tavsin-glow-pulse {
+  animation: tavsin-glow-pulse 6s ease-in-out infinite;
+}
+
+.tavsin-drift {
+  animation: tavsin-drift 12s ease-in-out infinite alternate;
+}
+
+.tavsin-marquee-track {
+  animation: tavsin-marquee 24s linear infinite;
+}
+
+.tavsin-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.tavsin-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  animation: tavsin-shimmer 2.8s ease-in-out infinite;
+}
+
+@keyframes tavsin-fade-scale {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tavsin-glow-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes tavsin-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(20px, -14px, 0) scale(1.06);
+  }
+}
+
+@keyframes tavsin-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes tavsin-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  60% {
+    transform: translateX(120%);
+  }
+
+  100% {
+    transform: translateX(120%);
+  }
+}
+
 /* Wallet adapter overrides */
 .wallet-adapter-button {
   background: linear-gradient(135deg, #e2e8f0, #cbd5e1) !important;
