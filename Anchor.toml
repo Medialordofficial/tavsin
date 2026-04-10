@@ -14,6 +14,12 @@ bind_address = "127.0.0.1"
 [programs.localnet]
 tavsin = "2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy"
 
+[programs.devnet]
+tavsin = "2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy"
+
+[programs.mainnet]
+tavsin = "2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy"
+
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"

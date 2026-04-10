@@ -91,10 +91,16 @@ describe("tavsin requests", () => {
       .signers([fixture.agent])
       .rpc();
 
-    const executedRequest = await program.account.executionRequest.fetch(requestPda);
-    const assetTracker = await program.account.assetSpendTracker.fetch(assetTrackerPda);
+    const executedRequest = await program.account.executionRequest.fetch(
+      requestPda
+    );
+    const assetTracker = await program.account.assetSpendTracker.fetch(
+      assetTrackerPda
+    );
     expect(executedRequest.status).to.equal(3);
-    expect(assetTracker.spentInPeriod.toNumber()).to.equal(0.25 * LAMPORTS_PER_SOL);
+    expect(assetTracker.spentInPeriod.toNumber()).to.equal(
+      0.25 * LAMPORTS_PER_SOL
+    );
   });
 
   it("submits a pending request, approves it, and executes it", async () => {
@@ -178,7 +184,9 @@ describe("tavsin requests", () => {
       .signers([fixture.agent])
       .rpc();
 
-    const executedRequest = await program.account.executionRequest.fetch(requestPda);
+    const executedRequest = await program.account.executionRequest.fetch(
+      requestPda
+    );
     expect(executedRequest.status).to.equal(3);
   });
 
@@ -246,7 +254,9 @@ describe("tavsin requests", () => {
       })
       .rpc();
 
-    const rejectedRequest = await program.account.executionRequest.fetch(requestPda);
+    const rejectedRequest = await program.account.executionRequest.fetch(
+      requestPda
+    );
     expect(rejectedRequest.status).to.equal(2);
   });
 
@@ -257,13 +267,7 @@ describe("tavsin requests", () => {
     const accountsHash = hashRemainingAccounts([]);
 
     await program.methods
-      .upsertCounterpartyPolicy(
-        true,
-        true,
-        null,
-        null,
-        [nativeMint]
-      )
+      .upsertCounterpartyPolicy(true, true, null, null, [nativeMint])
       .accounts({
         owner: owner.publicKey,
         wallet: fixture.walletPda,
@@ -299,7 +303,9 @@ describe("tavsin requests", () => {
       .signers([fixture.agent])
       .rpc();
 
-    const pendingRequest = await program.account.executionRequest.fetch(requestPda);
+    const pendingRequest = await program.account.executionRequest.fetch(
+      requestPda
+    );
     expect(pendingRequest.status).to.equal(0);
   });
 
@@ -355,7 +361,9 @@ describe("tavsin requests", () => {
       .signers([fixture.agent])
       .rpc();
 
-    const pendingRequest = await program.account.executionRequest.fetch(requestPda);
+    const pendingRequest = await program.account.executionRequest.fetch(
+      requestPda
+    );
     expect(pendingRequest.status).to.equal(0);
   });
 

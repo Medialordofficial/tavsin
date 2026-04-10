@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useState } from "react";
+import { use, useCallback, useMemo, useState } from "react";
 import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { BN } from "@coral-xyz/anchor";
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
@@ -17,14 +17,17 @@ import {
   getAuditPda,
   getCounterpartyPolicyPda,
   getPolicyPda,
-  getProgram,
   getRequestPda,
+  type MintRuleData,
+  type PolicyAccountData,
   NATIVE_MINT,
   REQUEST_STATUSES,
   SPL_TOKEN_PROGRAM_ID,
   shortenAddress,
-} from "@/lib/program";
+} from "@tavsin/sdk";
+import { getProgram } from "@/lib/program";
 import { useCounterpartyPolicies, useWalletDetail } from "@/hooks/useTavsin";
+import { getErrorMessage } from "@/lib/errors";
 
 export default function WalletDetailPage({
   params,
@@ -38,14 +41,21 @@ export default function WalletDetailPage({
   const {
     walletAccount,
     policy,
-    tracker,
     nativeAssetTracker,
     auditEntries,
     requests,
     pendingRequests,
+    auditCount,
+    requestCount,
+    hasMoreAuditEntries,
+    hasMoreRequests,
+    loadingMoreAuditEntries,
+    loadingMoreRequests,
     loading,
     error,
     refresh,
+    loadMoreAuditEntries,
+    loadMoreRequests,
   } = useWalletDetail(address);
   const {
     policies: counterpartyPolicies,
@@ -82,7 +92,7 @@ export default function WalletDetailPage({
   const [txError, setTxError] = useState<string | null>(null);
   const [txSuccess, setTxSuccess] = useState<string | null>(null);
 
-  const walletPubkey = new PublicKey(address);
+  const walletPubkey = useMemo(() => new PublicKey(address), [address]);
 
   const clearMessages = () => {
     setTxError(null);
@@ -113,8 +123,8 @@ export default function WalletDetailPage({
       setTxSuccess(`Funded ${fundAmount} SOL`);
       setFundAmount("");
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Funding failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Funding failed"));
     } finally {
       setTxPending(null);
     }
@@ -143,8 +153,8 @@ export default function WalletDetailPage({
       setTxSuccess(`Withdrew ${withdrawAmount} SOL`);
       setWithdrawAmount("");
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Withdrawal failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Withdrawal failed"));
     } finally {
       setTxPending(null);
     }
@@ -183,12 +193,12 @@ export default function WalletDetailPage({
       }
 
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Action failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Action failed"));
     } finally {
       setTxPending(null);
     }
-  }, [anchorWallet, connection, publicKey, refresh, walletAccount, walletAccount?.account.frozen, walletPubkey]);
+  }, [anchorWallet, connection, publicKey, refresh, walletAccount, walletPubkey]);
 
   const handleSubmitNativeRequest = useCallback(async () => {
     if (
@@ -215,20 +225,6 @@ export default function WalletDetailPage({
       const expiresAt = requestExpiryMinutes
         ? new BN(Math.floor(Date.now() / 1000) + parseInt(requestExpiryMinutes, 10) * 60)
         : null;
-      const submitAccounts = {
-        agent: anchorWallet.publicKey,
-        wallet: walletPubkey,
-        policy: getPolicyPda(walletPubkey)[0],
-        request: requestPda,
-        auditEntry: auditEntryPda,
-        recipient,
-        assetMint: NATIVE_MINT,
-        assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
-        targetProgram: payload.targetProgram,
-        systemProgram: SystemProgram.programId,
-      } as any;
-
       await program.methods
         .submitRequest(
           amount,
@@ -237,7 +233,18 @@ export default function WalletDetailPage({
           payload.accountsHash,
           expiresAt
         )
-        .accounts(submitAccounts)
+        .accounts({
+          agent: anchorWallet.publicKey,
+          wallet: walletPubkey,
+          policy: getPolicyPda(walletPubkey)[0],
+          request: requestPda,
+          auditEntry: auditEntryPda,
+          recipient,
+          assetMint: NATIVE_MINT,
+          assetTracker: assetTrackerPda,
+          targetProgram: payload.targetProgram,
+          systemProgram: SystemProgram.programId,
+        })
         .rpc();
 
       setTxSuccess(`Submitted request for ${requestAmount} SOL`);
@@ -246,8 +253,8 @@ export default function WalletDetailPage({
       setRequestMemo("");
       setRequestExpiryMinutes("");
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Request submission failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Request submission failed"));
     } finally {
       setTxPending(null);
     }
@@ -346,8 +353,8 @@ export default function WalletDetailPage({
       setSplSourceTokenAccount("");
       setSplDestinationTokenAccount("");
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "SPL request submission failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "SPL request submission failed"));
     } finally {
       setTxPending(null);
     }
@@ -394,8 +401,8 @@ export default function WalletDetailPage({
 
       setTxSuccess(`Approved request #${requestId}`);
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Approve request failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Approve request failed"));
     } finally {
       setTxPending(null);
     }
@@ -427,8 +434,8 @@ export default function WalletDetailPage({
 
       setTxSuccess(`Rejected request #${requestId}`);
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Reject request failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Reject request failed"));
     } finally {
       setTxPending(null);
     }
@@ -470,8 +477,8 @@ export default function WalletDetailPage({
 
       setTxSuccess(`Executed request #${requestId}`);
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Execute request failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Execute request failed"));
     } finally {
       setTxPending(null);
     }
@@ -526,8 +533,8 @@ export default function WalletDetailPage({
         return next;
       });
       refresh();
-    } catch (err: any) {
-      setTxError(err.message || "Execute SPL request failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Execute SPL request failed"));
     } finally {
       setTxPending(null);
     }
@@ -573,7 +580,7 @@ export default function WalletDetailPage({
     try {
       const program = getProgram(connection, anchorWallet);
       const recipient = new PublicKey(counterpartyRecipient.trim());
-      const policyAccount = await fetchCounterpartyPolicy(program as any, walletPubkey, recipient);
+      const policyAccount = await fetchCounterpartyPolicy(program, walletPubkey, recipient);
 
       if (!policyAccount) {
         populateCounterpartyForm(recipient.toBase58(), null);
@@ -583,8 +590,8 @@ export default function WalletDetailPage({
 
       populateCounterpartyForm(recipient.toBase58(), policyAccount);
       setCounterpartyMessage("Loaded existing counterparty override.");
-    } catch (err: any) {
-      setCounterpartyMessage(err.message || "Unable to load counterparty policy");
+    } catch (err: unknown) {
+      setCounterpartyMessage(getErrorMessage(err, "Unable to load counterparty policy"));
     } finally {
       setCounterpartyBusy(false);
     }
@@ -631,14 +638,15 @@ export default function WalletDetailPage({
       setCounterpartyMessage("Counterparty override saved.");
       refresh();
       refreshCounterpartyPolicies();
-    } catch (err: any) {
-      setTxError(err.message || "Counterparty policy update failed");
+    } catch (err: unknown) {
+      setTxError(getErrorMessage(err, "Counterparty policy update failed"));
     } finally {
       setCounterpartyBusy(false);
       setTxPending(null);
     }
   }, [
     anchorWallet,
+    connection,
     counterpartyAllowedMints,
     counterpartyDailyLimit,
     counterpartyEnabled,
@@ -726,6 +734,9 @@ export default function WalletDetailPage({
       !request.assetMint.equals(NATIVE_MINT) &&
       request.targetProgram.equals(SPL_TOKEN_PROGRAM_ID)
   );
+  const rejectedRequests = requests.filter((request) => request.status === 2);
+  const executedRequests = requests.filter((request) => request.status === 3);
+  const expiredRequests = requests.filter((request) => request.status === 4);
   const normalizedCounterpartySearch = counterpartySearch.trim().toLowerCase();
   const filteredCounterpartyPolicies = counterpartyPolicies.filter((policyAccount) => {
     if (!normalizedCounterpartySearch) {
@@ -1009,34 +1020,60 @@ export default function WalletDetailPage({
                 Policy Envelope
               </div>
               {policy ? (
-                <div className="space-y-4">
-                  <MiniRow label="Max / Tx" value={`${(policy.maxPerTx.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL`} />
-                  <MiniRow label="Daily Budget" value={`${(policy.maxDaily.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL`} />
-                  <MiniRow
-                    label="Allowed Programs"
-                    value={policy.allowedPrograms.length === 0 ? "All programs" : `${policy.allowedPrograms.length} allowlisted`}
-                  />
-                  <MiniRow
-                    label="Allowed Recipients"
-                    value={policy.allowedRecipients.length === 0 ? "Open set" : `${policy.allowedRecipients.length} allowlisted`}
-                  />
-                  <MiniRow
-                    label="Blocked Mints"
-                    value={policy.blockedMints.length === 0 ? "None" : `${policy.blockedMints.length} blocked`}
-                  />
-                  <MiniRow
-                    label="Approval Threshold"
-                    value={policy.approvalThreshold ? `${(policy.approvalThreshold.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL` : "Disabled"}
-                  />
-                  <MiniRow
-                    label="Time Window"
-                    value={
-                      policy.timeWindowStart && policy.timeWindowEnd
-                        ? `${Math.floor(policy.timeWindowStart.toNumber() / 3600)}:00 - ${Math.floor(policy.timeWindowEnd.toNumber() / 3600)}:00 UTC`
-                        : "24/7"
-                    }
-                  />
-                </div>
+                <>
+                  <div className="space-y-4">
+                    <MiniRow label="Max / Tx" value={`${(policy.maxPerTx.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL`} />
+                    <MiniRow label="Daily Budget" value={`${(policy.maxDaily.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL`} />
+                    <MiniRow
+                      label="Allowed Programs"
+                      value={policy.allowedPrograms.length === 0 ? "All programs" : `${policy.allowedPrograms.length} allowlisted`}
+                    />
+                    <MiniRow
+                      label="Allowed Recipients"
+                      value={policy.allowedRecipients.length === 0 ? "Open set" : `${policy.allowedRecipients.length} allowlisted`}
+                    />
+                    <MiniRow
+                      label="Blocked Mints"
+                      value={policy.blockedMints.length === 0 ? "None" : `${policy.blockedMints.length} blocked`}
+                    />
+                    <MiniRow
+                      label="Approval Threshold"
+                      value={policy.approvalThreshold ? `${(policy.approvalThreshold.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL` : "Disabled"}
+                    />
+                    <MiniRow
+                      label="Mint Rules"
+                      value={policy.mintRules.length === 0 ? "No asset-specific overrides" : `${policy.mintRules.length} asset rules`}
+                    />
+                    <MiniRow
+                      label="Time Window"
+                      value={
+                        policy.timeWindowStart && policy.timeWindowEnd
+                          ? `${Math.floor(policy.timeWindowStart.toNumber() / 3600)}:00 - ${Math.floor(policy.timeWindowEnd.toNumber() / 3600)}:00 UTC`
+                          : "24/7"
+                      }
+                    />
+                  </div>
+
+                  {policy.mintRules.length > 0 && (
+                    <div className="mt-5 space-y-3 rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                        Asset Rule Overrides
+                      </div>
+                      {policy.mintRules.map((rule) => (
+                        <div key={rule.mint.toBase58()} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm">
+                          <div className="font-mono text-xs text-white">{shortenAddress(rule.mint.toBase58(), 6)}</div>
+                          <div className="mt-2 grid gap-2 text-xs text-slate-300 sm:grid-cols-3">
+                            <div>Max / tx {(rule.maxPerTx.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL</div>
+                            <div>Daily {(rule.maxDaily.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL</div>
+                            <div>
+                              Approval {rule.requireApprovalAbove ? `${(rule.requireApprovalAbove.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} SOL` : "Disabled"}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
                 <p className="text-sm leading-7 text-slate-300">Policy account not found for this wallet.</p>
               )}
@@ -1363,6 +1400,53 @@ export default function WalletDetailPage({
                 </div>
               )}
             </section>
+
+            <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.94),rgba(8,12,24,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.36)]">
+              <div className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                Request Lifecycle
+              </div>
+              <div className="mb-4 grid gap-3 sm:grid-cols-3">
+                <MiniRow label="Executed" value={executedRequests.length.toString()} />
+                <MiniRow label="Rejected" value={rejectedRequests.length.toString()} />
+                <MiniRow label="Expired" value={expiredRequests.length.toString()} />
+              </div>
+              <div className="mb-4 text-sm text-slate-300">Loaded {requests.length} of {requestCount} requests</div>
+              {requests.filter((request) => request.status !== 0).length === 0 ? (
+                <p className="text-sm leading-7 text-slate-300">No completed lifecycle events yet beyond pending review.</p>
+              ) : (
+                <div className="space-y-3">
+                  {requests
+                    .filter((request) => request.status !== 0)
+                    .slice(0, 6)
+                    .map((request) => (
+                      <div key={request.requestId.toString()} className="rounded-2xl border border-white/8 bg-black/15 px-4 py-3 text-sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium text-white">
+                            {(request.amount.toNumber() / LAMPORTS_PER_SOL).toFixed(4)} {request.assetMint.equals(NATIVE_MINT) ? "SOL" : "asset"}
+                          </span>
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                            {REQUEST_STATUSES[request.status] || `Status ${request.status}`}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-xs text-slate-300">{request.memo || "No memo"}</div>
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs font-mono text-slate-400">
+                          <span>{shortenAddress(request.recipient.toBase58(), 6)}</span>
+                          {request.reviewedAt && <span>{new Date(request.reviewedAt.toNumber() * 1000).toLocaleString()}</span>}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+              {hasMoreRequests && (
+                <button
+                  onClick={loadMoreRequests}
+                  disabled={loadingMoreRequests}
+                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8 disabled:opacity-50"
+                >
+                  {loadingMoreRequests ? "Loading requests..." : "Load More Requests"}
+                </button>
+              )}
+            </section>
           </aside>
         </div>
 
@@ -1377,7 +1461,7 @@ export default function WalletDetailPage({
               </h2>
             </div>
             <div className="text-sm text-slate-300">
-              {auditEntries.length} entries
+              {auditEntries.length} of {auditCount} entries
             </div>
           </div>
 
@@ -1425,6 +1509,17 @@ export default function WalletDetailPage({
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          {hasMoreAuditEntries && (
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={loadMoreAuditEntries}
+                disabled={loadingMoreAuditEntries}
+                className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8 disabled:opacity-50"
+              >
+                {loadingMoreAuditEntries ? "Loading audit..." : "Load More Audit"}
+              </button>
             </div>
           )}
         </section>
@@ -1495,17 +1590,38 @@ function MiniRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+type EditableMintRule = {
+  id: string;
+  mint: string;
+  maxPerTx: string;
+  maxDaily: string;
+  requireApprovalAbove: string;
+};
+
+function createEditableMintRule(rule?: MintRuleData): EditableMintRule {
+  return {
+    id: crypto.randomUUID(),
+    mint: rule?.mint.toBase58() || "",
+    maxPerTx: rule ? (rule.maxPerTx.toNumber() / LAMPORTS_PER_SOL).toString() : "",
+    maxDaily: rule ? (rule.maxDaily.toNumber() / LAMPORTS_PER_SOL).toString() : "",
+    requireApprovalAbove: rule?.requireApprovalAbove
+      ? (rule.requireApprovalAbove.toNumber() / LAMPORTS_PER_SOL).toString()
+      : "",
+  };
+}
+
 function PolicyEditor({
   address,
   currentPolicy,
   onDone,
 }: {
   address: string;
-  currentPolicy: any;
+  currentPolicy: PolicyAccountData | null;
   onDone: () => void;
 }) {
   const { connection } = useConnection();
   const anchorWallet = useAnchorWallet();
+  const walletPubkey = useMemo(() => new PublicKey(address), [address]);
 
   const [maxPerTx, setMaxPerTx] = useState(
     currentPolicy ? (currentPolicy.maxPerTx.toNumber() / LAMPORTS_PER_SOL).toString() : "0.1"
@@ -1534,6 +1650,11 @@ function PolicyEditor({
   const [timeEnd, setTimeEnd] = useState(
     currentPolicy?.timeWindowEnd ? Math.floor(currentPolicy.timeWindowEnd.toNumber() / 3600).toString() : ""
   );
+  const [mintRules, setMintRules] = useState<EditableMintRule[]>(() =>
+    currentPolicy?.mintRules?.length
+      ? currentPolicy.mintRules.map((rule: MintRuleData) => createEditableMintRule(rule))
+      : []
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1546,7 +1667,6 @@ function PolicyEditor({
       setError(null);
 
       const program = getProgram(connection, anchorWallet);
-      const walletPubkey = new PublicKey(address);
       const [policyPda] = getPolicyPda(walletPubkey);
 
       const nextAllowedPrograms = allowedPrograms
@@ -1564,6 +1684,22 @@ function PolicyEditor({
         .map((value: string) => value.trim())
         .filter(Boolean)
         .map((value: string) => new PublicKey(value));
+      const nextMintRules = mintRules
+        .filter((rule) => rule.mint.trim().length > 0)
+        .map((rule) => {
+          if (!rule.maxPerTx || !rule.maxDaily) {
+            throw new Error("Each mint rule must include a mint, max per tx, and daily limit.");
+          }
+
+          return {
+            mint: new PublicKey(rule.mint.trim()),
+            maxPerTx: new BN(Math.floor(parseFloat(rule.maxPerTx) * LAMPORTS_PER_SOL)),
+            maxDaily: new BN(Math.floor(parseFloat(rule.maxDaily) * LAMPORTS_PER_SOL)),
+            requireApprovalAbove: rule.requireApprovalAbove
+              ? new BN(Math.floor(parseFloat(rule.requireApprovalAbove) * LAMPORTS_PER_SOL))
+              : null,
+          };
+        });
 
       const nextTimeStart = timeStart ? new BN(parseInt(timeStart, 10) * 3600) : null;
       const nextTimeEnd = timeEnd ? new BN(parseInt(timeEnd, 10) * 3600) : null;
@@ -1574,10 +1710,10 @@ function PolicyEditor({
           new BN(Math.floor(parseFloat(maxDaily) * LAMPORTS_PER_SOL)),
           approvalThreshold ? new BN(Math.floor(parseFloat(approvalThreshold) * LAMPORTS_PER_SOL)) : null,
           requireApprovalForNewRecipients,
-          nextAllowedPrograms.length > 0 ? nextAllowedPrograms : null,
-          nextAllowedRecipients.length > 0 ? nextAllowedRecipients : null,
-          nextBlockedMints.length > 0 ? nextBlockedMints : null,
-          null,
+          nextAllowedPrograms,
+          nextAllowedRecipients,
+          nextBlockedMints,
+          nextMintRules,
           nextTimeStart,
           nextTimeEnd
         )
@@ -1589,8 +1725,8 @@ function PolicyEditor({
         .rpc();
 
       onDone();
-    } catch (err: any) {
-      setError(err.message || "Policy update failed");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Policy update failed"));
     } finally {
       setSubmitting(false);
     }
@@ -1660,6 +1796,101 @@ function PolicyEditor({
           className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none"
         />
       </Field>
+
+      <div className="rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+          Mint Rules
+        </div>
+        <div className="mb-3 text-xs text-slate-300">
+          Add asset-specific limits and approval thresholds for governed SPL mints or native SOL.
+        </div>
+        <div className="space-y-3">
+          {mintRules.length === 0 ? (
+            <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
+              No mint-specific overrides configured.
+            </div>
+          ) : (
+            mintRules.map((rule) => (
+              <div key={rule.id} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                <div className="grid gap-3 lg:grid-cols-[1.3fr_1fr_1fr_1fr_auto]">
+                  <input
+                    type="text"
+                    value={rule.mint}
+                    onChange={(event) =>
+                      setMintRules((current) =>
+                        current.map((entry) =>
+                          entry.id === rule.id ? { ...entry, mint: event.target.value } : entry
+                        )
+                      )
+                    }
+                    placeholder="Mint address"
+                    className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={rule.maxPerTx}
+                    onChange={(event) =>
+                      setMintRules((current) =>
+                        current.map((entry) =>
+                          entry.id === rule.id ? { ...entry, maxPerTx: event.target.value } : entry
+                        )
+                      )
+                    }
+                    placeholder="Max / tx"
+                    className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={rule.maxDaily}
+                    onChange={(event) =>
+                      setMintRules((current) =>
+                        current.map((entry) =>
+                          entry.id === rule.id ? { ...entry, maxDaily: event.target.value } : entry
+                        )
+                      )
+                    }
+                    placeholder="Daily limit"
+                    className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={rule.requireApprovalAbove}
+                    onChange={(event) =>
+                      setMintRules((current) =>
+                        current.map((entry) =>
+                          entry.id === rule.id ? { ...entry, requireApprovalAbove: event.target.value } : entry
+                        )
+                      )
+                    }
+                    placeholder="Approval above"
+                    className="w-full rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMintRules((current) => current.filter((entry) => entry.id !== rule.id))}
+                    className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-red-200 transition-colors hover:bg-red-500/15"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+          <button
+            type="button"
+            onClick={() => setMintRules((current) => [...current, createEditableMintRule()])}
+            className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100 transition-colors hover:bg-cyan-400/15"
+          >
+            Add Mint Rule
+          </button>
+        </div>
+      </div>
 
       <label className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/15 px-4 py-3 text-sm text-slate-200">
         <input

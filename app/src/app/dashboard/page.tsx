@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useWallets } from "@/hooks/useTavsin";
+import Link from "next/link";
+import { usePendingApprovalQueue, useWallets } from "@/hooks/useTavsin";
 import WalletCard from "@/components/WalletCard";
 import CreateWalletModal from "@/components/CreateWalletModal";
+import { NATIVE_MINT, REQUEST_STATUSES, shortenAddress } from "@tavsin/sdk";
 
 const WalletMultiButton = dynamic(
   () =>
@@ -18,10 +20,21 @@ const WalletMultiButton = dynamic(
 
 export default function DashboardPage() {
   const { connected } = useWallet();
-  const { wallets, loading, error, refresh, lastSyncedAt } = useWallets();
+  const { wallets, total, hasMore, loadingMore, loading, error, refresh, loadMore, lastSyncedAt } = useWallets();
+  const {
+    items: pendingApprovals,
+    total: pendingApprovalsTotal,
+    hasMore: hasMorePendingApprovals,
+    loadingMore: loadingMorePendingApprovals,
+    loading: pendingApprovalsLoading,
+    error: pendingApprovalsError,
+    refresh: refreshPendingApprovals,
+    loadMore: loadMorePendingApprovals,
+  } = usePendingApprovalQueue();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const policyCount = wallets.filter((wallet) => wallet.policy).length;
   const trackerCount = wallets.filter((wallet) => wallet.tracker).length;
+  const pendingApprovalCount = pendingApprovalsTotal;
 
   if (!connected) {
     return (
@@ -84,6 +97,9 @@ export default function DashboardPage() {
                 {trackerCount}/{wallets.length || 0} wallets with live trackers
               </div>
               <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 uppercase tracking-[0.22em] text-slate-300">
+                {pendingApprovalCount} pending reviews
+              </div>
+              <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 uppercase tracking-[0.22em] text-slate-300">
                 {lastSyncedAt ? `Synced ${new Date(lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Syncing live state"}
               </div>
             </div>
@@ -128,8 +144,158 @@ export default function DashboardPage() {
               value={`${trackerCount}/${wallets.length}`}
               tone="amber"
             />
+            <StatCard
+              label="Pending Reviews"
+              value={pendingApprovalCount.toString()}
+              tone="slate"
+            />
           </div>
         )}
+
+        <div className="mb-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.9),rgba(8,12,24,0.98))] p-6 shadow-[0_20px_90px_rgba(0,0,0,0.28)]">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">
+                  Approval Queue
+                </div>
+                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
+                  Fleet-wide reviews waiting on owners
+                </h2>
+              </div>
+              <button
+                onClick={() => {
+                  refresh();
+                  refreshPendingApprovals();
+                }}
+                className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8"
+              >
+                Refresh Queue
+              </button>
+            </div>
+
+            {pendingApprovalsLoading ? (
+              <div className="rounded-[1.5rem] border border-white/8 bg-black/15 px-5 py-8 text-sm text-slate-300">
+                Loading approval queue...
+              </div>
+            ) : pendingApprovalsError ? (
+              <div className="rounded-[1.5rem] border border-red-500/20 bg-red-500/5 px-5 py-8 text-sm text-red-200">
+                {pendingApprovalsError}
+              </div>
+            ) : pendingApprovals.length === 0 ? (
+              <div className="rounded-[1.5rem] border border-white/8 bg-black/15 px-5 py-8 text-sm text-slate-300">
+                No wallet in this fleet is currently waiting on manual approval.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingApprovals.map((item) => (
+                  <div
+                    key={`${item.wallet.toBase58()}-${item.request.requestId.toString()}`}
+                    className="rounded-[1.5rem] border border-white/8 bg-black/15 px-4 py-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-semibold text-white">
+                          {(item.request.amount.toNumber() / 1_000_000_000).toFixed(4)} {item.request.assetMint.equals(NATIVE_MINT) ? "SOL" : "asset"}
+                        </div>
+                        <div className="mt-1 text-xs font-mono text-slate-400">
+                          Wallet {shortenAddress(item.wallet.toBase58(), 6)}
+                        </div>
+                      </div>
+                      <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-200">
+                        {REQUEST_STATUSES[item.request.status] || `Status ${item.request.status}`}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
+                      <div>Recipient {shortenAddress(item.request.recipient.toBase58(), 6)}</div>
+                      <div>Agent {shortenAddress(item.agent.toBase58(), 6)}</div>
+                      <div>{new Date(item.request.requestedAt.toNumber() * 1000).toLocaleString()}</div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-3">
+                      <div className="max-w-2xl text-sm text-slate-300">
+                        {item.request.memo || "No memo provided."}
+                      </div>
+                      <Link
+                        href={`/wallet/${item.wallet.toBase58()}`}
+                        className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100 transition-colors hover:bg-cyan-400/15"
+                      >
+                        Review Wallet
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+                {hasMorePendingApprovals && (
+                  <button
+                    onClick={loadMorePendingApprovals}
+                    disabled={loadingMorePendingApprovals}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8 disabled:opacity-50"
+                  >
+                    {loadingMorePendingApprovals ? "Loading queue..." : "Load More Reviews"}
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.9),rgba(8,12,24,0.98))] p-6 shadow-[0_20px_90px_rgba(0,0,0,0.28)]">
+            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+              Protocol Evidence
+            </div>
+            <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
+              Not a demo — a real protocol
+            </h3>
+
+            <div className="mt-5 space-y-3">
+              {[
+                { label: "On-chain program", value: "Deployed", tone: "emerald" as const },
+                { label: "Integration tests", value: "11/11 passing", tone: "emerald" as const },
+                { label: "Policy checks per tx", value: "7 checks", tone: "cyan" as const },
+                { label: "Instructions", value: "12 total", tone: "cyan" as const },
+                { label: "Approval workflow", value: "On-chain", tone: "emerald" as const },
+                { label: "Audit trail", value: "Immutable", tone: "emerald" as const },
+                { label: "SPL token support", value: "Full CPI", tone: "emerald" as const },
+                { label: "Counterparty rules", value: "Per-recipient", tone: "cyan" as const },
+              ].map((item) => {
+                const toneMap = {
+                  emerald: "border-emerald-400/15 bg-emerald-400/5 text-emerald-300",
+                  cyan: "border-cyan-400/15 bg-cyan-400/5 text-cyan-200",
+                };
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between rounded-xl border border-white/8 bg-black/15 px-4 py-3 text-sm"
+                  >
+                    <span className="text-slate-300">{item.label}</span>
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${toneMap[item.tone]}`}>
+                      {item.value}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-5 rounded-[1.5rem] border border-amber-300/15 bg-amber-300/5 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300">
+                How it works
+              </div>
+              <div className="mt-2 text-sm leading-6 text-slate-300">
+                Agent requests spend → TavSin evaluates 7 policy rules on-chain → approved, escalated, or blocked. Every decision is logged. The agent never holds keys.
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-[1.5rem] border border-white/8 bg-black/15 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                Positioning
+              </div>
+              <div className="mt-2 text-base font-semibold text-white">
+                Squads for human multisig.
+              </div>
+              <div className="text-base font-semibold bg-gradient-to-r from-cyan-300 to-amber-300 bg-clip-text text-transparent">
+                TavSin for autonomous agents.
+              </div>
+            </div>
+          </section>
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
@@ -168,16 +334,33 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {wallets.map((w, index) => (
-              <div
-                key={w.publicKey.toBase58()}
-                className={`tavsin-fade-up ${index === 1 ? "tavsin-delay-1" : ""} ${index >= 2 ? "tavsin-delay-2" : ""}`}
-              >
-                <WalletCard wallet={w} />
+          <>
+            <div className="mb-4 flex items-center justify-between gap-3 text-sm text-slate-300">
+              <span>Showing {wallets.length} of {total} wallets</span>
+              {hasMore && <span>More wallets available</span>}
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {wallets.map((w, index) => (
+                <div
+                  key={w.publicKey.toBase58()}
+                  className={`tavsin-fade-up ${index === 1 ? "tavsin-delay-1" : ""} ${index >= 2 ? "tavsin-delay-2" : ""}`}
+                >
+                  <WalletCard wallet={w} />
+                </div>
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8 disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading wallets..." : "Load More Wallets"}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         <CreateWalletModal

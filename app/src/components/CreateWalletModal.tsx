@@ -5,11 +5,12 @@ import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import {
-  getProgram,
   getWalletPda,
   getPolicyPda,
-  getTrackerPda,
-} from "@/lib/program";
+  getLegacyTrackerPda,
+} from "@tavsin/sdk";
+import { getProgram } from "@/lib/program";
+import { getErrorMessage } from "@/lib/errors";
 
 interface CreateWalletModalProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ export default function CreateWalletModal({
 
       const [walletPda] = getWalletPda(wallet.publicKey, agentPubkey);
       const [policyPda] = getPolicyPda(walletPda);
-      const [trackerPda] = getTrackerPda(walletPda);
+      const [trackerPda] = getLegacyTrackerPda(walletPda);
 
       await program.methods
         .createWallet(
@@ -88,9 +89,9 @@ export default function CreateWalletModal({
       onSuccess();
       onClose();
       resetForm();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Create wallet error:", err);
-      setError(err.message || "Transaction failed");
+      setError(getErrorMessage(err, "Transaction failed"));
     } finally {
       setSubmitting(false);
     }

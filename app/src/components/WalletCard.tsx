@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { WalletAccount, shortenAddress } from "./WalletCardHelpers";
+import { shortenAddress } from "@tavsin/sdk";
+import type { WalletAccount } from "./WalletCardHelpers";
 
 interface WalletCardProps {
   wallet: WalletAccount;

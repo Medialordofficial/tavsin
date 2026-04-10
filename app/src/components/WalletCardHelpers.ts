@@ -1,6 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
+export { lamportsToSol, shortenAddress } from "@tavsin/sdk";
+
 export interface WalletAccount {
   publicKey: PublicKey;
   account: {
@@ -25,14 +27,4 @@ export interface WalletAccount {
     periodStart: BN;
     periodDuration: BN;
   } | null;
-}
-
-const LAMPORTS = 1_000_000_000;
-
-export function lamportsToSol(lamports: number): string {
-  return (lamports / LAMPORTS).toFixed(4);
-}
-
-export function shortenAddress(address: string, chars = 4): string {
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }

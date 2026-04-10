@@ -1,7 +1,7 @@
 # TAVSIN — COLOSSEUM FRONTIER HACKATHON: STRATEGIC RESEARCH & BATTLE PLAN
 
 > **CONFIDENTIAL** — Internal strategy document
-> Last updated: April 8, 2026 (v3 — Renamed Aegis → Tavsin, smart wallet architecture, full gap analysis)
+> Last updated: April 8, 2026 (v3 — Renamed to Tavsin, smart wallet architecture, full gap analysis)
 
 ---
 
@@ -15,7 +15,7 @@
 
 ### What Changed in v3
 
-1. **Name: Aegis → Tavsin** (AegisProtocol was taken)
+1. **Name: Tavsin** (original name was unavailable)
 2. **Architecture: "policy engine middleware" → "policy-enforced smart wallet"** — Tavsin IS the wallet, not a layer in front of one. Agent funds live in Tavsin PDAs. Program signs with PDA authority after policy check.
 3. **Added everything we were missing** — website, branding, social presence, wow features, hosting plan, agent-to-agent commerce, credit rails, pitch video production, x402/MCP demo integration
 
@@ -568,7 +568,7 @@ tavsin/
 | --------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | "Trust layer" framing       | Too abstract                                                | "Smart wallet for AI agents" — concrete, tangible                            |
 | "Policy engine middleware"  | Jupiter/Raydium won't add CPI calls for a hackathon project | Smart wallet: Tavsin IS the wallet, agent calls our program, we CPI to target |
-| AegisProtocol name taken    | Can't claim social handles                                  | Renamed to**Tavsin**                                                    |
+| Original name unavailable    | Can't claim social handles                                  | Renamed to **Tavsin**                                                   |
 | No website                  | Judges click links, find nothing                            | Landing page on Vercel (free)                                                 |
 | No social presence          | Looks like you started yesterday                            | @TavsinProtocol on X, build in public from Day 1                              |
 | No brand/visual identity    | Looks unpolished vs. winners                                | Logo, color palette, consistent dark-mode UI                                  |
@@ -593,7 +593,7 @@ tavsin/
 - [ ] First tweet: "Building the smart wallet for AI agents on Solana. 325 projects building agent payments — zero building wallet governance. @colosseum_ @solana #SolanaFrontier"
 - [ ] Join Colosseum Discord, introduce yourself
 - [ ] Register on arena.colosseum.org for Frontier hackathon
-- [ ] Rename GitHub repo from `aegis` to `tavsin`
+- [ ] Rename GitHub repo to `tavsin`
 
 ### TOMORROW (April 9)
 

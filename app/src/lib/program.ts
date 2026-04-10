@@ -1,14 +1,16 @@
 import { Connection } from "@solana/web3.js";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
+import type { Idl } from "@coral-xyz/anchor";
+import type { AnchorWallet } from "@solana/wallet-adapter-react";
 
-// IDL import
 import idlJson from "./tavsin_idl.json";
 import { createProgram } from "@tavsin/sdk";
-
-export * from "@tavsin/sdk";
+import { getPublicProgramId } from "@/lib/program-config";
 
 export function getProgram(connection: Connection, wallet: AnchorWallet) {
-  return createProgram(idlJson as any, connection, wallet);
+  return createProgram(
+    idlJson as Idl,
+    connection,
+    wallet,
+    getPublicProgramId()
+  );
 }
-
-export { getLegacyTrackerPda as getTrackerPda } from "@tavsin/sdk";

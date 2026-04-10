@@ -2,12 +2,7 @@ import * as anchor from "@anchor-lang/core";
 import { expect } from "chai";
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js";
 
-import {
-  buildWalletFixture,
-  nativeMint,
-  owner,
-  program,
-} from "./helpers";
+import { buildWalletFixture, nativeMint, owner, program } from "./helpers";
 
 describe("tavsin policy", () => {
   it("updates policy v2 fields", async () => {
@@ -44,9 +39,13 @@ describe("tavsin policy", () => {
     expect(policy.version).to.equal(2);
     expect(policy.maxPerTx.toNumber()).to.equal(2 * LAMPORTS_PER_SOL);
     expect(policy.maxDaily.toNumber()).to.equal(20 * LAMPORTS_PER_SOL);
-    expect(policy.approvalThreshold.toNumber()).to.equal(0.4 * LAMPORTS_PER_SOL);
+    expect(policy.approvalThreshold.toNumber()).to.equal(
+      0.4 * LAMPORTS_PER_SOL
+    );
     expect(policy.requireApprovalForNewRecipients).to.equal(true);
-    expect(policy.allowedRecipients[0].toBase58()).to.equal(fixture.recipient.publicKey.toBase58());
+    expect(policy.allowedRecipients[0].toBase58()).to.equal(
+      fixture.recipient.publicKey.toBase58()
+    );
     expect(policy.blockedMints[0].toBase58()).to.equal(blockedMint.toBase58());
     expect(policy.mintRules).to.have.length(1);
   });
@@ -107,6 +106,8 @@ describe("tavsin policy", () => {
     );
     expect(counterpartyPolicy.enabled).to.equal(true);
     expect(counterpartyPolicy.requireApproval).to.equal(true);
-    expect(counterpartyPolicy.allowedMints[0].toBase58()).to.equal(nativeMint.toBase58());
+    expect(counterpartyPolicy.allowedMints[0].toBase58()).to.equal(
+      nativeMint.toBase58()
+    );
   });
 });

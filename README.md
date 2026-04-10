@@ -8,7 +8,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)]()
-[![Frontier Hackathon](https://img.shields.io/badge/Colosseum-Frontier%202026-orange)]()
+[![Readiness](https://img.shields.io/badge/Readiness-Private%20Beta-0ea5e9)]()
 
 </div>
 
@@ -34,7 +34,7 @@ There is no smart wallet for agents. No per-agent limits. No anomaly detection. 
 
 Tavsin is a **policy-enforced smart wallet for autonomous AI agents on Solana.**
 
-It's not a middleware that sits in front of another wallet. **Tavsin IS the wallet.** Agent funds live inside a Tavsin smart wallet (a PDA owned by the Tavsin program). To spend, the agent calls the Tavsin program, which evaluates every rule on-chain — per-agent budgets, per-vendor limits, time-bounded allowances, program allowlists, anomaly detection — and only then signs the transaction with the PDA's authority.
+It's not a middleware that sits in front of another wallet. **Tavsin IS the wallet.** Agent funds live inside a Tavsin smart wallet (a PDA owned by the Tavsin program). To spend, the agent calls the Tavsin program, which evaluates every rule on-chain — per-agent budgets, counterparty limits, time-bounded allowances, program allowlists, blocked mints, and approval thresholds — and only then signs the transaction with the PDA's authority.
 
 The agent never has raw key access. It cannot bypass the policy. This is architecturally identical to how **Squads multisig wallets** work — but for autonomous agents instead of human committees.
 
@@ -166,10 +166,10 @@ A yield-farming agent autonomously harvests rewards and rebalances — but cappe
 An AI agent paying for MCP tool calls via x402 — Tavsin enforces per-vendor caps so a malfunctioning agent can't drain the wallet on a single API.
 
 ### 3. Agent Fleet Management
-A company running 50 AI agents — each with individual Tavsin wallets, individual budgets, shared audit logs, and anomaly detection. The operator dashboard shows spend per agent in real-time.
+A company running 50 AI agents — each with individual TavSin wallets, individual budgets, shared audit logs, and owner approval queues. The operator dashboard shows spend controls and review state per agent wallet.
 
 ### 4. Delegated Trading
-User delegates trading to an AI agent — Tavsin ensures it can only trade approved token pairs, with max position sizes, and auto-blocks if portfolio drops below a threshold.
+User delegates trading to an AI agent — TavSin ensures it can only touch approved programs, recipients, and mints, with capped transaction sizes and approval escalation above threshold.
 
 ### 5. Agent-to-Agent Commerce
 Agent A can pay Agent B up to X USDC for services — creating a mesh of governed spending relationships. Tavsin enforces cross-agent budgets.
@@ -196,21 +196,22 @@ Agent A can pay Agent B up to X USDC for services — creating a mesh of governe
 | **Wallet + policy storage** | PDAs (Program Derived Addresses) |
 | **Spend tracking** | On-chain rolling windows per agent |
 | **Agent SDK** | TypeScript (`@tavsin/sdk`) |
-| **Dashboard** | Next.js + Helius RPC |
+| **Dashboard** | Next.js App Router + server read API + managed RPC |
 | **Landing page** | Next.js on Vercel |
-| **Testing** | Bankrun (Solana local test) |
+| **Testing** | Anchor test + legacy validator |
 | **AI Integration** | Compatible with any agent framework |
 
 ---
 
-## What We're Building (Hackathon Scope)
+## Current Scope
 
-**Week 1-2:** Anchor program — smart wallet creation, policy enforcement, spend tracking, CPI execution
-**Week 3:** TypeScript SDK + demo AI agent that transacts through Tavsin wallets
-**Week 4:** Dashboard (fleet management, audit viewer) + landing page
-**Week 5:** Polish, real demo on devnet, pitch video
+The current repository is focused on three surfaces:
 
-**MVP deliverable:** An AI agent that autonomously executes Solana transactions through a Tavsin smart wallet — where every tx is checked against on-chain spending policies, and violations are blocked at the wallet level.
+- on-chain governed smart-wallet execution and policy enforcement
+- a TypeScript SDK for client integrations
+- an operator console for approvals, policy editing, and audit visibility
+
+The product is ready for serious devnet testing and controlled canary preparation, but it still requires external security review and finalized mainnet operations before broad public launch.
 
 ---
 
@@ -240,11 +241,29 @@ yarn install
 anchor build
 
 # Run tests
-anchor test
+npm run test:anchor:skip-build
 
 # Deploy to devnet
 anchor deploy --provider.cluster devnet
 ```
+
+## Environment Configuration
+
+Copy [.env.example](.env.example) and set the cluster / RPC pair for both the public app and the server-side read API. The dashboard now routes wallet discovery and pending approval reads through Next.js API handlers, so the client and server RPCs can be separated.
+
+Use [.env.devnet.example](.env.devnet.example) and [.env.mainnet.example](.env.mainnet.example) as environment presets. Both include RPC and deploy-time program ID settings.
+
+## SDK Example
+
+See [examples/sdk-client/README.md](examples/sdk-client/README.md) for a minimal external-consumer example that creates a wallet, submits a request, and fetches audit history with the SDK.
+
+Typecheck it from repo root with:
+
+```bash
+npm run typecheck:sample-sdk
+```
+
+Operational guidance lives in [docs/MAINNET_LAUNCH_RUNBOOK.md](docs/MAINNET_LAUNCH_RUNBOOK.md), review prep lives in [docs/SECURITY_REVIEW_PREP.md](docs/SECURITY_REVIEW_PREP.md), and gate-by-gate readiness is tracked in [docs/PRELAUNCH_CHECKLIST.md](docs/PRELAUNCH_CHECKLIST.md).
 
 ---
 

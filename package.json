@@ -1,10 +1,14 @@
 {
+  "name": "tavsin",
   "license": "ISC",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "typecheck:sample-sdk": "tsc -p examples/sdk-client/tsconfig.json --noEmit",
+    "verify:pretest": "npm run lint && npm --prefix app run lint && npm --prefix app run build && npm run test:anchor:skip-build && npm run typecheck:sample-sdk",
     "test:anchor": "anchor test --validator legacy",
-    "test:anchor:skip-build": "anchor test --validator legacy --skip-build"
+    "test:anchor:skip-build": "anchor test --validator legacy --skip-build",
+    "validate:reads": "ts-node --esm scripts/validate-reads.ts"
   },
   "dependencies": {
     "@anchor-lang/core": "^1.0.0",

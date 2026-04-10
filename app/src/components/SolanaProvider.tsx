@@ -6,7 +6,6 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { clusterApiUrl } from "@solana/web3.js";
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -17,11 +16,13 @@ import {
   createDefaultAuthorizationResultCache,
   createDefaultWalletNotFoundHandler,
 } from "@solana-mobile/wallet-adapter-mobile";
+import { getPublicCluster, getPublicRpcEndpoint } from "@/lib/network";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const SolanaProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const endpoint = useMemo(() => clusterApiUrl("devnet"), []);
+  const cluster = useMemo(() => getPublicCluster(), []);
+  const endpoint = useMemo(() => getPublicRpcEndpoint(), []);
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
@@ -34,11 +35,11 @@ export const SolanaProvider: FC<{ children: ReactNode }> = ({ children }) => {
           icon: "/logo.png",
         },
         authorizationResultCache: createDefaultAuthorizationResultCache(),
-        chain: "devnet",
+        chain: cluster === "mainnet-beta" ? "mainnet-beta" : "devnet",
         onWalletNotFound: createDefaultWalletNotFoundHandler(),
       }),
     ],
-    []
+    [cluster]
   );
 
   return (

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { supportPages } from "@/lib/site-links";
 
 const WalletMultiButton = dynamic(
   () =>
@@ -43,6 +44,48 @@ const features = [
     title: "Live Policy Updates",
     desc: "Adjust limits and permissions in production without replacing wallets or redeploying core infrastructure.",
   },
+];
+
+const competitors = [
+  {
+    name: "MCPay",
+    won: "1st Place Stablecoins, Cypherpunk",
+    does: "x402 payments for MCP tools",
+    gap: "No spending governance — agents spend uncapped",
+  },
+  {
+    name: "Latinum",
+    won: "1st Place AI, Breakout",
+    does: "Agent payment middleware",
+    gap: "Budget management delegated to application code",
+  },
+  {
+    name: "Blowfish",
+    won: "",
+    does: "Scam detection & risk warnings",
+    gap: "Passive warnings to humans — not active enforcement for agents",
+  },
+  {
+    name: "Turnkey",
+    won: "",
+    does: "Wallet infrastructure for agents",
+    gap: "Key management only — no transaction-level policy",
+  },
+  {
+    name: "Squads",
+    won: "",
+    does: "Human multisig wallets",
+    gap: "Designed for human committees, not autonomous agents",
+  },
+];
+
+const protocolStats = [
+  { label: "On-chain instructions", value: "12" },
+  { label: "Policy checks per tx", value: "7" },
+  { label: "Test coverage", value: "11/11" },
+  { label: "Solana AI projects", value: "325+" },
+  { label: "Built wallet governance", value: "0" },
+  { label: "That changes with", value: "TavSin" },
 ];
 
 const rails = [
@@ -429,6 +472,142 @@ export default function Home() {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Squads for Agents — one-liner callout */}
+      <section className="border-t border-white/8 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="tavsin-fade-up rounded-[2rem] border border-cyan-400/20 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.18),transparent_40%),linear-gradient(180deg,rgba(17,24,39,0.95),rgba(8,12,24,0.99))] p-8 text-center shadow-[0_30px_120px_rgba(0,0,0,0.35)] sm:p-12">
+            <div className="mx-auto max-w-3xl">
+              <div className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
+                The Missing Layer
+              </div>
+              <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+                <span className="bg-gradient-to-r from-cyan-300 to-amber-300 bg-clip-text text-transparent">Squads</span> is for human multisig.{" "}
+                <span className="bg-gradient-to-r from-cyan-300 to-amber-300 bg-clip-text text-transparent">TavSin</span> is for autonomous agents.
+              </h2>
+              <p className="mt-6 text-base leading-8 text-slate-300 sm:text-lg">
+                325+ Solana AI projects. Thousands of MCP tool servers. x402 standardizing agent payments.
+                Zero projects built the wallet governance layer — until now.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Competitor landscape */}
+      <section className="border-t border-white/8 py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-14">
+            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">
+              Competitive Landscape
+            </div>
+            <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+              Everyone built the rails. Nobody built the controls.
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+              We studied every project in the Solana AI agent stack.
+              Payment rails exist. Wallet governance does not. TavSin fills the gap.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {competitors.map((c) => (
+              <div
+                key={c.name}
+                className="group relative rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-red-400/20"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">{c.name}</h3>
+                  {c.won && (
+                    <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-200">
+                      {c.won}
+                    </span>
+                  )}
+                </div>
+                <p className="mb-3 text-sm leading-6 text-slate-300">{c.does}</p>
+                <div className="rounded-xl border border-red-400/15 bg-red-400/5 px-3 py-2 text-sm text-red-200">
+                  {c.gap}
+                </div>
+              </div>
+            ))}
+            <div className="group rounded-[1.75rem] border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/30">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-cyan-200">TavSin</h3>
+                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                  This project
+                </span>
+              </div>
+              <p className="mb-3 text-sm leading-6 text-slate-300">Policy-enforced smart wallet for AI agents</p>
+              <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 px-3 py-2 text-sm text-emerald-200">
+                On-chain policy checks, approval workflows, audit trail, fleet dashboard
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Protocol evidence strip */}
+      <section className="border-t border-white/8 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 text-center">
+            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+              Protocol Evidence
+            </div>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+              Not a demo. A real protocol.
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {protocolStats.map((s) => (
+              <div
+                key={s.label}
+                className="tavsin-fade-up rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-4 text-center transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/20"
+              >
+                <div className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
+                  {s.value}
+                </div>
+                <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-white/8 py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-14 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">
+                Protocol Library
+              </div>
+              <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+                The missing pages now exist.
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-slate-200 sm:text-base">
+              About, White Paper, Docs, Team, Roadmap, FAQ, Security, Contact, Status, Terms, and Privacy are now available as first-class routes.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {supportPages.map((page) => (
+              <Link
+                key={page.href}
+                href={page.href}
+                className="group rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20"
+              >
+                <div className="text-lg font-semibold text-white group-hover:text-cyan-200">
+                  {page.label}
+                </div>
+                <div className="mt-2 text-sm leading-6 text-slate-200">
+                  {page.description}
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

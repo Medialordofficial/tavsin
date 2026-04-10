@@ -138,7 +138,9 @@ describe("tavsin spl", () => {
       .signers([fixture.agent])
       .rpc();
 
-    const assetTracker = await program.account.assetSpendTracker.fetch(assetTrackerPda);
+    const assetTracker = await program.account.assetSpendTracker.fetch(
+      assetTrackerPda
+    );
     const recipientAccount = await getAccount(
       provider.connection,
       recipientTokenAccount.address,

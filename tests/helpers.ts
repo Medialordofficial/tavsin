@@ -27,7 +27,10 @@ export type WalletFixture = {
   counterpartyPolicyPda: PublicKey;
 };
 
-export function getAuditPda(walletPda: PublicKey, auditId: number): [PublicKey, number] {
+export function getAuditPda(
+  walletPda: PublicKey,
+  auditId: number
+): [PublicKey, number] {
   const buf = Buffer.alloc(8);
   buf.writeBigUInt64LE(BigInt(auditId));
   return PublicKey.findProgramAddressSync(
@@ -36,7 +39,10 @@ export function getAuditPda(walletPda: PublicKey, auditId: number): [PublicKey, 
   );
 }
 
-export function getRequestPda(walletPda: PublicKey, requestId: number): [PublicKey, number] {
+export function getRequestPda(
+  walletPda: PublicKey,
+  requestId: number
+): [PublicKey, number] {
   const buf = Buffer.alloc(8);
   buf.writeBigUInt64LE(BigInt(requestId));
   return PublicKey.findProgramAddressSync(
@@ -45,7 +51,10 @@ export function getRequestPda(walletPda: PublicKey, requestId: number): [PublicK
   );
 }
 
-export function getAssetTrackerPda(walletPda: PublicKey, assetMint: PublicKey): [PublicKey, number] {
+export function getAssetTrackerPda(
+  walletPda: PublicKey,
+  assetMint: PublicKey
+): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [Buffer.from("tracker"), walletPda.toBuffer(), assetMint.toBuffer()],
     program.programId
@@ -74,7 +83,10 @@ export async function nextAuditPda(walletPda: PublicKey): Promise<PublicKey> {
 
 export async function nextRequestPda(walletPda: PublicKey): Promise<PublicKey> {
   const wallet = await fetchWalletAccount(walletPda);
-  const [requestPda] = getRequestPda(walletPda, wallet.nextRequestId.toNumber());
+  const [requestPda] = getRequestPda(
+    walletPda,
+    wallet.nextRequestId.toNumber()
+  );
   return requestPda;
 }
 
@@ -98,7 +110,11 @@ export function hashRemainingAccounts(
 }
 
 export function normalizeWalletSignedAccounts(
-  accounts: Array<{ pubkey: PublicKey; isWritable: boolean; isSigner: boolean }>,
+  accounts: Array<{
+    pubkey: PublicKey;
+    isWritable: boolean;
+    isSigner: boolean;
+  }>,
   walletPda: PublicKey
 ) {
   return accounts.map((account) =>
@@ -114,7 +130,11 @@ export async function buildWalletFixture(): Promise<WalletFixture> {
   const alternateRecipient = Keypair.generate();
 
   const [walletPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from("wallet"), owner.publicKey.toBuffer(), agent.publicKey.toBuffer()],
+    [
+      Buffer.from("wallet"),
+      owner.publicKey.toBuffer(),
+      agent.publicKey.toBuffer(),
+    ],
     program.programId
   );
   const [policyPda] = PublicKey.findProgramAddressSync(
@@ -125,13 +145,25 @@ export async function buildWalletFixture(): Promise<WalletFixture> {
     [Buffer.from("tracker"), walletPda.toBuffer()],
     program.programId
   );
-  const [counterpartyPolicyPda] = getCounterpartyPolicyPda(walletPda, recipient.publicKey);
+  const [counterpartyPolicyPda] = getCounterpartyPolicyPda(
+    walletPda,
+    recipient.publicKey
+  );
 
-  const sig = await provider.connection.requestAirdrop(agent.publicKey, 2 * LAMPORTS_PER_SOL);
+  const sig = await provider.connection.requestAirdrop(
+    agent.publicKey,
+    2 * LAMPORTS_PER_SOL
+  );
   await provider.connection.confirmTransaction(sig);
 
   await program.methods
-    .createWallet(new anchor.BN(LAMPORTS_PER_SOL), new anchor.BN(5 * LAMPORTS_PER_SOL), [], null, null)
+    .createWallet(
+      new anchor.BN(LAMPORTS_PER_SOL),
+      new anchor.BN(5 * LAMPORTS_PER_SOL),
+      [],
+      null,
+      null
+    )
     .accounts({
       owner: owner.publicKey,
       agent: agent.publicKey,

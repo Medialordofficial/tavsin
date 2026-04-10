@@ -5,18 +5,20 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletReadyState } from "@solana/wallet-adapter-base";
+import { type WalletName, WalletReadyState } from "@solana/wallet-adapter-base";
+import { getClusterLabel, getClusterTone, getPublicCluster } from "@/lib/network";
+import { primaryNavLinks } from "@/lib/site-links";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { wallet, wallets, connected, disconnect, select, connect, connecting } = useWallet();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const cluster = getPublicCluster();
+  const clusterLabel = getClusterLabel(cluster);
+  const clusterTone = getClusterTone(cluster);
 
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/dashboard", label: "Dashboard" },
-  ];
+  const navLinks = primaryNavLinks;
 
   const walletLabel = wallet?.adapter.name || "Connect Wallet";
 
@@ -46,7 +48,7 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [pathname]);
 
-  const handleWalletSelect = async (walletName: string) => {
+  const handleWalletSelect = async (walletName: WalletName) => {
     try {
       if (wallet?.adapter.name === walletName && connected) {
         await disconnect();
@@ -57,7 +59,7 @@ export default function Navbar() {
 
       await disconnect();
       select(null);
-      select(walletName as any);
+      select(walletName);
       await connect();
       setMenuOpen(false);
     } catch {
@@ -120,6 +122,9 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+            </div>
+            <div className={`hidden rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] sm:block ${clusterTone}`}>
+              {clusterLabel}
             </div>
           </div>
           <div ref={menuRef} className="tavsin-fade-up tavsin-delay-2 flex flex-col items-end gap-2">
@@ -197,9 +202,12 @@ export default function Navbar() {
                             : "border-white/8 bg-white/[0.03] hover:border-white/16 hover:bg-white/[0.06]"
                         } ${disabled ? "cursor-not-allowed opacity-55" : ""}`}
                       >
-                        <img
+                        <Image
                           src={entry.adapter.icon}
                           alt=""
+                          width={36}
+                          height={36}
+                          unoptimized
                           className="h-9 w-9 rounded-xl bg-white/90 object-cover p-1"
                         />
                         <div className="min-w-0 flex-1">
