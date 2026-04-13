@@ -262,6 +262,7 @@ Run these on devnet to see TavSin in action (requires `tsx` — installed as a d
 | `npx tsx scripts/agent-bot.ts` | End-to-end: create wallet → fund → submit request → execute → audit trail |
 | `npx tsx scripts/kill-switch.ts` | Freeze/unfreeze demo: 9 steps showing owner freeze blocks agent, unfreeze re-enables |
 | `npx tsx scripts/jupiter-swap.ts` | Governed Jupiter swap through TavSin policy engine |
+| `npx tsx scripts/x402-mcp-demo.ts` | x402 MCP tool payments: agent pays for 6 tool calls, policy blocks overspend |
 
 Each script generates a fresh agent keypair — no setup needed beyond a funded devnet wallet.
 

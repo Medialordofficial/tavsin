@@ -37,3 +37,4 @@ coverage/
 
 # Solana
 test-ledger/
+sdk/dist/

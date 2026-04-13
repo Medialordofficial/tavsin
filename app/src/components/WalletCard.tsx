@@ -15,6 +15,12 @@ export default function WalletCard({ wallet }: WalletCardProps) {
     totalTx > 0
       ? Math.round((account.totalApproved.toNumber() / totalTx) * 100)
       : 100;
+  const reputationTier =
+    totalTx === 0 ? { label: "New", color: "border-slate-400/20 bg-slate-400/10 text-slate-400" }
+    : approvalRate >= 95 ? { label: "Trusted", color: "border-emerald-400/20 bg-emerald-400/10 text-emerald-400" }
+    : approvalRate >= 75 ? { label: "Good", color: "border-cyan-400/20 bg-cyan-400/10 text-cyan-400" }
+    : approvalRate >= 50 ? { label: "Review", color: "border-amber-400/20 bg-amber-400/10 text-amber-400" }
+    : { label: "Flagged", color: "border-red-500/20 bg-red-500/10 text-red-400" };
   const utilization =
     policy && tracker
       ? Math.min(
@@ -43,14 +49,21 @@ export default function WalletCard({ wallet }: WalletCardProps) {
             {shortenAddress(publicKey.toBase58(), 6)}
           </div>
         </div>
-        <div
-          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
-            account.frozen
-              ? "border border-red-500/20 bg-red-500/10 text-red-400"
-              : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-          }`}
-        >
-          {account.frozen ? "Frozen" : "Active"}
+        <div className="flex flex-wrap items-start gap-2">
+          <div
+            className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+              account.frozen
+                ? "border border-red-500/20 bg-red-500/10 text-red-400"
+                : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+            }`}
+          >
+            {account.frozen ? "Frozen" : "Active"}
+          </div>
+          <div
+            className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${reputationTier.color}`}
+          >
+            {reputationTier.label}
+          </div>
         </div>
       </div>
 

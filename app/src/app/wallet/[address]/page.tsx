@@ -718,6 +718,18 @@ export default function WalletDetailPage({
   const isAgent = Boolean(publicKey?.equals(account.agent));
   const totalTx = account.totalApproved.toNumber() + account.totalDenied.toNumber();
   const approvalRate = totalTx > 0 ? Math.round((account.totalApproved.toNumber() / totalTx) * 100) : 100;
+
+  // Reputation score: 0-100 based on approval history
+  const reputationScore = totalTx === 0
+    ? 0
+    : Math.round((account.totalApproved.toNumber() / totalTx) * 100);
+  const reputationTier =
+    totalTx === 0 ? { label: "New Agent", color: "text-slate-400 border-slate-400/20 bg-slate-400/10" }
+    : reputationScore >= 95 ? { label: "Trusted", color: "text-emerald-300 border-emerald-400/20 bg-emerald-400/10" }
+    : reputationScore >= 75 ? { label: "Good Standing", color: "text-cyan-300 border-cyan-400/20 bg-cyan-400/10" }
+    : reputationScore >= 50 ? { label: "Under Review", color: "text-amber-300 border-amber-400/20 bg-amber-400/10" }
+    : { label: "Flagged", color: "text-red-300 border-red-500/20 bg-red-500/10" };
+
   const statusLabel = account.frozen ? "Frozen" : "Active";
   const statusTone = account.frozen
     ? "border-red-500/20 bg-red-500/10 text-red-300"
@@ -801,8 +813,13 @@ export default function WalletDetailPage({
                 </p>
               </div>
 
-              <div className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${statusTone}`}>
-                {statusLabel}
+              <div className="flex flex-col items-end gap-2">
+                <div className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${statusTone}`}>
+                  {statusLabel}
+                </div>
+                <div className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${reputationTier.color}`}>
+                  {reputationTier.label}{totalTx > 0 ? ` · ${reputationScore}%` : ""}
+                </div>
               </div>
             </div>
 

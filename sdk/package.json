@@ -1,17 +1,41 @@
 {
   "name": "@tavsin/sdk",
   "version": "0.1.0",
-  "private": true,
+  "description": "TavSin SDK — policy-enforced smart wallet for AI agents on Solana",
   "type": "module",
-  "description": "TavSin SDK for governed smart-wallet flows on Solana",
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "solana",
+    "smart-wallet",
+    "ai-agent",
+    "policy-engine",
+    "tavsin",
+    "anchor"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Medialordofficial/tavsin.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://tavsin.xyz",
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
     "@solana/spl-token": "^0.4.14",
