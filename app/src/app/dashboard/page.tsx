@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -35,6 +35,31 @@ export default function DashboardPage() {
   const policyCount = wallets.filter((wallet) => wallet.policy).length;
   const trackerCount = wallets.filter((wallet) => wallet.tracker).length;
   const pendingApprovalCount = pendingApprovalsTotal;
+
+  const fleetStats = useMemo(() => {
+    const totalBalance = wallets.reduce((sum, w) => sum + w.balance, 0);
+    const frozenCount = wallets.filter((w) => w.account.frozen).length;
+    const totalApproved = wallets.reduce((s, w) => s + w.account.totalApproved.toNumber(), 0);
+    const totalDenied = wallets.reduce((s, w) => s + w.account.totalDenied.toNumber(), 0);
+    const totalTx = totalApproved + totalDenied;
+    const fleetApprovalRate = totalTx > 0 ? Math.round((totalApproved / totalTx) * 100) : 100;
+
+    const walletBars = wallets.slice(0, 12).map((w) => {
+      const utilization = w.policy && w.tracker
+        ? Math.min(100, (w.tracker.spentInPeriod.toNumber() / Math.max(w.policy.maxDaily.toNumber(), 1)) * 100)
+        : 0;
+      return {
+        address: w.publicKey.toBase58(),
+        balance: w.balance,
+        utilization,
+        frozen: w.account.frozen,
+        pending: w.account.totalPending.toNumber(),
+      };
+    });
+    const maxBalance = Math.max(...walletBars.map((b) => b.balance), 0.001);
+
+    return { totalBalance, frozenCount, totalApproved, totalDenied, totalTx, fleetApprovalRate, walletBars, maxBalance };
+  }, [wallets]);
 
   if (!connected) {
     return (
@@ -121,35 +146,74 @@ export default function DashboardPage() {
         </div>
 
         {wallets.length > 0 && (
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatCard
-              label="Total Wallets"
-              value={wallets.length.toString()}
-              tone="cyan"
-            />
-            <StatCard
-              label="Total Balance"
-              value={`${wallets
-                .reduce((sum, w) => sum + w.balance, 0)
-                .toFixed(4)} SOL`}
-              tone="slate"
-            />
-            <StatCard
-              label="Policy Coverage"
-              value={`${policyCount}/${wallets.length}`}
-              tone="emerald"
-            />
-            <StatCard
-              label="Tracker Coverage"
-              value={`${trackerCount}/${wallets.length}`}
-              tone="amber"
-            />
-            <StatCard
-              label="Pending Reviews"
-              value={pendingApprovalCount.toString()}
-              tone="slate"
-            />
-          </div>
+          <>
+            <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <StatCard label="Total Wallets" value={wallets.length.toString()} tone="cyan" />
+              <StatCard label="Total Balance" value={`${fleetStats.totalBalance.toFixed(4)} SOL`} tone="slate" />
+              <StatCard label="Policy Coverage" value={`${policyCount}/${wallets.length}`} tone="emerald" />
+              <StatCard label="Approval Rate" value={`${fleetStats.fleetApprovalRate}%`} tone="emerald" />
+              <StatCard label="Pending Reviews" value={pendingApprovalCount.toString()} tone="amber" />
+              <StatCard label="Frozen Wallets" value={fleetStats.frozenCount.toString()} tone={fleetStats.frozenCount > 0 ? "red" : "slate"} />
+              <StatCard label="Total Approved" value={fleetStats.totalApproved.toString()} tone="emerald" />
+              <StatCard label="Total Denied" value={fleetStats.totalDenied.toString()} tone={fleetStats.totalDenied > 0 ? "red" : "slate"} />
+            </div>
+
+            <div className="mb-8 rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.9),rgba(8,12,24,0.98))] p-6 shadow-[0_20px_90px_rgba(0,0,0,0.28)]">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                Fleet Activity
+              </div>
+              <h3 className="mb-5 text-lg font-semibold tracking-[-0.03em] text-white">
+                Balance & daily utilization across wallets
+              </h3>
+              {fleetStats.walletBars.length > 0 ? (
+                <div className="flex items-end gap-2" style={{ height: 160 }}>
+                  {fleetStats.walletBars.map((bar) => {
+                    const balPct = Math.max(4, (bar.balance / fleetStats.maxBalance) * 100);
+                    return (
+                      <Link
+                        key={bar.address}
+                        href={`/wallet/${bar.address}`}
+                        className="group relative flex flex-1 flex-col items-center justify-end"
+                        style={{ height: "100%" }}
+                        title={`${bar.balance.toFixed(4)} SOL — ${bar.utilization.toFixed(0)}% daily used`}
+                      >
+                        <div
+                          className={`w-full min-w-[12px] rounded-t-lg transition-all group-hover:opacity-80 ${
+                            bar.frozen
+                              ? "bg-red-500/60"
+                              : bar.utilization > 80
+                                ? "bg-amber-400/60"
+                                : "bg-gradient-to-t from-cyan-500/40 to-cyan-300/60"
+                          }`}
+                          style={{ height: `${balPct}%` }}
+                        />
+                        {bar.utilization > 0 && (
+                          <div
+                            className="absolute bottom-0 left-0 w-full rounded-t-lg bg-white/10"
+                            style={{ height: `${Math.max(2, bar.utilization)}%` }}
+                          />
+                        )}
+                        {bar.pending > 0 && (
+                          <div className="absolute -top-1 right-0 h-2 w-2 rounded-full bg-amber-400" />
+                        )}
+                        <div className="mt-2 text-[9px] font-mono text-slate-500 transition-colors group-hover:text-cyan-300">
+                          {bar.address.slice(0, 3)}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-sm text-slate-400">No wallets to chart.</div>
+              )}
+              <div className="mt-4 flex flex-wrap gap-4 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-gradient-to-t from-cyan-500/40 to-cyan-300/60" /> Balance</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-white/10" /> Utilization</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500/60" /> Frozen</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-amber-400" /> Pending</span>
+              </div>
+            </div>
+          </>
         )}
 
         <div className="mb-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
@@ -380,13 +444,14 @@ function StatCard({
 }: {
   label: string;
   value: string;
-  tone: "cyan" | "slate" | "emerald" | "amber";
+  tone: "cyan" | "slate" | "emerald" | "amber" | "red";
 }) {
   const toneClasses = {
     cyan: "from-cyan-400/12 to-sky-400/5 border-cyan-400/12",
     slate: "from-white/6 to-white/[0.02] border-white/8",
     emerald: "from-emerald-400/12 to-emerald-400/5 border-emerald-400/12",
     amber: "from-amber-300/12 to-amber-300/5 border-amber-300/12",
+    red: "from-red-400/12 to-red-400/5 border-red-400/12",
   };
 
   return (

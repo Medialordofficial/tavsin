@@ -28,6 +28,7 @@ import {
 import { getProgram } from "@/lib/program";
 import { useCounterpartyPolicies, useWalletDetail } from "@/hooks/useTavsin";
 import { getErrorMessage } from "@/lib/errors";
+import JupiterSwapCard from "@/components/JupiterSwapCard";
 
 export default function WalletDetailPage({
   params,
@@ -1011,6 +1012,14 @@ export default function WalletDetailPage({
                   </button>
                 </div>
               </ActionCard>
+
+              <div className="sm:col-span-2">
+                <JupiterSwapCard
+                  walletAddress={address}
+                  walletAccount={walletAccount}
+                  refresh={refresh}
+                />
+              </div>
             </div>
           </section>
 
