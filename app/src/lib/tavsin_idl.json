@@ -8,6 +8,42 @@
   },
   "instructions": [
     {
+      "name": "approve_request",
+      "discriminator": [
+        89,
+        68,
+        167,
+        104,
+        93,
+        25,
+        178,
+        205
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        },
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "create_wallet",
       "discriminator": [
         82,
@@ -39,87 +75,24 @@
           "docs": [
             "The smart wallet PDA."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "owner"
-              },
-              {
-                "kind": "account",
-                "path": "agent"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "policy",
           "docs": [
             "The policy PDA tied to this wallet."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  108,
-                  105,
-                  99,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "tracker",
           "docs": [
             "The spend tracker PDA tied to this wallet."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  97,
-                  99,
-                  107,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet"
-              }
-            ]
-          }
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "system_program"
         }
       ],
       "args": [
@@ -177,84 +150,20 @@
           "docs": [
             "The smart wallet PDA (source of funds)."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "policy",
           "docs": [
             "The policy governing this wallet."
-          ],
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  108,
-                  105,
-                  99,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet"
-              }
-            ]
-          }
+          ]
         },
         {
           "name": "tracker",
           "docs": [
             "The spend tracker for budget enforcement."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  97,
-                  99,
-                  107,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "audit_entry",
@@ -277,8 +186,7 @@
           ]
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "system_program"
         }
       ],
       "args": [
@@ -289,6 +197,111 @@
         {
           "name": "memo",
           "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "execute_request",
+      "discriminator": [
+        113,
+        254,
+        117,
+        135,
+        26,
+        14,
+        232,
+        88
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "asset_tracker",
+          "writable": true
+        },
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        },
+        {
+          "name": "target_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "execute_request_with_payload",
+      "discriminator": [
+        180,
+        250,
+        57,
+        84,
+        252,
+        161,
+        172,
+        53
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "asset_tracker",
+          "writable": true
+        },
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        },
+        {
+          "name": "target_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "instruction_data",
+          "type": "bytes"
         }
       ]
     },
@@ -311,32 +324,7 @@
         },
         {
           "name": "wallet",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "writable": true
         }
       ],
       "args": []
@@ -367,42 +355,141 @@
           "docs": [
             "The smart wallet PDA to fund."
           ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "system_program"
         }
       ],
       "args": [
         {
           "name": "amount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "reject_request",
+      "discriminator": [
+        11,
+        232,
+        75,
+        149,
+        197,
+        137,
+        152,
+        208
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        },
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "submit_request",
+      "discriminator": [
+        122,
+        30,
+        180,
+        251,
+        206,
+        230,
+        254,
+        57
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
+          "name": "asset_tracker",
+          "writable": true
+        },
+        {
+          "name": "counterparty_policy",
+          "optional": true
+        },
+        {
+          "name": "target_program"
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "memo",
+          "type": "string"
+        },
+        {
+          "name": "instruction_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "accounts_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "expires_at",
+          "type": {
+            "option": "i64"
+          }
         }
       ]
     },
@@ -425,32 +512,7 @@
         },
         {
           "name": "wallet",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "writable": true
         }
       ],
       "args": []
@@ -473,55 +535,11 @@
           "signer": true
         },
         {
-          "name": "wallet",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "name": "wallet"
         },
         {
           "name": "policy",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  108,
-                  105,
-                  99,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet"
-              }
-            ]
-          }
+          "writable": true
         }
       ],
       "args": [
@@ -538,10 +556,50 @@
           }
         },
         {
+          "name": "approval_threshold",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "require_approval_for_new_recipients",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
           "name": "allowed_programs",
           "type": {
             "option": {
               "vec": "pubkey"
+            }
+          }
+        },
+        {
+          "name": "allowed_recipients",
+          "type": {
+            "option": {
+              "vec": "pubkey"
+            }
+          }
+        },
+        {
+          "name": "blocked_mints",
+          "type": {
+            "option": {
+              "vec": "pubkey"
+            }
+          }
+        },
+        {
+          "name": "mint_rules",
+          "type": {
+            "option": {
+              "vec": {
+                "defined": {
+                  "name": "MintRule"
+                }
+              }
             }
           }
         },
@@ -555,6 +613,67 @@
           "name": "time_window_end",
           "type": {
             "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "upsert_counterparty_policy",
+      "discriminator": [
+        127,
+        98,
+        196,
+        63,
+        79,
+        173,
+        35,
+        223
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "recipient"
+        },
+        {
+          "name": "counterparty_policy",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "enabled",
+          "type": "bool"
+        },
+        {
+          "name": "require_approval",
+          "type": "bool"
+        },
+        {
+          "name": "max_per_tx_override",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "daily_limit_override",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "allowed_mints",
+          "type": {
+            "vec": "pubkey"
           }
         }
       ]
@@ -579,32 +698,7 @@
         },
         {
           "name": "wallet",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  119,
-                  97,
-                  108,
-                  108,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "wallet.owner",
-                "account": "SmartWallet"
-              },
-              {
-                "kind": "account",
-                "path": "wallet.agent",
-                "account": "SmartWallet"
-              }
-            ]
-          }
+          "writable": true
         }
       ],
       "args": [
@@ -617,6 +711,19 @@
   ],
   "accounts": [
     {
+      "name": "AssetSpendTracker",
+      "discriminator": [
+        178,
+        223,
+        7,
+        73,
+        56,
+        151,
+        202,
+        169
+      ]
+    },
+    {
       "name": "AuditEntry",
       "discriminator": [
         254,
@@ -627,6 +734,32 @@
         16,
         148,
         113
+      ]
+    },
+    {
+      "name": "CounterpartyPolicy",
+      "discriminator": [
+        26,
+        109,
+        252,
+        227,
+        19,
+        119,
+        233,
+        34
+      ]
+    },
+    {
+      "name": "ExecutionRequest",
+      "discriminator": [
+        88,
+        79,
+        182,
+        197,
+        147,
+        44,
+        123,
+        20
       ]
     },
     {
@@ -717,11 +850,160 @@
     },
     {
       "code": 6009,
+      "name": "TooManyAllowedRecipients",
+      "msg": "Too many allowed recipients"
+    },
+    {
+      "code": 6010,
+      "name": "TooManyBlockedMints",
+      "msg": "Too many blocked mints"
+    },
+    {
+      "code": 6011,
+      "name": "TooManyMintRules",
+      "msg": "Too many mint rules"
+    },
+    {
+      "code": 6012,
+      "name": "TooManyCounterpartyMints",
+      "msg": "Too many allowed mints for counterparty policy"
+    },
+    {
+      "code": 6013,
       "name": "MemoTooLong",
       "msg": "Memo too long (max 64 characters)"
+    },
+    {
+      "code": 6014,
+      "name": "BlockedMint",
+      "msg": "Asset mint is blocked by policy"
+    },
+    {
+      "code": 6015,
+      "name": "RecipientNotAllowed",
+      "msg": "Recipient is not allowed by policy"
+    },
+    {
+      "code": 6016,
+      "name": "ApprovalRequired",
+      "msg": "Request requires owner approval"
+    },
+    {
+      "code": 6017,
+      "name": "RequestExpired",
+      "msg": "Request has expired"
+    },
+    {
+      "code": 6018,
+      "name": "RequestNotPending",
+      "msg": "Request is not pending"
+    },
+    {
+      "code": 6019,
+      "name": "RequestNotApproved",
+      "msg": "Request is not approved"
+    },
+    {
+      "code": 6020,
+      "name": "RequestAlreadyExecuted",
+      "msg": "Request has already been executed"
+    },
+    {
+      "code": 6021,
+      "name": "UnsupportedExecutionTarget",
+      "msg": "Execution target is not supported by this instruction"
+    },
+    {
+      "code": 6022,
+      "name": "UnsupportedAssetExecution",
+      "msg": "Asset execution path is not supported yet"
+    },
+    {
+      "code": 6023,
+      "name": "RequestInstructionHashMismatch",
+      "msg": "Instruction payload does not match the approved request"
+    },
+    {
+      "code": 6024,
+      "name": "RequestAccountsHashMismatch",
+      "msg": "Execution accounts do not match the approved request"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidCounterpartyPolicy",
+      "msg": "Counterparty policy account does not match the request recipient"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidAssetTracker",
+      "msg": "Asset tracker account does not match the request asset"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidExecutionAccounts",
+      "msg": "Execution accounts do not satisfy preflight validation"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidExecutionPayload",
+      "msg": "Execution payload does not satisfy preflight validation"
     }
   ],
   "types": [
+    {
+      "name": "AssetSpendTracker",
+      "docs": [
+        "Tracks cumulative spending for a specific asset within a budget period.",
+        "PDA seeds: [b\"tracker\", wallet.key(), asset_mint.key()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet this tracker belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "asset_mint",
+            "docs": [
+              "Asset mint this tracker corresponds to. Native SOL uses Pubkey::default()."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "spent_in_period",
+            "docs": [
+              "Cumulative spend in the current period."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "period_start",
+            "docs": [
+              "Unix timestamp when the current period started."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "period_duration",
+            "docs": [
+              "Period duration in seconds."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "AuditEntry",
       "docs": [
@@ -739,11 +1021,25 @@
             "type": "pubkey"
           },
           {
+            "name": "request_id",
+            "docs": [
+              "Request this entry refers to. Legacy direct execution uses `u64::MAX`."
+            ],
+            "type": "u64"
+          },
+          {
             "name": "approved",
             "docs": [
               "Was the transaction approved?"
             ],
             "type": "bool"
+          },
+          {
+            "name": "outcome",
+            "docs": [
+              "Outcome enum for richer lifecycle visibility."
+            ],
+            "type": "u8"
           },
           {
             "name": "amount",
@@ -753,9 +1049,23 @@
             "type": "u64"
           },
           {
+            "name": "asset_mint",
+            "docs": [
+              "Asset mint for the request. Native SOL uses Pubkey::default()."
+            ],
+            "type": "pubkey"
+          },
+          {
             "name": "target_program",
             "docs": [
               "Target program the agent wanted to call."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "docs": [
+              "Primary destination or recipient."
             ],
             "type": "pubkey"
           },
@@ -791,6 +1101,258 @@
       }
     },
     {
+      "name": "CounterpartyPolicy",
+      "docs": [
+        "Recipient-specific policy override.",
+        "PDA seeds: [b\"counterparty\", wallet.key(), recipient.key()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "Wallet this policy belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "docs": [
+              "Recipient covered by this override."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "enabled",
+            "docs": [
+              "Whether the override is enabled."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "require_approval",
+            "docs": [
+              "Whether requests to this recipient require approval."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "max_per_tx_override",
+            "docs": [
+              "Optional per-tx override."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "daily_limit_override",
+            "docs": [
+              "Optional daily limit override."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "allowed_mints",
+            "docs": [
+              "Allowed mints for this recipient."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExecutionRequest",
+      "docs": [
+        "Canonical request account for the agent's intended action.",
+        "PDA seeds: [b\"request\", wallet.key(), request_id.to_le_bytes()]"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "Wallet this request belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "request_id",
+            "docs": [
+              "Monotonic request id."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "agent",
+            "docs": [
+              "Agent that submitted the request."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "target_program",
+            "docs": [
+              "Target program to execute against."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "docs": [
+              "Recipient or primary destination."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "asset_mint",
+            "docs": [
+              "Asset mint for the request. Native SOL uses Pubkey::default()."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Requested amount."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "docs": [
+              "Request lifecycle state."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "instruction_hash",
+            "docs": [
+              "Hash of the encoded instruction data."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "accounts_hash",
+            "docs": [
+              "Hash of the relevant account meta list."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "memo",
+            "docs": [
+              "Request memo."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "requested_at",
+            "docs": [
+              "Creation timestamp."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "docs": [
+              "Optional expiration timestamp."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "reviewed_by",
+            "docs": [
+              "Reviewer, once approved or rejected."
+            ],
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "reviewed_at",
+            "docs": [
+              "Review timestamp."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintRule",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "docs": [
+              "Asset mint this rule applies to. Native SOL uses Pubkey::default()."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "max_per_tx",
+            "docs": [
+              "Max amount per transaction for this asset."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_daily",
+            "docs": [
+              "Max amount per period for this asset."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "require_approval_above",
+            "docs": [
+              "Optional threshold above which approval is required."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "Policy",
       "docs": [
         "Spending policy tied to a wallet.",
@@ -799,6 +1361,13 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "Account schema version."
+            ],
+            "type": "u8"
+          },
           {
             "name": "wallet",
             "docs": [
@@ -821,12 +1390,59 @@
             "type": "u64"
           },
           {
+            "name": "approval_threshold",
+            "docs": [
+              "Optional threshold above which requests require owner approval."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "require_approval_for_new_recipients",
+            "docs": [
+              "Whether new recipients require approval instead of hard denial."
+            ],
+            "type": "bool"
+          },
+          {
             "name": "allowed_programs",
             "docs": [
               "Allowed target program IDs (max 10). Empty = allow all."
             ],
             "type": {
               "vec": "pubkey"
+            }
+          },
+          {
+            "name": "allowed_recipients",
+            "docs": [
+              "Allowed recipients. Empty = allow all recipients."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "blocked_mints",
+            "docs": [
+              "Asset mints that can never be used."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "mint_rules",
+            "docs": [
+              "Asset-specific rule overrides."
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "MintRule"
+                }
+              }
             }
           },
           {
@@ -867,6 +1483,13 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "version",
+            "docs": [
+              "Account schema version."
+            ],
+            "type": "u8"
+          },
+          {
             "name": "owner",
             "docs": [
               "The human owner who controls the wallet and policy."
@@ -895,6 +1518,20 @@
             "type": "u8"
           },
           {
+            "name": "next_request_id",
+            "docs": [
+              "Monotonic request nonce."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "next_audit_id",
+            "docs": [
+              "Monotonic audit nonce."
+            ],
+            "type": "u64"
+          },
+          {
             "name": "total_approved",
             "docs": [
               "Total approved transactions."
@@ -905,6 +1542,13 @@
             "name": "total_denied",
             "docs": [
               "Total denied transactions."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_pending",
+            "docs": [
+              "Total requests awaiting owner action."
             ],
             "type": "u64"
           },

@@ -173,15 +173,15 @@ export async function fetchWalletsForOwner(
       getAssetTrackerPda(walletPubkey, NATIVE_MINT)[0]
   );
   const [policies, trackers, nativeAssetTrackers] = await Promise.all([
-    fetchDecodedAccounts<PolicyAccountData>(program, "Policy", policyAddresses),
+    fetchDecodedAccounts<PolicyAccountData>(program, "policy", policyAddresses),
     fetchDecodedAccounts<LegacySpendTrackerData>(
       program,
-      "SpendTracker",
+      "spendTracker",
       legacyTrackerAddresses
     ),
     fetchDecodedAccounts<AssetSpendTrackerData>(
       program,
-      "AssetSpendTracker",
+      "assetSpendTracker",
       nativeTrackerAddresses
     ),
   ]);
@@ -228,7 +228,7 @@ export async function fetchAuditEntriesPage(
   const ids = buildNewestFirstIds(total, offset, limit);
   const addresses = ids.map((index) => getAuditPda(walletPubkey, index)[0]);
   const items = (
-    await fetchDecodedAccounts<AuditEntryData>(program, "AuditEntry", addresses)
+    await fetchDecodedAccounts<AuditEntryData>(program, "auditEntry", addresses)
   ).filter((entry): entry is AuditEntryData => entry !== null);
 
   return {
@@ -255,7 +255,7 @@ export async function fetchRequestsPage(
   const items = (
     await fetchDecodedAccounts<ExecutionRequestData>(
       program,
-      "ExecutionRequest",
+      "executionRequest",
       addresses
     )
   ).filter((request): request is ExecutionRequestData => request !== null);
