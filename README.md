@@ -9,8 +9,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)]()
 [![Readiness](https://img.shields.io/badge/Readiness-Private%20Beta-0ea5e9)]()
+[![Dashboard](https://img.shields.io/badge/Dashboard-tavsin.xyz-cyan)](https://tavsin.xyz/dashboard)
 
 </div>
+
+> **Program ID:** `2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy` (devnet)  
+> **Dashboard:** [tavsin.xyz](https://tavsin.xyz) — fleet management, approvals, audit viewer, Jupiter swaps
 
 ---
 
@@ -246,6 +250,20 @@ npm run test:anchor:skip-build
 # Deploy to devnet
 anchor deploy --provider.cluster devnet
 ```
+
+---
+
+## Demo Scripts
+
+Run these on devnet to see TavSin in action (requires `tsx` — installed as a devDep):
+
+| Script | What it does |
+|---|---|
+| `npx tsx scripts/agent-bot.ts` | End-to-end: create wallet → fund → submit request → execute → audit trail |
+| `npx tsx scripts/kill-switch.ts` | Freeze/unfreeze demo: 9 steps showing owner freeze blocks agent, unfreeze re-enables |
+| `npx tsx scripts/jupiter-swap.ts` | Governed Jupiter swap through TavSin policy engine |
+
+Each script generates a fresh agent keypair — no setup needed beyond a funded devnet wallet.
 
 ## Environment Configuration
 

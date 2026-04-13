@@ -90,7 +90,7 @@ const protocolStats = [
 
 const rails = [
   "Wallet-owned PDA custody",
-  "5 on-chain policy checks",
+  "7 on-chain policy checks",
   "Deterministic audit entries",
   "Instant owner freeze control",
 ];
