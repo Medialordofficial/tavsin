@@ -166,6 +166,13 @@
           "writable": true
         },
         {
+          "name": "asset_tracker",
+          "docs": [
+            "The asset-specific spend tracker for native SOL (Pubkey::default())."
+          ],
+          "writable": true
+        },
+        {
           "name": "audit_entry",
           "docs": [
             "The audit entry PDA for this transaction."

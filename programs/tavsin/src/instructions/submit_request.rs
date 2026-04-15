@@ -213,8 +213,10 @@ pub fn handler(
     }
 
     if let (Some(start), Some(end)) = (policy.time_window_start, policy.time_window_end) {
-        let seconds_in_day = clock.unix_timestamp % 86_400;
-        if seconds_in_day < start || seconds_in_day > end {
+        // Seconds since midnight UTC: unix_timestamp % 86400 is correct because
+        // the Unix epoch (1970-01-01T00:00:00Z) starts at midnight UTC.
+        let seconds_since_midnight = clock.unix_timestamp % 86_400;
+        if seconds_since_midnight < start || seconds_since_midnight > end {
             request.status = REQUEST_STATUS_REJECTED;
             audit.denial_reason = REASON_OUTSIDE_TIME_WINDOW;
             wallet.total_denied += 1;

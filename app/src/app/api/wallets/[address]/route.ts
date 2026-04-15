@@ -5,6 +5,7 @@ import { fetchWalletDetail } from "@tavsin/sdk";
 import { serializeWalletDetail } from "@/lib/api-models";
 import { getErrorMessage } from "@/lib/errors";
 import { getReadConnection, getReadonlyProgram } from "@/lib/server-program";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
@@ -16,6 +17,11 @@ export async function GET(
   const maxEntries = isNaN(rawMax) ? 50 : Math.max(1, Math.min(rawMax, 100));
 
   try {
+    const rl = checkRateLimit(`wd:${getClientIp(request)}`, 60);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const walletPubkey = new PublicKey(address);
     const detail = await fetchWalletDetail(
       getReadonlyProgram(),
@@ -24,7 +30,9 @@ export async function GET(
       maxEntries
     );
 
-    return NextResponse.json(serializeWalletDetail(detail));
+    const response = NextResponse.json(serializeWalletDetail(detail));
+    response.headers.set("Cache-Control", "public, max-age=5, stale-while-revalidate=30");
+    return response;
   } catch (error: unknown) {
     return NextResponse.json(
       { error: getErrorMessage(error, "Unable to fetch wallet detail") },

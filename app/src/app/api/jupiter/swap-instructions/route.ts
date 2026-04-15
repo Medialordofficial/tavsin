@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PublicKey } from "@solana/web3.js";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const JUPITER_API =
   process.env.JUPITER_API ?? "https://lite-api.jup.ag/swap/v1";
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`jup:${ip}`, 30);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();

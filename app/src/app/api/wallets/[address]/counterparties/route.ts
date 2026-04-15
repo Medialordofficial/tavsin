@@ -5,6 +5,7 @@ import { fetchCounterpartyPoliciesForWalletPage } from "@tavsin/sdk";
 import { serializeCounterpartyPoliciesPage } from "@/lib/api-models";
 import { getErrorMessage } from "@/lib/errors";
 import { getReadonlyProgram } from "@/lib/server-program";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
@@ -19,6 +20,11 @@ export async function GET(
   const search = searchParams.get("search") || undefined;
 
   try {
+    const rl = checkRateLimit(`cp:${getClientIp(request)}`, 60);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const walletPubkey = new PublicKey(address);
     const page = await fetchCounterpartyPoliciesForWalletPage(
       getReadonlyProgram(),
@@ -28,7 +34,9 @@ export async function GET(
       search
     );
 
-    return NextResponse.json(serializeCounterpartyPoliciesPage(page));
+    const response = NextResponse.json(serializeCounterpartyPoliciesPage(page));
+    response.headers.set("Cache-Control", "public, max-age=5, stale-while-revalidate=30");
+    return response;
   } catch (error: unknown) {
     return NextResponse.json(
       {

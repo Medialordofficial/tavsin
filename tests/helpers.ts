@@ -97,14 +97,17 @@ export function hashInstructionData(data: Buffer): number[] {
 export function hashRemainingAccounts(
   accounts: Array<{ pubkey: PublicKey; isWritable: boolean; isSigner: boolean }>
 ): number[] {
-  const encoded = Buffer.concat(
-    accounts.map((account) =>
+  const countBuf = Buffer.alloc(4);
+  countBuf.writeUInt32LE(accounts.length);
+  const encoded = Buffer.concat([
+    countBuf,
+    ...accounts.map((account) =>
       Buffer.concat([
         account.pubkey.toBuffer(),
         Buffer.from([account.isWritable ? 1 : 0, account.isSigner ? 1 : 0]),
       ])
-    )
-  );
+    ),
+  ]);
 
   return [...createHash("sha256").update(encoded).digest()];
 }

@@ -19,7 +19,9 @@ pub fn hash_instruction_data(data: &[u8]) -> [u8; 32] {
 }
 
 pub fn hash_account_infos(accounts: &[AccountInfo<'_>]) -> [u8; 32] {
-    let mut encoded = Vec::with_capacity(accounts.len() * 34);
+    let count = accounts.len() as u32;
+    let mut encoded = Vec::with_capacity(4 + accounts.len() * 34);
+    encoded.extend_from_slice(&count.to_le_bytes());
     for account in accounts {
         encoded.extend_from_slice(account.key.as_ref());
         encoded.push(u8::from(account.is_writable));

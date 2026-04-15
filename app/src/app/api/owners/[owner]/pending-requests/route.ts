@@ -5,6 +5,7 @@ import { fetchPendingApprovalsForOwner } from "@tavsin/sdk";
 import { serializePendingApprovalsPage } from "@/lib/api-models";
 import { getErrorMessage } from "@/lib/errors";
 import { getReadConnection, getReadonlyProgram } from "@/lib/server-program";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
@@ -18,6 +19,11 @@ export async function GET(
   const limit = isNaN(rawLimit) ? 25 : Math.max(1, Math.min(rawLimit, 100));
 
   try {
+    const rl = checkRateLimit(`pend:${getClientIp(request)}`, 60);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const ownerPubkey = new PublicKey(owner);
     const page = await fetchPendingApprovalsForOwner(
       getReadonlyProgram(),
@@ -27,7 +33,9 @@ export async function GET(
       limit
     );
 
-    return NextResponse.json(serializePendingApprovalsPage(page));
+    const response = NextResponse.json(serializePendingApprovalsPage(page));
+    response.headers.set("Cache-Control", "public, max-age=5, stale-while-revalidate=30");
+    return response;
   } catch (error: unknown) {
     return NextResponse.json(
       { error: getErrorMessage(error, "Unable to fetch pending approvals") },

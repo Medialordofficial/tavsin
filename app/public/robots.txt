@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /wallet/
+
+Sitemap: https://tavsin.xyz/sitemap.xml

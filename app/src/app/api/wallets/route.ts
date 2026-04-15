@@ -5,8 +5,14 @@ import { fetchWalletsForOwnerPage } from "@tavsin/sdk";
 import { serializeWalletsPage } from "@/lib/api-models";
 import { getErrorMessage } from "@/lib/errors";
 import { getReadConnection, getReadonlyProgram } from "@/lib/server-program";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
+  const rl = checkRateLimit(`wallets:${getClientIp(request)}`, 60);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const owner = searchParams.get("owner");
   const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
@@ -28,7 +34,9 @@ export async function GET(request: Request) {
       limit
     );
 
-    return NextResponse.json(serializeWalletsPage(page));
+    const response = NextResponse.json(serializeWalletsPage(page));
+    response.headers.set("Cache-Control", "public, max-age=5, stale-while-revalidate=30");
+    return response;
   } catch (error: unknown) {
     return NextResponse.json(
       { error: getErrorMessage(error, "Unable to fetch wallets") },

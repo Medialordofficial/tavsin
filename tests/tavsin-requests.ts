@@ -12,12 +12,15 @@ import {
   nextRequestPda,
   owner,
   program,
+  provider,
+  fetchWalletAccount,
 } from "./helpers";
 
 describe("tavsin requests", () => {
   it("keeps the legacy execute path working", async () => {
     const fixture = await buildWalletFixture();
     const auditPda = await nextAuditPda(fixture.walletPda);
+    const [assetTrackerPda] = getAssetTrackerPda(fixture.walletPda, nativeMint);
 
     await program.methods
       .execute(new anchor.BN(0.2 * LAMPORTS_PER_SOL), "legacy transfer")
@@ -26,6 +29,7 @@ describe("tavsin requests", () => {
         wallet: fixture.walletPda,
         policy: fixture.policyPda,
         tracker: fixture.legacyTrackerPda,
+        assetTracker: assetTrackerPda,
         auditEntry: auditPda,
         recipient: fixture.recipient.publicKey,
         targetProgram: SystemProgram.programId,
@@ -64,6 +68,7 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -147,6 +152,7 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -233,6 +239,7 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -351,6 +358,7 @@ describe("tavsin requests", () => {
         recipient: fixture.alternateRecipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -388,6 +396,7 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })

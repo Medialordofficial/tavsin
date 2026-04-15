@@ -34,6 +34,16 @@ pub struct Execute<'info> {
     )]
     pub tracker: Account<'info, SpendTracker>,
 
+    /// The asset-specific spend tracker for native SOL (Pubkey::default()).
+    #[account(
+        init_if_needed,
+        payer = agent,
+        space = 8 + AssetSpendTracker::INIT_SPACE,
+        seeds = [TRACKER_SEED, wallet.key().as_ref(), Pubkey::default().as_ref()],
+        bump,
+    )]
+    pub asset_tracker: Account<'info, AssetSpendTracker>,
+
     /// The audit entry PDA for this transaction.
     #[account(
         init,
@@ -66,10 +76,21 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     let wallet = &mut ctx.accounts.wallet;
     let policy = &ctx.accounts.policy;
     let tracker = &mut ctx.accounts.tracker;
+    let asset_tracker = &mut ctx.accounts.asset_tracker;
     let audit = &mut ctx.accounts.audit_entry;
     let clock = Clock::get()?;
 
     let target_program_key = ctx.accounts.target_program.key();
+
+    // Initialize asset tracker on first use
+    if asset_tracker.wallet == Pubkey::default() {
+        asset_tracker.wallet = wallet.key();
+        asset_tracker.asset_mint = Pubkey::default();
+        asset_tracker.spent_in_period = 0;
+        asset_tracker.period_start = clock.unix_timestamp;
+        asset_tracker.period_duration = DEFAULT_PERIOD_DURATION;
+        asset_tracker.bump = ctx.bumps.asset_tracker;
+    }
 
     // Initialize audit entry fields that are always set
     audit.wallet = wallet.key();
@@ -116,6 +137,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
         tracker.spent_in_period = 0;
         tracker.period_start = clock.unix_timestamp;
     }
+    if clock.unix_timestamp >= asset_tracker.period_start + asset_tracker.period_duration {
+        asset_tracker.spent_in_period = 0;
+        asset_tracker.period_start = clock.unix_timestamp;
+    }
 
     if tracker.spent_in_period + amount > policy.max_daily {
         audit.approved = false;
@@ -150,9 +175,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
 
     // Check 5: Time window
     if let (Some(start), Some(end)) = (policy.time_window_start, policy.time_window_end) {
-        // Get seconds since midnight UTC
-        let seconds_in_day = clock.unix_timestamp % 86_400;
-        if seconds_in_day < start || seconds_in_day > end {
+        // Seconds since midnight UTC: unix_timestamp % 86400 is correct because
+        // the Unix epoch (1970-01-01T00:00:00Z) starts at midnight UTC.
+        let seconds_since_midnight = clock.unix_timestamp % 86_400;
+        if seconds_since_midnight < start || seconds_since_midnight > end {
             audit.approved = false;
             audit.outcome = OUTCOME_DENIED;
             audit.denial_reason = REASON_OUTSIDE_TIME_WINDOW;
@@ -160,7 +186,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
             wallet.next_audit_id += 1;
             msg!(
                 "DENIED: Current time {} outside window [{}, {}]",
-                seconds_in_day,
+                seconds_since_midnight,
                 start,
                 end
             );
@@ -189,8 +215,9 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     **wallet.to_account_info().try_borrow_mut_lamports()? -= amount;
     **ctx.accounts.recipient.to_account_info().try_borrow_mut_lamports()? += amount;
 
-    // Update tracker
+    // Update trackers
     tracker.spent_in_period += amount;
+    asset_tracker.spent_in_period += amount;
 
     // Update wallet stats
     wallet.total_approved += 1;

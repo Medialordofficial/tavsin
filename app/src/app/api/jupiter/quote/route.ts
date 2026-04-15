@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PublicKey } from "@solana/web3.js";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const JUPITER_API =
   process.env.JUPITER_API ?? "https://lite-api.jup.ag/swap/v1";
@@ -14,6 +15,12 @@ function isValidMint(input: string): boolean {
 }
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`jup:${ip}`, 30);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const inputMint = req.nextUrl.searchParams.get("inputMint");
   const outputMint = req.nextUrl.searchParams.get("outputMint");
   const amount = req.nextUrl.searchParams.get("amount");

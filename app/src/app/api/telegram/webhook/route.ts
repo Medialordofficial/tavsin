@@ -27,6 +27,7 @@ import { createProgram, getWalletPda } from "@tavsin/sdk";
 import idlJson from "@/lib/tavsin_idl.json";
 import { getServerRpcEndpoint } from "@/lib/network";
 import { getServerProgramId } from "@/lib/program-config";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 /* ── Env helpers ─────────────────────────────────────── */
 
@@ -238,6 +239,13 @@ Commands:
 /* ── Webhook handler ─────────────────────────────────── */
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 10 requests/minute per IP for mutation endpoint
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`tg:${ip}`, 10);
+  if (!rl.allowed) {
+    return NextResponse.json({ ok: false, error: "Too many requests" }, { status: 429 });
+  }
+
   const token = getBotToken();
   if (!token) {
     return NextResponse.json({ ok: false, error: "Bot not configured" }, { status: 503 });

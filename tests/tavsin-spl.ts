@@ -107,6 +107,7 @@ describe("tavsin spl", () => {
         recipient: recipientTokenAccount.address,
         assetMint: mint,
         assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
         targetProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
       })

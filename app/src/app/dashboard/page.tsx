@@ -418,9 +418,34 @@ export default function DashboardPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-            <span className="ml-3 text-slate-400">Loading protocol state...</span>
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                  <div className="mb-3 h-3 w-20 animate-pulse rounded bg-white/10" />
+                  <div className="h-6 w-16 animate-pulse rounded bg-white/8" />
+                </div>
+              ))}
+            </div>
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-6">
+              <div className="mb-4 h-4 w-32 animate-pulse rounded bg-white/10" />
+              <div className="flex items-end gap-2" style={{ height: 120 }}>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex-1 animate-pulse rounded-t-lg bg-white/8" style={{ height: `${30 + Math.random() * 60}%` }} />
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5">
+                  <div className="mb-3 h-4 w-32 animate-pulse rounded bg-white/10" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-full animate-pulse rounded bg-white/6" />
+                    <div className="h-3 w-3/4 animate-pulse rounded bg-white/6" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : error ? (
           <div className="tavsin-fade-up rounded-[1.75rem] border border-red-500/20 bg-red-500/5 p-6 text-center">
