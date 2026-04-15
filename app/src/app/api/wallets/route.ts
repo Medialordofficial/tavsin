@@ -9,8 +9,10 @@ import { getReadConnection, getReadonlyProgram } from "@/lib/server-program";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const owner = searchParams.get("owner");
-  const offset = parseInt(searchParams.get("offset") || "0", 10);
-  const limit = parseInt(searchParams.get("limit") || "24", 10);
+  const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
+  const rawLimit = parseInt(searchParams.get("limit") || "24", 10);
+  const offset = isNaN(rawOffset) ? 0 : Math.max(0, rawOffset);
+  const limit = isNaN(rawLimit) ? 24 : Math.max(1, Math.min(rawLimit, 100));
 
   if (!owner) {
     return NextResponse.json({ error: "owner is required" }, { status: 400 });
@@ -22,8 +24,8 @@ export async function GET(request: Request) {
       getReadonlyProgram(),
       getReadConnection(),
       ownerPubkey,
-      Math.max(0, offset),
-      Math.max(1, Math.min(limit, 100))
+      offset,
+      limit
     );
 
     return NextResponse.json(serializeWalletsPage(page));

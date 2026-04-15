@@ -12,8 +12,10 @@ export async function GET(
 ) {
   const { owner } = await context.params;
   const { searchParams } = new URL(request.url);
-  const offset = parseInt(searchParams.get("offset") || "0", 10);
-  const limit = parseInt(searchParams.get("limit") || "25", 10);
+  const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
+  const rawLimit = parseInt(searchParams.get("limit") || "25", 10);
+  const offset = isNaN(rawOffset) ? 0 : Math.max(0, rawOffset);
+  const limit = isNaN(rawLimit) ? 25 : Math.max(1, Math.min(rawLimit, 100));
 
   try {
     const ownerPubkey = new PublicKey(owner);
@@ -21,8 +23,8 @@ export async function GET(
       getReadonlyProgram(),
       getReadConnection(),
       ownerPubkey,
-      Math.max(0, offset),
-      Math.max(1, Math.min(limit, 100))
+      offset,
+      limit
     );
 
     return NextResponse.json(serializePendingApprovalsPage(page));

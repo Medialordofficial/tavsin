@@ -180,7 +180,6 @@ async function main() {
       recipient: recipientKp.publicKey,
       assetMint: NATIVE_MINT,
       assetTracker,
-      counterpartyPolicy: null,
       targetProgram: SystemProgram.programId,
       systemProgram: SystemProgram.programId,
     })
@@ -249,7 +248,6 @@ async function main() {
         recipient: recipientKp.publicKey,
         assetMint: NATIVE_MINT,
         assetTracker,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -308,7 +306,6 @@ async function main() {
       recipient: recipientKp.publicKey,
       assetMint: NATIVE_MINT,
       assetTracker,
-      counterpartyPolicy: null,
       targetProgram: SystemProgram.programId,
       systemProgram: SystemProgram.programId,
     })

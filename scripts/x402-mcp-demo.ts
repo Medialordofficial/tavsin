@@ -258,7 +258,6 @@ async function main() {
           recipient: vendorKp.publicKey,
           assetMint: NATIVE_MINT,
           assetTracker: nativeTrackerPda,
-          counterpartyPolicy: null,
           targetProgram: SystemProgram.programId,
           systemProgram: SystemProgram.programId,
         })

@@ -1,10 +1,20 @@
-export function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
+/**
+ * Safe error messages that can be exposed to clients.
+ * Everything else gets the fallback.
+ */
+const SAFE_PATTERNS = [
+  "owner is required",
+  "not found",
+  "Invalid public key",
+  "Account does not exist",
+];
 
-  if (typeof error === "string" && error.length > 0) {
-    return error;
+export function getErrorMessage(error: unknown, fallback: string) {
+  const raw =
+    error instanceof Error ? error.message : typeof error === "string" ? error : "";
+
+  if (raw && SAFE_PATTERNS.some((p) => raw.includes(p))) {
+    return raw;
   }
 
   return fallback;

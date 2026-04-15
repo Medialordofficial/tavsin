@@ -12,16 +12,18 @@ export async function GET(
 ) {
   const { address } = await context.params;
   const { searchParams } = new URL(request.url);
-  const offset = parseInt(searchParams.get("offset") || "0", 10);
-  const limit = parseInt(searchParams.get("limit") || "25", 10);
+  const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
+  const rawLimit = parseInt(searchParams.get("limit") || "25", 10);
+  const offset = isNaN(rawOffset) ? 0 : Math.max(0, rawOffset);
+  const limit = isNaN(rawLimit) ? 25 : Math.max(1, Math.min(rawLimit, 100));
 
   try {
     const walletPubkey = new PublicKey(address);
     const page = await fetchAuditEntriesPage(
       getReadonlyProgram(),
       walletPubkey,
-      Math.max(0, offset),
-      Math.max(1, Math.min(limit, 100))
+      offset,
+      limit
     );
 
     return NextResponse.json(serializeAuditEntriesPage(page));

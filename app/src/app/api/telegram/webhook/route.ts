@@ -243,6 +243,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Bot not configured" }, { status: 503 });
   }
 
+  // Verify Telegram webhook secret token
+  const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (webhookSecret) {
+    const secretHeader = req.headers.get("x-telegram-bot-api-secret-token");
+    if (secretHeader !== webhookSecret) {
+      return NextResponse.json({ ok: false }, { status: 401 });
+    }
+  }
+
   let body: any;
   try {
     body = await req.json();
@@ -258,9 +267,12 @@ export async function POST(req: NextRequest) {
   const chatId: number = message.chat.id;
   const text: string = message.text.trim();
 
-  // Auth check — restrict to allowed chat IDs
+  // Auth check — restrict to allowed chat IDs (fail closed if not configured)
   const allowed = getAllowedChatIds();
-  if (allowed.size > 0 && !allowed.has(chatId)) {
+  if (allowed.size === 0) {
+    return NextResponse.json({ ok: false, error: "Allowed chat IDs not configured" }, { status: 503 });
+  }
+  if (!allowed.has(chatId)) {
     await sendMessage(chatId, "⛔ Unauthorized. Your chat ID is not allowed.");
     return NextResponse.json({ ok: true });
   }

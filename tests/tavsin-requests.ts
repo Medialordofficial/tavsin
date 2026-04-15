@@ -64,7 +64,6 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -148,7 +147,6 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -235,7 +233,6 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -354,7 +351,6 @@ describe("tavsin requests", () => {
         recipient: fixture.alternateRecipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })
@@ -392,7 +388,6 @@ describe("tavsin requests", () => {
         recipient: fixture.recipient.publicKey,
         assetMint: nativeMint,
         assetTracker: assetTrackerPda,
-        counterpartyPolicy: null,
         targetProgram: SystemProgram.programId,
         systemProgram: SystemProgram.programId,
       })

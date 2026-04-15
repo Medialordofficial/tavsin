@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PublicKey } from "@solana/web3.js";
 
 const JUPITER_API =
   process.env.JUPITER_API ?? "https://lite-api.jup.ag/swap/v1";
+
+function isValidMint(input: string): boolean {
+  try {
+    new PublicKey(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const inputMint = req.nextUrl.searchParams.get("inputMint");
@@ -12,6 +22,21 @@ export async function GET(req: NextRequest) {
   if (!inputMint || !outputMint || !amount) {
     return NextResponse.json(
       { error: "inputMint, outputMint, and amount are required" },
+      { status: 400 }
+    );
+  }
+
+  if (!isValidMint(inputMint) || !isValidMint(outputMint)) {
+    return NextResponse.json(
+      { error: "Invalid mint address" },
+      { status: 400 }
+    );
+  }
+
+  const parsedAmount = parseInt(amount, 10);
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    return NextResponse.json(
+      { error: "Invalid amount" },
       { status: 400 }
     );
   }

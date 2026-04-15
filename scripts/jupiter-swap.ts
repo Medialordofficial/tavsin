@@ -176,7 +176,7 @@ async function getJupiterQuote(
   if (!res.ok) {
     throw new Error(`Jupiter quote failed: ${res.status} ${await res.text()}`);
   }
-  return res.json();
+  return res.json() as Promise<JupiterQuote>;
 }
 
 async function getJupiterSwapInstructions(
@@ -198,7 +198,7 @@ async function getJupiterSwapInstructions(
       `Jupiter swap-instructions failed: ${res.status} ${await res.text()}`
     );
   }
-  return res.json();
+  return res.json() as Promise<JupiterSwapInstructions>;
 }
 
 function jupiterIxToTransactionInstruction(
@@ -409,7 +409,6 @@ async function main() {
       recipient: NATIVE_MINT, // Jupiter handles routing
       assetMint: NATIVE_MINT,
       assetTracker: nativeTrackerPda,
-      counterpartyPolicy: null,
       targetProgram,
       systemProgram: SystemProgram.programId,
     })
