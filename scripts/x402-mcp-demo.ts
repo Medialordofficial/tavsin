@@ -265,13 +265,13 @@ async function main() {
         .signers([agentKp])
         .rpc();
 
-      // Check request status
+      // Check request status (0=Pending, 1=Approved, 2=Rejected, 3=Executed)
       const reqData = await (
         agentProgram.account as any
       ).executionRequest.fetch(requestPda);
 
-      if (reqData.status === 0) {
-        // Auto-approved — execute
+      if (reqData.status === 1) {
+        // Approved — execute
         const walletState2 = await (
           agentProgram.account as any
         ).smartWallet.fetch(walletPda);
@@ -304,8 +304,10 @@ async function main() {
           reason: "Within policy",
         });
       } else if (reqData.status === 2) {
+        // Rejected — read denial reason from audit entry
+        const auditData = await (agentProgram.account as any).auditEntry.fetch(auditPda);
         const reason =
-          DENIAL_REASONS[reqData.denialReason] ?? `Code ${reqData.denialReason}`;
+          DENIAL_REASONS[auditData.denialReason] ?? `Code ${auditData.denialReason}`;
         console.log(`  🚫 DENIED — ${reason}`);
         results.push({
           tool: tool.name,

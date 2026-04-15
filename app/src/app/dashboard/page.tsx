@@ -61,6 +61,29 @@ export default function DashboardPage() {
     return { totalBalance, frozenCount, totalApproved, totalDenied, totalTx, fleetApprovalRate, walletBars, maxBalance };
   }, [wallets]);
 
+  // Anomaly detection
+  const anomalies = useMemo(() => {
+    const alerts: { severity: "critical" | "warning" | "info"; message: string; wallet?: string }[] = [];
+
+    for (const bar of fleetStats.walletBars) {
+      if (bar.frozen) {
+        alerts.push({ severity: "critical", message: `Wallet ${bar.address.slice(0, 6)}… is frozen`, wallet: bar.address });
+      }
+      if (bar.utilization > 80) {
+        alerts.push({ severity: "warning", message: `Wallet ${bar.address.slice(0, 6)}… at ${bar.utilization.toFixed(0)}% daily spend`, wallet: bar.address });
+      }
+      if (bar.pending > 0) {
+        alerts.push({ severity: "info", message: `Wallet ${bar.address.slice(0, 6)}… has ${bar.pending} pending review${bar.pending > 1 ? "s" : ""}`, wallet: bar.address });
+      }
+    }
+
+    if (fleetStats.totalTx > 0 && fleetStats.fleetApprovalRate < 80) {
+      alerts.push({ severity: "warning", message: `Fleet denial rate high — ${100 - fleetStats.fleetApprovalRate}% of transactions denied` });
+    }
+
+    return alerts;
+  }, [fleetStats]);
+
   if (!connected) {
     return (
       <div className="relative min-h-[80vh] overflow-hidden px-4">
@@ -157,6 +180,39 @@ export default function DashboardPage() {
               <StatCard label="Total Approved" value={fleetStats.totalApproved.toString()} tone="emerald" />
               <StatCard label="Total Denied" value={fleetStats.totalDenied.toString()} tone={fleetStats.totalDenied > 0 ? "red" : "slate"} />
             </div>
+
+            {anomalies.length > 0 && (
+              <div className="mb-4 rounded-[1.5rem] border border-amber-400/20 bg-amber-400/5 p-4">
+                <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.26em] text-amber-300">
+                  Anomaly Alerts
+                </div>
+                <div className="space-y-2">
+                  {anomalies.map((a, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm ${
+                        a.severity === "critical"
+                          ? "border border-red-500/20 bg-red-500/10 text-red-200"
+                          : a.severity === "warning"
+                            ? "border border-amber-400/20 bg-amber-400/10 text-amber-200"
+                            : "border border-cyan-400/15 bg-cyan-400/5 text-cyan-200"
+                      }`}
+                    >
+                      <span className="text-base">
+                        {a.severity === "critical" ? "🔴" : a.severity === "warning" ? "⚠️" : "ℹ️"}
+                      </span>
+                      {a.wallet ? (
+                        <Link href={`/wallet/${a.wallet}`} className="underline decoration-white/20 hover:decoration-white/40">
+                          {a.message}
+                        </Link>
+                      ) : (
+                        <span>{a.message}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mb-8 rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.9),rgba(8,12,24,0.98))] p-6 shadow-[0_20px_90px_rgba(0,0,0,0.28)]">
               <div className="mb-1 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
