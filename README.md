@@ -2,19 +2,45 @@
 
 # 🛡️ Tavsin
 
-### The Smart Wallet for AI Agents on Solana
+### The Compliance Layer for AI Agents on Solana
 
-**Your agent doesn't need a wallet. It needs a Tavsin account.**
+**Policy-enforced smart wallets — your agent operates autonomously, your compliance officer sleeps at night.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)]()
-[![Readiness](https://img.shields.io/badge/Readiness-Private%20Beta-0ea5e9)]()
+[![Readiness](https://img.shields.io/badge/Readiness-Devnet%20Live-22c55e)]()
 [![Dashboard](https://img.shields.io/badge/Dashboard-tavsin.xyz-cyan)](https://tavsin.xyz/dashboard)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-ff6b35)](mcp/README.md)
 
 </div>
 
-> **Program ID:** `2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy` (devnet)  
-> **Dashboard:** [tavsin.xyz](https://tavsin.xyz) — fleet management, approvals, audit viewer, Jupiter swaps
+> **Program ID:** [`2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy`](https://explorer.solana.com/address/2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy?cluster=devnet) (devnet)
+> **Live App:** [tavsin.xyz](https://tavsin.xyz) · **Health:** [tavsin.xyz/api/health](https://tavsin.xyz/api/health)
+
+---
+
+## 🏆 For Hackathon Judges — Try It in 60 seconds
+
+```bash
+git clone https://github.com/Medialordofficial/tavsin && cd tavsin
+
+# Run the live USDC demo on devnet (no setup, mints its own demo token)
+cd examples/demo-agent && npm install && npm run demo:usdc
+
+# OR plug TavSin into Claude Desktop as MCP tools — see mcp/README.md
+cd mcp && npm install && npm run build
+```
+
+**What you'll see:** an autonomous agent making USDC payments → policy approves small ones, denies oversized ones, hits the daily budget cap, and emits a full on-chain audit trail. Every decision queryable on Solana Explorer.
+
+| Where to look | What you'll find |
+|---|---|
+| [`programs/tavsin/`](programs/tavsin/) | Anchor program (Rust) — 12 instructions, 7 account types |
+| [`mcp/`](mcp/) | MCP server — Claude/Cursor can call TavSin natively (7 tools) |
+| [`examples/demo-agent/`](examples/demo-agent/) | Live demo agents (SOL & USDC variants) |
+| [`sdk/`](sdk/) | TypeScript SDK (`@tavsin/sdk`) |
+| [`tests/`](tests/) | 18 passing tests across policy, requests, SPL flows |
+| [`docs/PITCH_V2.md`](docs/PITCH_V2.md) | 2-minute pitch script + moat brief |
 
 ---
 
@@ -30,7 +56,7 @@ MCPay and Latinum solved *how* agents pay. Nobody has solved **who controls the 
 
 There is no smart wallet for agents. No per-agent limits. No anomaly detection. No on-chain enforcement of budget rules. Developers hardcode limits in application code and hope for the best.
 
-**This is the gap. Tavsin fills it.**
+**This is the regulatory blocker keeping enterprises from deploying agents at scale. Tavsin fills it.**
 
 ---
 

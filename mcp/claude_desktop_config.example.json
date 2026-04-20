@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "tavsin": {
+      "command": "node",
+      "args": ["/absolute/path/to/tavsin/mcp/dist/index.js"],
+      "env": {
+        "SOLANA_RPC_URL": "https://api.devnet.solana.com",
+        "TAVSIN_AGENT_KEYPAIR": "[REPLACE_WITH_KEYPAIR_BYTE_ARRAY]"
+      }
+    }
+  }
+}

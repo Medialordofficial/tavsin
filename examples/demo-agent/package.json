@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
-    "demo": "tsx src/index.ts"
+    "demo": "tsx src/index.ts",
+    "demo:usdc": "tsx src/usdc.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "@tavsin/sdk": "file:../../sdk"
   },
