@@ -27,11 +27,16 @@ git clone https://github.com/Medialordofficial/tavsin && cd tavsin
 # Run the live USDC demo on devnet (no setup, mints its own demo token)
 cd examples/demo-agent && npm install && npm run demo:usdc
 
+# Or — watch a prompt-injection attack get denied 4 ways on-chain
+npm run demo:jailbreak
+
 # OR plug TavSin into Claude Desktop as MCP tools — see mcp/README.md
 cd mcp && npm install && npm run build
 ```
 
 **What you'll see:** an autonomous agent making USDC payments → policy approves small ones, denies oversized ones, hits the daily budget cap, and emits a full on-chain audit trail. Every decision queryable on Solana Explorer.
+
+The **jailbreak demo** simulates 4 distinct attacks (direct drain, salami slice, social-engineering privilege escalation, allowlist bypass via Jupiter reroute). All 4 are denied at the program boundary. **The LLM gets fooled. The wallet does not.**
 
 | Where to look | What you'll find |
 |---|---|

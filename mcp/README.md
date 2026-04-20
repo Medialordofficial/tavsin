@@ -102,3 +102,31 @@ If you don't set `TAVSIN_AGENT_KEYPAIR`, the read tools (`list_wallets`, `get_wa
 - The MCP server holds the agent keypair in memory — never log or commit it
 - All write operations go through TavSin's on-chain policy engine — even if an LLM tries to overspend, the program denies it
 - Read operations are stateless and require no authentication
+
+## Beyond MCP — direct LLM tool integrations
+
+If you're building with **Vercel AI SDK**, **Anthropic SDK**, **OpenAI function calling**, or **Solana Agent Kit (SendAI)** directly (no MCP), TavSin ships native tool definitions in `@tavsin/sdk`:
+
+```ts
+import { tavsinTools, tavsinToolDefinitions, tavsinSolanaAgentKitPlugin } from "@tavsin/sdk";
+
+// Vercel AI SDK
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+
+const tools = tavsinTools({ program, connection, agentKp });
+const result = await generateText({
+  model: anthropic("claude-sonnet-4-5"),
+  prompt: "Pay merchant ABC 25 USDC for API credits",
+  tools,
+});
+
+// Anthropic SDK directly
+const definitions = tavsinToolDefinitions(); // → JSON-schema tool defs
+
+// Solana Agent Kit (SendAI)
+import { SolanaAgentKit } from "solana-agent-kit";
+const agent = new SolanaAgentKit(wallet, RPC_URL).use(tavsinSolanaAgentKitPlugin(ctx));
+```
+
+One source of truth (`tavsinExecuteTool`), every framework supported.

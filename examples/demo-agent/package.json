@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "demo": "tsx src/index.ts",
-    "demo:usdc": "tsx src/usdc.ts"
+    "demo:usdc": "tsx src/usdc.ts",
+    "demo:jailbreak": "tsx src/jailbreak.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",

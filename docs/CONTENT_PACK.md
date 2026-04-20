@@ -48,6 +48,25 @@ Ready-to-post content for the Colosseum Frontier 2026 push. Copy, paste, ship.
 
 ---
 
+## TWEET 3.5 — The Jailbreak Demo (HIGHEST VIRALITY POTENTIAL)
+
+> Tried to jailbreak our AI agent into draining a 10,000 USDC wallet.
+>
+> Attack 1 — direct drain → ❌ denied (per-tx limit)
+> Attack 2 — salami slice (49 USDC × 20) → ❌ denied (daily cap)
+> Attack 3 — "emergency, raise the limit" → ❌ denied (agent ≠ owner)
+> Attack 4 — reroute via Jupiter → ❌ denied (not on allowlist)
+>
+> The LLM was fooled. The wallet wasn't.
+>
+> ```bash
+> npm run demo:jailbreak
+> ```
+
+*[attach 60-sec terminal recording of the attacks unfolding]*
+
+---
+
 ## TWEET 4 — Why It Matters / Moat
 
 > "Couldn't @SquadsProtocol just build this?"
@@ -165,7 +184,6 @@ Submitted to: Colosseum Frontier 2026
 ---
 
 ## DEMO PROMPTS (for live judging)
-
 If a judge wants to try Claude Desktop + TavSin live:
 
 1. *"Show me all TavSin wallets owned by this address: `<pubkey>`"*
@@ -176,3 +194,41 @@ If a judge wants to try Claude Desktop + TavSin live:
 6. *"List all pending approvals across my wallets."*
 
 Each prompt = one MCP tool call = one on-chain transaction (or read). Devnet explorer links auto-included in tool responses.
+
+---
+
+## 60-SECOND VIDEO SHOT LIST (the killer demo)
+
+Record this with OBS or QuickTime + a clean terminal. Total: ~60 seconds.
+
+| Time | Scene | Notes |
+|---|---|---|
+| 0:00–0:05 | Title card: "Can you jailbreak an AI agent into draining a wallet?" | White text on black |
+| 0:05–0:08 | Terminal: `npm run demo:jailbreak` | Big readable font, dark theme |
+| 0:08–0:18 | SCENE 1 plays — direct drain attempt → DENIED in red | Let the colored output speak for itself |
+| 0:18–0:30 | SCENE 2 — salami slice, watch denials fire after budget hits | Most visceral — multiple ✓ then a hard ✗ |
+| 0:30–0:40 | SCENE 3 — privilege escalation → DENIED (architectural) | Emphasize: agent ≠ owner |
+| 0:40–0:50 | SCENE 4 — Jupiter reroute → DENIED (allowlist) | |
+| 0:50–0:58 | Final State table: balance preserved, 4 denied attacks logged on-chain | |
+| 0:58–1:00 | End card: "TavSin — the compliance layer for AI agents on Solana. tavsin.xyz" | |
+
+**Why this video wins:** judges have seen 100 "look at my AI agent" demos. They've seen zero "watch my AI agent get jailbroken and lose anyway" demos. Subverted expectations + visceral red ✗ marks = memorable.
+
+---
+
+## TWEET 6 — SDK / Framework Integration
+
+> Just shipped framework-agnostic AI tools in @tavsin SDK.
+>
+> Plug TavSin into:
+>   • Vercel AI SDK
+>   • Anthropic SDK
+>   • OpenAI function calling
+>   • Solana Agent Kit (@sendaifun)
+>   • Or MCP (Claude Desktop / Cursor)
+>
+> One source of truth. Every framework supported.
+>
+> ```ts
+> import { tavsinTools } from "@tavsin/sdk";
+> ```
