@@ -82,10 +82,10 @@ const competitors = [
 const protocolStats = [
   { label: "On-chain instructions", value: "12" },
   { label: "Policy checks per tx", value: "7" },
-  { label: "Test coverage", value: "11/11" },
-  { label: "Solana AI projects", value: "325+" },
-  { label: "Built wallet governance", value: "0" },
-  { label: "That changes with", value: "TavSin" },
+  { label: "Tests passing", value: "18/18" },
+  { label: "MCP tools exposed", value: "7" },
+  { label: "USDC demo on devnet", value: "Live" },
+  { label: "Audit trail", value: "100%" },
 ];
 
 const rails = [
@@ -181,27 +181,28 @@ export default function Home() {
               />
               <div>
                 <div className="text-xs uppercase tracking-[0.3em] text-slate-300">
-                  Solana Devnet Live
+                  Solana Devnet Live · MCP Compatible
                 </div>
                 <div className="mt-2 max-w-xl text-2xl font-semibold leading-tight text-white sm:text-3xl">
-                  The operating system for agent wallets
+                  The compliance layer for the agent economy
                 </div>
               </div>
             </div>
 
             <h1 className="max-w-4xl text-5xl font-semibold leading-[0.92] tracking-[-0.05em] text-white sm:text-7xl lg:text-[5.5rem] tavsin-fade-scale">
-              Risk rails for
+              AI agents move money.
               <span className="block bg-gradient-to-r from-cyan-300 via-sky-400 to-amber-300 bg-clip-text text-transparent">
-                autonomous capital
+                We make that safe.
               </span>
             </h1>
 
             <p className="mt-8 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
-              TavSin gives AI agents controlled on-chain spending without giving
-              them uncontrolled custody. Think protocol-grade wallet
-              infrastructure, not a generic AI landing page. Capital stays in a
-              policy-enforced smart wallet. Agents operate inside explicit risk
-              limits. Owners keep override power.
+              TavSin is a policy-enforced smart wallet for autonomous AI agents on
+              Solana. Spending limits, vendor allowlists, and daily budgets are
+              enforced <span className="text-cyan-200">on-chain</span> — agents
+              can&rsquo;t bypass them. Every transaction emits a tamper-proof
+              audit entry. Plugs into Claude Desktop, Cursor, and any MCP client.
+              The regulatory unlock for enterprises deploying agent fleets.
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -363,6 +364,70 @@ export default function Home() {
         </div>
       </section>
 
+      {/* MCP / Claude Desktop live demo strip */}
+      <section className="border-t border-white/8 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                Live LLM Demo
+              </div>
+              <h2 className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+                Plug into Claude Desktop.
+                <span className="block bg-gradient-to-r from-cyan-300 to-amber-300 bg-clip-text text-transparent">
+                  Watch policy enforce in real time.
+                </span>
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-8 text-slate-300">
+                TavSin ships as an MCP server with 7 tools. Connect it to Claude,
+                Cursor, or any MCP client. Ask the LLM to spend USDC. Watch the
+                program approve small payments, deny oversized ones, and hit the
+                daily budget — every decision logged on devnet.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="https://github.com/Medialordofficial/tavsin/blob/main/mcp/README.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-400/10 px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100 transition-colors hover:bg-cyan-400/15"
+                >
+                  MCP Setup Guide
+                </a>
+                <a
+                  href="https://github.com/Medialordofficial/tavsin/tree/main/examples/demo-agent"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/4 px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/8"
+                >
+                  Run USDC Demo
+                </a>
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(8,12,24,0.99))] p-6 font-mono text-[13px] leading-7 shadow-[0_30px_120px_rgba(0,0,0,0.4)]">
+              <div className="mb-4 flex items-center gap-2 border-b border-white/8 pb-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
+                Claude Desktop · TavSin MCP · devnet
+              </div>
+              <div className="space-y-2.5">
+                <div><span className="text-slate-500">user&gt;</span> <span className="text-slate-200">pay merchant X 25 USDC</span></div>
+                <div><span className="text-emerald-300">tavsin.submit_request</span> <span className="text-emerald-200">→ ✓ approved · executed</span></div>
+                <div className="text-slate-600">─────────────────────────────</div>
+                <div><span className="text-slate-500">user&gt;</span> <span className="text-slate-200">pay 75 USDC</span></div>
+                <div><span className="text-rose-300">tavsin.submit_request</span> <span className="text-rose-200">→ ✗ denied: exceeds per-tx limit (50 USDC)</span></div>
+                <div className="text-slate-600">─────────────────────────────</div>
+                <div><span className="text-slate-500">user&gt;</span> <span className="text-slate-200">pay 40 USDC, five times</span></div>
+                <div><span className="text-emerald-200">→ ✓ ✓ ✓</span> <span className="text-rose-200">→ ✗ daily budget hit (200 USDC)</span></div>
+                <div className="text-slate-600">─────────────────────────────</div>
+                <div><span className="text-slate-500">user&gt;</span> <span className="text-slate-200">show audit log</span></div>
+                <div><span className="text-cyan-300">tavsin.get_audit_log</span> <span className="text-cyan-200">→ 8 entries · all on-chain</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-white/8 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-14 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -489,6 +554,11 @@ export default function Home() {
                 <span className="bg-gradient-to-r from-cyan-300 to-amber-300 bg-clip-text text-transparent">TavSin</span> is for autonomous agents.
               </h2>
               <p className="mt-6 text-base leading-8 text-slate-300 sm:text-lg">
+                Squads protects against bad humans. TavSin protects against bad inference.
+                Different threat model, different primitives — agent identity, MCP-native tooling,
+                shared blocklist registry, on-chain reputation graph.
+              </p>
+              <p className="mt-4 text-sm leading-7 text-slate-400">
                 325+ Solana AI projects. Thousands of MCP tool servers. x402 standardizing agent payments.
                 Zero projects built the wallet governance layer — until now.
               </p>
