@@ -44,6 +44,71 @@
       "args": []
     },
     {
+      "name": "close_audit_entry",
+      "discriminator": [
+        75,
+        190,
+        146,
+        245,
+        209,
+        4,
+        42,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "rent_recipient",
+          "writable": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "audit_entry",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_request",
+      "discriminator": [
+        170,
+        46,
+        165,
+        120,
+        223,
+        102,
+        115,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "rent_recipient",
+          "docs": [
+            "Where the rent goes. Typically the owner."
+          ],
+          "writable": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "request",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "create_wallet",
       "discriminator": [
         82,
@@ -376,6 +441,39 @@
       ]
     },
     {
+      "name": "panic_drain",
+      "discriminator": [
+        52,
+        202,
+        237,
+        19,
+        135,
+        191,
+        148,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "destination",
+          "docs": [
+            "Recovery destination. Can be the owner, a Squads vault, a cold wallet,",
+            "anything controllable by the owner. Must be a system account."
+          ],
+          "writable": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "reject_request",
       "discriminator": [
         11,
@@ -407,6 +505,36 @@
         },
         {
           "name": "system_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "rotate_agent",
+      "discriminator": [
+        182,
+        91,
+        147,
+        107,
+        155,
+        47,
+        150,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "new_agent",
+          "docs": [
+            "need its pubkey, no data is read or written here."
+          ]
+        },
+        {
+          "name": "wallet",
+          "writable": true
         }
       ],
       "args": []
@@ -823,6 +951,32 @@
   ],
   "events": [
     {
+      "name": "AgentRotated",
+      "discriminator": [
+        128,
+        98,
+        178,
+        231,
+        254,
+        100,
+        152,
+        242
+      ]
+    },
+    {
+      "name": "AuditEntryClosed",
+      "discriminator": [
+        233,
+        141,
+        32,
+        233,
+        104,
+        201,
+        30,
+        251
+      ]
+    },
+    {
       "name": "CounterpartyPolicyUpserted",
       "discriminator": [
         103,
@@ -833,6 +987,19 @@
         83,
         152,
         28
+      ]
+    },
+    {
+      "name": "PanicDrained",
+      "discriminator": [
+        80,
+        65,
+        40,
+        214,
+        64,
+        51,
+        143,
+        51
       ]
     },
     {
@@ -859,6 +1026,19 @@
         44,
         119,
         187
+      ]
+    },
+    {
+      "name": "RequestClosed",
+      "discriminator": [
+        59,
+        172,
+        99,
+        75,
+        9,
+        19,
+        226,
+        188
       ]
     },
     {
@@ -1118,9 +1298,47 @@
       "code": 6032,
       "name": "LegacyExecuteDisabled",
       "msg": "Direct execute() is deprecated; use submit_request + execute_request"
+    },
+    {
+      "code": 6033,
+      "name": "RequestStillPending",
+      "msg": "Request is still pending; cancel or resolve it before closing"
+    },
+    {
+      "code": 6034,
+      "name": "AgentUnchanged",
+      "msg": "New agent must differ from the current agent"
     }
   ],
   "types": [
+    {
+      "name": "AgentRotated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "previous_agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
     {
       "name": "AssetSpendTracker",
       "docs": [
@@ -1267,6 +1485,30 @@
               "Bump seed."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditEntryClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "request_id",
+            "type": "u64"
+          },
+          {
+            "name": "rent_reclaimed",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }
@@ -1552,6 +1794,34 @@
       }
     },
     {
+      "name": "PanicDrained",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports_swept",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "Policy",
       "docs": [
         "Spending policy tied to a wallet.",
@@ -1725,6 +1995,34 @@
           {
             "name": "reviewer",
             "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RequestClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "request_id",
+            "type": "u64"
+          },
+          {
+            "name": "final_status",
+            "type": "u8"
+          },
+          {
+            "name": "rent_reclaimed",
+            "type": "u64"
           },
           {
             "name": "timestamp",

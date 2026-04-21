@@ -50,6 +50,71 @@ export type Tavsin = {
       "args": []
     },
     {
+      "name": "closeAuditEntry",
+      "discriminator": [
+        75,
+        190,
+        146,
+        245,
+        209,
+        4,
+        42,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "rentRecipient",
+          "writable": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "auditEntry",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "closeRequest",
+      "discriminator": [
+        170,
+        46,
+        165,
+        120,
+        223,
+        102,
+        115,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "rentRecipient",
+          "docs": [
+            "Where the rent goes. Typically the owner."
+          ],
+          "writable": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "request",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "createWallet",
       "discriminator": [
         82,
@@ -382,6 +447,39 @@ export type Tavsin = {
       ]
     },
     {
+      "name": "panicDrain",
+      "discriminator": [
+        52,
+        202,
+        237,
+        19,
+        135,
+        191,
+        148,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "destination",
+          "docs": [
+            "Recovery destination. Can be the owner, a Squads vault, a cold wallet,",
+            "anything controllable by the owner. Must be a system account."
+          ],
+          "writable": true
+        },
+        {
+          "name": "wallet",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "rejectRequest",
       "discriminator": [
         11,
@@ -413,6 +511,36 @@ export type Tavsin = {
         },
         {
           "name": "systemProgram"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "rotateAgent",
+      "discriminator": [
+        182,
+        91,
+        147,
+        107,
+        155,
+        47,
+        150,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "newAgent",
+          "docs": [
+            "need its pubkey, no data is read or written here."
+          ]
+        },
+        {
+          "name": "wallet",
+          "writable": true
         }
       ],
       "args": []
@@ -829,6 +957,32 @@ export type Tavsin = {
   ],
   "events": [
     {
+      "name": "agentRotated",
+      "discriminator": [
+        128,
+        98,
+        178,
+        231,
+        254,
+        100,
+        152,
+        242
+      ]
+    },
+    {
+      "name": "auditEntryClosed",
+      "discriminator": [
+        233,
+        141,
+        32,
+        233,
+        104,
+        201,
+        30,
+        251
+      ]
+    },
+    {
       "name": "counterpartyPolicyUpserted",
       "discriminator": [
         103,
@@ -839,6 +993,19 @@ export type Tavsin = {
         83,
         152,
         28
+      ]
+    },
+    {
+      "name": "panicDrained",
+      "discriminator": [
+        80,
+        65,
+        40,
+        214,
+        64,
+        51,
+        143,
+        51
       ]
     },
     {
@@ -865,6 +1032,19 @@ export type Tavsin = {
         44,
         119,
         187
+      ]
+    },
+    {
+      "name": "requestClosed",
+      "discriminator": [
+        59,
+        172,
+        99,
+        75,
+        9,
+        19,
+        226,
+        188
       ]
     },
     {
@@ -1124,9 +1304,47 @@ export type Tavsin = {
       "code": 6032,
       "name": "legacyExecuteDisabled",
       "msg": "Direct execute() is deprecated; use submit_request + execute_request"
+    },
+    {
+      "code": 6033,
+      "name": "requestStillPending",
+      "msg": "Request is still pending; cancel or resolve it before closing"
+    },
+    {
+      "code": 6034,
+      "name": "agentUnchanged",
+      "msg": "New agent must differ from the current agent"
     }
   ],
   "types": [
+    {
+      "name": "agentRotated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "previousAgent",
+            "type": "pubkey"
+          },
+          {
+            "name": "newAgent",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
     {
       "name": "assetSpendTracker",
       "docs": [
@@ -1273,6 +1491,30 @@ export type Tavsin = {
               "Bump seed."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "auditEntryClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "rentReclaimed",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }
@@ -1558,6 +1800,34 @@ export type Tavsin = {
       }
     },
     {
+      "name": "panicDrained",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamportsSwept",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "policy",
       "docs": [
         "Spending policy tied to a wallet.",
@@ -1731,6 +2001,34 @@ export type Tavsin = {
           {
             "name": "reviewer",
             "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "finalStatus",
+            "type": "u8"
+          },
+          {
+            "name": "rentReclaimed",
+            "type": "u64"
           },
           {
             "name": "timestamp",

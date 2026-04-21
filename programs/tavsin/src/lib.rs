@@ -143,4 +143,20 @@ pub mod tavsin {
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
         instructions::withdraw::handler(ctx, amount)
     }
+
+    pub fn rotate_agent(ctx: Context<RotateAgent>) -> Result<()> {
+        instructions::rotate_agent::handler(ctx)
+    }
+
+    pub fn panic_drain(ctx: Context<PanicDrain>) -> Result<()> {
+        instructions::panic_drain::handler(ctx)
+    }
+
+    pub fn close_request(ctx: Context<CloseRequest>) -> Result<()> {
+        instructions::close_request::handler(ctx)
+    }
+
+    pub fn close_audit_entry(ctx: Context<CloseAuditEntry>) -> Result<()> {
+        instructions::close_audit_entry::handler(ctx)
+    }
 }

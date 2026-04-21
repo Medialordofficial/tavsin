@@ -68,4 +68,8 @@ pub enum TavsinError {
     InvalidTimeWindow,
     #[msg("Direct execute() is deprecated; use submit_request + execute_request")]
     LegacyExecuteDisabled,
+    #[msg("Request is still pending; cancel or resolve it before closing")]
+    RequestStillPending,
+    #[msg("New agent must differ from the current agent")]
+    AgentUnchanged,
 }

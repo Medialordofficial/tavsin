@@ -340,3 +340,38 @@ pub struct CounterpartyPolicyUpserted {
     pub require_approval: bool,
     pub timestamp: i64,
 }
+
+#[event]
+pub struct AgentRotated {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub previous_agent: Pubkey,
+    pub new_agent: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct PanicDrained {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub destination: Pubkey,
+    pub lamports_swept: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestClosed {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub final_status: u8,
+    pub rent_reclaimed: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct AuditEntryClosed {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub rent_reclaimed: u64,
+    pub timestamp: i64,
+}

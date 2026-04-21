@@ -9,6 +9,7 @@ export const primaryNavLinks: Array<Pick<SiteLink, "href" | "label">> = [
   { href: "/about", label: "About" },
   { href: "/whitepaper", label: "White Paper" },
   { href: "/docs", label: "Docs" },
+  { href: "/live", label: "Live Feed" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 
