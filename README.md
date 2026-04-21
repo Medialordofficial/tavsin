@@ -9,13 +9,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Built on Solana](https://img.shields.io/badge/Built%20on-Solana-9945FF)]()
 [![Readiness](https://img.shields.io/badge/Readiness-Devnet%20Live-22c55e)]()
+[![Tests](https://img.shields.io/badge/Tests-28%20passing-22c55e)]()
+[![Audit](https://img.shields.io/badge/Audit-C%2FH%20findings%20fixed-22c55e)](docs/AUDIT_BRIEF.md)
 [![Dashboard](https://img.shields.io/badge/Dashboard-tavsin.xyz-cyan)](https://tavsin.xyz/dashboard)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-ff6b35)](mcp/README.md)
 
 </div>
 
 > **Program ID:** [`2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy`](https://explorer.solana.com/address/2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy?cluster=devnet) (devnet)
-> **Live App:** [tavsin.xyz](https://tavsin.xyz) · **Health:** [tavsin.xyz/api/health](https://tavsin.xyz/api/health)
+> **Live App:** [tavsin.xyz](https://tavsin.xyz) · **Live Deny Feed:** [tavsin.xyz/live](https://tavsin.xyz/live) · **Health:** [tavsin.xyz/api/health](https://tavsin.xyz/api/health)
 
 ---
 
@@ -40,12 +42,14 @@ The **jailbreak demo** simulates 4 distinct attacks (direct drain, salami slice,
 
 | Where to look | What you'll find |
 |---|---|
-| [`programs/tavsin/`](programs/tavsin/) | Anchor program (Rust) — 12 instructions, 7 account types |
+| [`programs/tavsin/`](programs/tavsin/) | Anchor program (Rust) — 17 instructions, 7 account types, 14 events |
+| [`app/src/app/live/page.tsx`](app/src/app/live/page.tsx) | **Live deny feed** — subscribes to program logs, decodes `RequestDenied` events in real time. No backend |
 | [`mcp/`](mcp/) | MCP server — Claude/Cursor can call TavSin natively (7 tools) |
-| [`examples/demo-agent/`](examples/demo-agent/) | Live demo agents (SOL & USDC variants) |
-| [`sdk/`](sdk/) | TypeScript SDK (`@tavsin/sdk`) |
-| [`tests/`](tests/) | 18 passing tests across policy, requests, SPL flows |
-| [`docs/PITCH_V2.md`](docs/PITCH_V2.md) | 2-minute pitch script + moat brief |
+| [`examples/demo-agent/`](examples/demo-agent/) | Live demo agents (SOL & USDC variants + jailbreak) |
+| [`examples/squads-owner/`](examples/squads-owner/) | **Squads multisig as owner** — vault PDA controls the smart wallet |
+| [`sdk/`](sdk/) | TypeScript SDK (`@tavsin/sdk`) — framework-agnostic AI tools (Vercel/Anthropic/OpenAI/MCP/SAK) |
+| [`tests/`](tests/) | 28 passing tests — policy, requests, SPL, security regressions, owner controls |
+| [`docs/AUDIT_BRIEF.md`](docs/AUDIT_BRIEF.md) | Audit summary: 4 critical + 6 high findings, all fixed |
 
 ---
 

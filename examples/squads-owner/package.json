@@ -1,0 +1,21 @@
+{
+  "name": "@tavsin/example-squads-owner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Use a Squads multisig vault as the owner of a TavSin smart wallet.",
+  "scripts": {
+    "create-wallet": "tsx src/create-wallet.ts",
+    "approve-via-squads": "tsx src/approve-via-squads.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/web3.js": "^1.98.4",
+    "@sqds/multisig": "^2.1.3",
+    "@tavsin/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.3"
+  }
+}

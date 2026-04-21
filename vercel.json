@@ -1,5 +1,12 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd app && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "app/.next",
+  "installCommand": "echo 'skip-root-install (handled by buildCommand)'",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_TAVSIN_PROGRAM_ID": "2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy",
+    "NEXT_PUBLIC_SOLANA_CLUSTER": "devnet"
+  }
 }
