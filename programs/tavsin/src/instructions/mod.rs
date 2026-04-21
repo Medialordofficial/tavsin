@@ -16,20 +16,30 @@ pub mod update_policy;
 pub mod upsert_counterparty_policy;
 pub mod withdraw;
 
-pub use approve_request::*;
-pub use close_audit_entry::*;
-pub use close_request::*;
-pub use create_wallet::*;
-pub use execute::*;
-pub use execute_request::*;
-pub use freeze_wallet::*;
-pub use fund_wallet::*;
-pub use panic_drain::*;
-pub use reject_request::*;
-pub use rotate_agent::*;
-pub use shared::*;
-pub use submit_request::*;
-pub use unfreeze_wallet::*;
-pub use update_policy::*;
-pub use upsert_counterparty_policy::*;
-pub use withdraw::*;
+// Anchor's `#[program]` macro requires `crate::__client_accounts_*` modules
+// generated inside each instruction module to be reachable from the crate
+// root. Wildcard re-exports surface those, but they also re-export each
+// module's `handler` fn. The compiler warns about ambiguous re-exports of
+// `handler`; we silence it because the duplicate names are namespaced under
+// `crate::instructions::<mod>::handler` at the call sites in lib.rs.
+#[allow(ambiguous_glob_reexports)]
+mod reexports {
+    pub use super::approve_request::*;
+    pub use super::close_audit_entry::*;
+    pub use super::close_request::*;
+    pub use super::create_wallet::*;
+    pub use super::execute::*;
+    pub use super::execute_request::*;
+    pub use super::freeze_wallet::*;
+    pub use super::fund_wallet::*;
+    pub use super::panic_drain::*;
+    pub use super::reject_request::*;
+    pub use super::rotate_agent::*;
+    pub use super::shared::*;
+    pub use super::submit_request::*;
+    pub use super::unfreeze_wallet::*;
+    pub use super::update_policy::*;
+    pub use super::upsert_counterparty_policy::*;
+    pub use super::withdraw::*;
+}
+pub use reexports::*;

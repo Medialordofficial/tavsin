@@ -7,7 +7,7 @@ import { BorshCoder, EventParser, type Idl } from "@coral-xyz/anchor";
 
 import idlJson from "@/lib/tavsin_idl.json";
 import { getPublicProgramId } from "@/lib/program-config";
-import { getPublicRpcEndpoint } from "@/lib/network";
+import { getPublicCluster, getPublicRpcEndpoint } from "@/lib/network";
 
 type DenyEvent = {
   signature: string;
@@ -56,6 +56,20 @@ function formatLamports(raw: string): string {
   }
 }
 
+function explorerCluster(c: ReturnType<typeof getPublicCluster>): string {
+  if (c === "mainnet-beta") return "";
+  if (c === "localnet") return "?cluster=custom&customUrl=http%3A%2F%2F127.0.0.1%3A8899";
+  return "?cluster=devnet";
+}
+
+function explorerTx(sig: string, c: ReturnType<typeof getPublicCluster>): string {
+  return `https://explorer.solana.com/tx/${sig}${explorerCluster(c)}`;
+}
+
+function explorerAddress(addr: string, c: ReturnType<typeof getPublicCluster>): string {
+  return `https://explorer.solana.com/address/${addr}${explorerCluster(c)}`;
+}
+
 export default function LiveDenyFeed() {
   const [events, setEvents] = useState<DenyEvent[]>([]);
   const [status, setStatus] = useState<"connecting" | "live" | "error">("connecting");
@@ -65,6 +79,7 @@ export default function LiveDenyFeed() {
 
   const programId = useMemo(() => getPublicProgramId(), []);
   const endpoint = useMemo(() => getPublicRpcEndpoint(), []);
+  const cluster = useMemo(() => getPublicCluster(), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -202,18 +217,33 @@ export default function LiveDenyFeed() {
                 <div className="text-sm text-slate-400">
                   <div>
                     wallet{" "}
-                    <code className="text-slate-200">{shortKey(e.wallet)}</code>
+                    <a
+                      href={explorerAddress(e.wallet, cluster)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-200 underline-offset-2 hover:text-emerald-400 hover:underline"
+                    >
+                      <code>{shortKey(e.wallet)}</code>
+                    </a>
                   </div>
                   <div>amount {formatLamports(e.amount)}</div>
                 </div>
                 <div className="flex flex-col items-start gap-1 text-xs text-slate-500 md:items-end">
                   <a
-                    href={`https://solscan.io/tx/${e.signature}?cluster=devnet`}
+                    href={explorerTx(e.signature, cluster)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-400 hover:underline"
                   >
-                    view tx ↗
+                    explorer ↗
+                  </a>
+                  <a
+                    href={`https://solscan.io/tx/${e.signature}${cluster === "mainnet-beta" ? "" : `?cluster=${cluster === "localnet" ? "custom" : "devnet"}`}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 hover:text-emerald-400 hover:underline"
+                  >
+                    solscan ↗
                   </a>
                   <span>slot {e.slot.toLocaleString()}</span>
                   <span>{new Date(e.receivedAt).toLocaleTimeString()}</span>
