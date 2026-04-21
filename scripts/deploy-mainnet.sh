@@ -37,27 +37,33 @@ ok "Deployer: $DEPLOYER_PUBKEY"
 
 # Confirm we're on mainnet-beta
 RPC_URL=$(solana config get | grep "RPC URL" | awk '{print $3}')
-if [[ "$RPC_URL" != *"mainnet"* ]]; then
+if [ -n "${MAINNET_RPC:-}" ]; then
+  log "Setting RPC to custom MAINNET_RPC"
+  solana config set --url "$MAINNET_RPC" >/dev/null
+elif [[ "$RPC_URL" != *"mainnet"* ]]; then
   warn "Current RPC: $RPC_URL — not mainnet."
-  read -p "Switch to mainnet-beta? [y/N] " -n 1 -r
+  read -p "Switch to public mainnet-beta? (rate-limited; Helius/Triton recommended) [y/N] " -n 1 -r
   echo
-  [[ $REPLY =~ ^[Yy]$ ]] || die "Aborted."
-  solana config set --url mainnet-beta
+  [[ $REPLY =~ ^[Yy]$ ]] || die "Aborted. Re-run with MAINNET_RPC=<your-rpc-url>."
+  solana config set --url mainnet-beta >/dev/null
 fi
-ok "RPC: $(solana config get | grep 'RPC URL' | awk '{print $3}')"
+FINAL_RPC=$(solana config get | grep 'RPC URL' | awk '{print $3}')
+ok "RPC: $FINAL_RPC"
 
-# Balance check
+# Balance check (require 5 SOL — deploy ~3.8 + buffer for retries / IDL upload)
 BALANCE=$(solana balance "$DEPLOYER_PUBKEY" | awk '{print $1}')
 log "Deployer balance: $BALANCE SOL"
-if (( $(echo "$BALANCE < 4.0" | bc -l) )); then
-  die "Deployer needs at least 4 SOL for deploy. Top up first."
+if (( $(echo "$BALANCE < 5.0" | bc -l) )); then
+  die "Deployer needs at least 5 SOL for deploy + IDL upload. Top up first."
 fi
 ok "Balance sufficient"
 
-# Program size
+# Program size + SHA (record this — verify on-chain hash matches post-deploy)
 SIZE_BYTES=$(stat -f%z target/deploy/tavsin.so 2>/dev/null || stat -c%s target/deploy/tavsin.so)
 SIZE_KB=$((SIZE_BYTES / 1024))
+BINARY_SHA=$(shasum -a 256 target/deploy/tavsin.so | awk '{print $1}')
 log "Program size: ${SIZE_KB} KB"
+log "Binary SHA256: $BINARY_SHA"
 
 # ── Final confirmation ───────────────────────────────────────────────────
 echo
@@ -66,7 +72,9 @@ echo -e "${YELLOW}  About to deploy TavSin to MAINNET-BETA${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo "  Deployer:          $DEPLOYER_PUBKEY"
 echo "  Upgrade authority: ${UPGRADE_AUTHORITY:-<deployer (NOT RECOMMENDED)>}"
+echo "  RPC:               $FINAL_RPC"
 echo "  Program size:      ${SIZE_KB} KB"
+echo "  Binary SHA256:     $BINARY_SHA"
 echo "  Estimated cost:    ~$(echo "scale=2; $SIZE_KB * 0.0007" | bc) SOL"
 echo
 read -p "Proceed with mainnet deploy? Type 'DEPLOY' to confirm: " -r CONFIRM
@@ -92,9 +100,20 @@ else
   warn "STRONGLY RECOMMENDED: transfer to a Squads multisig before announcing mainnet."
 fi
 
+# ── Upload IDL ───────────────────────────────────────────────────────────
+log "Uploading IDL to chain..."
+if anchor idl init --provider.cluster mainnet --provider.wallet "$DEPLOY_KEYPAIR" \
+  --filepath target/idl/tavsin.json "$PROGRAM_ID" 2>/dev/null; then
+  ok "IDL initialized"
+else
+  warn "idl init failed (already exists?). Trying upgrade..."
+  anchor idl upgrade --provider.cluster mainnet --provider.wallet "$DEPLOY_KEYPAIR" \
+    --filepath target/idl/tavsin.json "$PROGRAM_ID" || warn "IDL upgrade failed — upload manually later."
+fi
+
 # ── Verify ────────────────────────────────────────────────────────────────
 log "Verifying deployment..."
-solana program show "$PROGRAM_ID" --url mainnet-beta
+solana program show "$PROGRAM_ID" --url "$FINAL_RPC"
 
 # ── Output ────────────────────────────────────────────────────────────────
 echo
