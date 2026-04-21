@@ -2,20 +2,22 @@
 
 Status as of 21 Apr 2026:
 
-- ✅ Program built fresh — `target/deploy/tavsin.so` (533 KB)
-- ✅ Binary SHA256 — `e53c403880205abea850c3adc89a9462cb9bcb828edcf8ff392a7ae54cf41f3f`
+- ✅ Program built fresh (size-optimized) — `target/deploy/tavsin.so` (420 KB, down from 533 KB)
+- ✅ Binary SHA256 — `caebf86aa10af85ea3e22e5282a24905915aaf3b79ac73010fbeed130be16387`
 - ✅ Program ID locked — `2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy`
 - ✅ Anchor.toml `[programs.mainnet]` configured
-- ✅ Deploy script hardened — 5 SOL min, custom RPC support, IDL upload, post-deploy SHA verify
-- ⏸️ Awaiting: funded keypair + Squads multisig pubkey + RPC URL (you must provide)
+- ✅ Deploy script hardened — 4 SOL min, custom RPC support, IDL upload, post-deploy SHA verify
+- ✅ Deploy keypair generated — `2BwApmwyQ1k392StjcAb2u7Z6fyucQvvcgYunTC9vjrF` at `~/.config/solana/tavsin-mainnet-deploy.json`
+- 💰 Estimated cost: **~3.0 SOL** (~$555 at $185/SOL) for deploy + IDL upload
+- ⏸️ Awaiting: 4 SOL funding + Squads multisig vault + RPC URL
 
-## Step 1 — Fund a fresh deploy keypair (≥ 5 SOL)
+## Step 1 — Fund the deploy keypair (≥ 4 SOL)
 
-```bash
-solana-keygen new -o ~/.config/solana/tavsin-mainnet-deploy.json
-solana address -k ~/.config/solana/tavsin-mainnet-deploy.json
-# Send 5+ SOL to that address from a CEX or cold wallet.
-```
+The keypair already exists at `~/.config/solana/tavsin-mainnet-deploy.json`.
+
+Send ≥ 4 SOL to: **`2BwApmwyQ1k392StjcAb2u7Z6fyucQvvcgYunTC9vjrF`**
+
+(3.0 SOL deploy + 0.5 IDL upload + 0.5 retry buffer = 4.0 SOL)
 
 ## Step 2 — Create the Squads multisig
 
@@ -61,7 +63,7 @@ After deploy completes:
 PROGRAM_ID=2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy
 solana program dump $PROGRAM_ID /tmp/onchain.so --url $MAINNET_RPC
 shasum -a 256 /tmp/onchain.so
-# Must match: e53c403880205abea850c3adc89a9462cb9bcb828edcf8ff392a7ae54cf41f3f
+# Must match: caebf86aa10af85ea3e22e5282a24905915aaf3b79ac73010fbeed130be16387
 ```
 
 If the SHAs match, you have a verifiable on-chain build.

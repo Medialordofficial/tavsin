@@ -50,11 +50,11 @@ fi
 FINAL_RPC=$(solana config get | grep 'RPC URL' | awk '{print $3}')
 ok "RPC: $FINAL_RPC"
 
-# Balance check (require 5 SOL — deploy ~3.8 + buffer for retries / IDL upload)
+# Balance check (require 4 SOL — deploy ~3.0 + IDL upload + retry buffer)
 BALANCE=$(solana balance "$DEPLOYER_PUBKEY" | awk '{print $1}')
 log "Deployer balance: $BALANCE SOL"
-if (( $(echo "$BALANCE < 5.0" | bc -l) )); then
-  die "Deployer needs at least 5 SOL for deploy + IDL upload. Top up first."
+if (( $(echo "$BALANCE < 4.0" | bc -l) )); then
+  die "Deployer needs at least 4 SOL for deploy + IDL upload. Top up first."
 fi
 ok "Balance sufficient"
 
