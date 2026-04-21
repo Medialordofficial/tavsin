@@ -142,7 +142,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
         asset_tracker.period_start = clock.unix_timestamp;
     }
 
-    if tracker.spent_in_period + amount > policy.max_daily {
+    if tracker.spent_in_period.checked_add(amount).ok_or(TavsinError::ArithmeticOverflow)? > policy.max_daily {
         audit.approved = false;
         audit.outcome = OUTCOME_DENIED;
         audit.denial_reason = REASON_EXCEEDS_DAILY;
@@ -173,12 +173,60 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
         return Ok(());
     }
 
+    // C1 fix: enforce recipient allowlist on the legacy direct path. Previously
+    // execute() ignored policy.allowed_recipients entirely, allowing a
+    // jailbroken agent to drain to any address. SOL = Pubkey::default(); also
+    // enforce blocked_mints on the SOL sentinel for parity with submit_request.
+    if !policy.allowed_recipients.is_empty()
+        && !policy.allowed_recipients.contains(&ctx.accounts.recipient.key())
+    {
+        audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
+        audit.denial_reason = REASON_RECIPIENT_NOT_ALLOWED;
+        wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
+        msg!(
+            "DENIED: Recipient {} not on allowlist (legacy execute path)",
+            ctx.accounts.recipient.key()
+        );
+        return Ok(());
+    }
+    if policy.blocked_mints.contains(&Pubkey::default()) {
+        audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
+        audit.denial_reason = REASON_BLOCKED_MINT;
+        wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
+        msg!("DENIED: native SOL is blocked by policy");
+        return Ok(());
+    }
+    // C1 fix: the legacy path cannot queue for approval, so refuse to operate
+    // when the owner has configured any approval-required policy. This forces
+    // those flows through submit_request → execute_request where every check
+    // (counterparty, mint_rules, threshold) actually runs.
+    if policy.approval_threshold.is_some()
+        || policy.require_approval_for_new_recipients
+        || !policy.mint_rules.is_empty()
+        || policy.enforce_counterparty_policy
+    {
+        audit.approved = false;
+        audit.outcome = OUTCOME_DENIED;
+        audit.denial_reason = REASON_UNSUPPORTED_EXECUTION;
+        wallet.total_denied += 1;
+        wallet.next_audit_id += 1;
+        msg!("DENIED: policy requires submit_request → execute_request flow");
+        return Ok(());
+    }
+
     // Check 5: Time window
     if let (Some(start), Some(end)) = (policy.time_window_start, policy.time_window_end) {
-        // Seconds since midnight UTC: unix_timestamp % 86400 is correct because
-        // the Unix epoch (1970-01-01T00:00:00Z) starts at midnight UTC.
-        let seconds_since_midnight = clock.unix_timestamp % 86_400;
-        if seconds_since_midnight < start || seconds_since_midnight > end {
+        let seconds_since_midnight = clock.unix_timestamp.rem_euclid(86_400);
+        let in_window = if start <= end {
+            seconds_since_midnight >= start && seconds_since_midnight <= end
+        } else {
+            seconds_since_midnight >= start || seconds_since_midnight <= end
+        };
+        if !in_window {
             audit.approved = false;
             audit.outcome = OUTCOME_DENIED;
             audit.denial_reason = REASON_OUTSIDE_TIME_WINDOW;
@@ -215,9 +263,15 @@ pub fn handler(ctx: Context<Execute>, amount: u64, memo: String) -> Result<()> {
     **wallet.to_account_info().try_borrow_mut_lamports()? -= amount;
     **ctx.accounts.recipient.to_account_info().try_borrow_mut_lamports()? += amount;
 
-    // Update trackers
-    tracker.spent_in_period += amount;
-    asset_tracker.spent_in_period += amount;
+    // Update trackers (overflow-checks=true panics on wrap, rolling back)
+    tracker.spent_in_period = tracker
+        .spent_in_period
+        .checked_add(amount)
+        .ok_or(TavsinError::ArithmeticOverflow)?;
+    asset_tracker.spent_in_period = asset_tracker
+        .spent_in_period
+        .checked_add(amount)
+        .ok_or(TavsinError::ArithmeticOverflow)?;
 
     // Update wallet stats
     wallet.total_approved += 1;

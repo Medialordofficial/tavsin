@@ -93,6 +93,20 @@ pub fn handler(
             counterparty.wallet == wallet.key() && counterparty.recipient == recipient_key,
             TavsinError::InvalidCounterpartyPolicy
         );
+    } else if policy.enforce_counterparty_policy {
+        // C2 fix: when enforcement is on, the agent cannot omit the counterparty
+        // account to bypass per-recipient overrides. We re-derive the expected
+        // PDA address here; the owner is responsible for upserting it before
+        // any agent transactions to that recipient.
+        let (expected_pda, _bump) = Pubkey::find_program_address(
+            &[COUNTERPARTY_SEED, wallet.key().as_ref(), recipient_key.as_ref()],
+            &crate::ID,
+        );
+        msg!(
+            "Counterparty enforcement on: missing CounterpartyPolicy PDA {}",
+            expected_pda
+        );
+        return err!(TavsinError::CounterpartyPolicyRequired);
     }
 
     if asset_tracker.wallet == Pubkey::default() {
@@ -215,13 +229,20 @@ pub fn handler(
     if let (Some(start), Some(end)) = (policy.time_window_start, policy.time_window_end) {
         // Seconds since midnight UTC: unix_timestamp % 86400 is correct because
         // the Unix epoch (1970-01-01T00:00:00Z) starts at midnight UTC.
-        let seconds_since_midnight = clock.unix_timestamp % 86_400;
-        if seconds_since_midnight < start || seconds_since_midnight > end {
+        let seconds_since_midnight = clock.unix_timestamp.rem_euclid(86_400);
+        // H2 fix: support wrap-around windows (e.g. 22:00 – 02:00 UTC).
+        let in_window = if start <= end {
+            seconds_since_midnight >= start && seconds_since_midnight <= end
+        } else {
+            seconds_since_midnight >= start || seconds_since_midnight <= end
+        };
+        if !in_window {
             request.status = REQUEST_STATUS_REJECTED;
             audit.denial_reason = REASON_OUTSIDE_TIME_WINDOW;
-            wallet.total_denied += 1;
-            wallet.next_request_id += 1;
-            wallet.next_audit_id += 1;
+            wallet.total_denied = wallet.total_denied.saturating_add(1);
+            wallet.next_request_id = wallet.next_request_id.saturating_add(1);
+            wallet.next_audit_id = wallet.next_audit_id.saturating_add(1);
+            emit_denied(wallet.key(), request_id, REASON_OUTSIDE_TIME_WINDOW, amount, clock.unix_timestamp);
             return Ok(());
         }
     }
@@ -256,12 +277,13 @@ pub fn handler(
         asset_tracker.period_start = clock.unix_timestamp;
     }
 
-    if asset_tracker.spent_in_period + amount > max_daily {
+    if asset_tracker.spent_in_period.checked_add(amount).ok_or(TavsinError::ArithmeticOverflow)? > max_daily {
         request.status = REQUEST_STATUS_REJECTED;
         audit.denial_reason = REASON_EXCEEDS_DAILY;
-        wallet.total_denied += 1;
-        wallet.next_request_id += 1;
-        wallet.next_audit_id += 1;
+        wallet.total_denied = wallet.total_denied.saturating_add(1);
+        wallet.next_request_id = wallet.next_request_id.saturating_add(1);
+        wallet.next_audit_id = wallet.next_audit_id.saturating_add(1);
+        emit_denied(wallet.key(), request_id, REASON_EXCEEDS_DAILY, amount, clock.unix_timestamp);
         return Ok(());
     }
 
@@ -291,8 +313,24 @@ pub fn handler(
     audit.approved = true;
     audit.outcome = OUTCOME_APPROVED;
     audit.denial_reason = REASON_APPROVED;
-    wallet.next_request_id += 1;
-    wallet.next_audit_id += 1;
+    wallet.next_request_id = wallet.next_request_id.saturating_add(1);
+    wallet.next_audit_id = wallet.next_audit_id.saturating_add(1);
+
+    emit!(RequestSubmitted {
+        wallet: wallet.key(),
+        request_id,
+        agent: ctx.accounts.agent.key(),
+        recipient: recipient_key,
+        asset_mint,
+        amount,
+        status: request.status,
+        timestamp: clock.unix_timestamp,
+    });
 
     Ok(())
+}
+
+#[inline]
+fn emit_denied(wallet: Pubkey, request_id: u64, reason: u8, amount: u64, timestamp: i64) {
+    emit!(RequestDenied { wallet, request_id, reason, amount, timestamp });
 }

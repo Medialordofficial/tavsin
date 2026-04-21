@@ -215,7 +215,9 @@ async function main() {
       null,                   // blocked mints (keep)
       null,                   // mint rules (keep)
       null,                   // time window start (keep)
-      null                    // time window end (keep)
+      null                    // time window end (keep),
+        null,
+        null
     )
     .accounts({
       owner: ownerKp.publicKey,

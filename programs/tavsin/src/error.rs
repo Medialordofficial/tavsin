@@ -60,4 +60,12 @@ pub enum TavsinError {
     InvalidExecutionAccounts,
     #[msg("Execution payload does not satisfy preflight validation")]
     InvalidExecutionPayload,
+    #[msg("Arithmetic overflow")]
+    ArithmeticOverflow,
+    #[msg("Counterparty policy enforcement is enabled but a matching counterparty account was not provided")]
+    CounterpartyPolicyRequired,
+    #[msg("Time window bounds must each be in [0, 86400)")]
+    InvalidTimeWindow,
+    #[msg("Direct execute() is deprecated; use submit_request + execute_request")]
+    LegacyExecuteDisabled,
 }

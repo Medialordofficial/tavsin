@@ -150,21 +150,41 @@ pub fn handler(ctx: Context<ExecuteRequest>, instruction_data: Vec<u8>) -> Resul
     let mint_rule = policy.mint_rules.iter().find(|rule| rule.mint == request.asset_mint);
     let max_daily = mint_rule.map(|rule| rule.max_daily).unwrap_or(policy.max_daily);
 
-    if asset_tracker.spent_in_period + request.amount > max_daily {
+    if asset_tracker.spent_in_period.checked_add(request.amount).ok_or(TavsinError::ArithmeticOverflow)? > max_daily {
         audit.denial_reason = REASON_EXCEEDS_DAILY;
         wallet.total_denied += 1;
         wallet.next_audit_id += 1;
+        emit!(RequestDenied {
+            wallet: wallet.key(),
+            request_id: request.request_id,
+            reason: REASON_EXCEEDS_DAILY,
+            amount: request.amount,
+            timestamp: clock.unix_timestamp,
+        });
         return Ok(());
     }
 
-    let wallet_lamports = wallet.to_account_info().lamports();
-    let rent = Rent::get()?.minimum_balance(wallet.to_account_info().data_len());
-    let available = wallet_lamports.saturating_sub(rent);
-    if available < request.amount {
-        audit.denial_reason = REASON_INSUFFICIENT_BALANCE;
-        wallet.total_denied += 1;
-        wallet.next_audit_id += 1;
-        return Ok(());
+    // H5 fix: only treat `request.amount` as lamports for native SOL transfers.
+    // For SPL tokens, request.amount is in token base units — comparing it to
+    // the wallet PDA's lamports is meaningless (and combined with overflow could
+    // bypass balance checks). Let the SPL token program enforce token balance.
+    if use_native_direct_path {
+        let wallet_lamports = wallet.to_account_info().lamports();
+        let rent = Rent::get()?.minimum_balance(wallet.to_account_info().data_len());
+        let available = wallet_lamports.saturating_sub(rent);
+        if available < request.amount {
+            audit.denial_reason = REASON_INSUFFICIENT_BALANCE;
+            wallet.total_denied += 1;
+            wallet.next_audit_id += 1;
+            emit!(RequestDenied {
+                wallet: wallet.key(),
+                request_id: request.request_id,
+                reason: REASON_INSUFFICIENT_BALANCE,
+                amount: request.amount,
+                timestamp: clock.unix_timestamp,
+            });
+            return Ok(());
+        }
     }
 
     if use_native_direct_path {
@@ -187,13 +207,25 @@ pub fn handler(ctx: Context<ExecuteRequest>, instruction_data: Vec<u8>) -> Resul
         .map_err(|_| error!(TavsinError::UnsupportedExecutionTarget))?;
     }
 
-    asset_tracker.spent_in_period += request.amount;
+    asset_tracker.spent_in_period = asset_tracker
+        .spent_in_period
+        .checked_add(request.amount)
+        .ok_or(TavsinError::ArithmeticOverflow)?;
     request.status = REQUEST_STATUS_EXECUTED;
     wallet.total_approved += 1;
     wallet.next_audit_id += 1;
 
     audit.approved = true;
     audit.outcome = OUTCOME_EXECUTED;
+
+    emit!(RequestExecuted {
+        wallet: wallet.key(),
+        request_id: request.request_id,
+        recipient: request.recipient,
+        asset_mint: request.asset_mint,
+        amount: request.amount,
+        timestamp: clock.unix_timestamp,
+    });
 
     Ok(())
 }

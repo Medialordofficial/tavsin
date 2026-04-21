@@ -14,7 +14,7 @@ pub const DEFAULT_PERIOD_DURATION: i64 = 86_400;
 pub const DEFAULT_REQUEST_EXPIRY_SECONDS: i64 = 900;
 
 pub const WALLET_VERSION: u8 = 2;
-pub const POLICY_VERSION: u8 = 2;
+pub const POLICY_VERSION: u8 = 3;
 
 pub const MAX_ALLOWED_PROGRAMS: usize = 10;
 pub const MAX_ALLOWED_RECIPIENTS: usize = 20;

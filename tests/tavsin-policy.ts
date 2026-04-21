@@ -35,6 +35,8 @@ describe("tavsin policy", () => {
         [blockedMint],
         [nativeRule],
         null,
+        null,
+        null,
         null
       )
       .accounts({
@@ -45,7 +47,7 @@ describe("tavsin policy", () => {
       .rpc();
 
     const policy = await program.account.policy.fetch(fixture.policyPda);
-    expect(policy.version).to.equal(2);
+    expect(policy.version).to.equal(3);
     expect(policy.maxPerTx.toNumber()).to.equal(2 * LAMPORTS_PER_SOL);
     expect(policy.maxDaily.toNumber()).to.equal(20 * LAMPORTS_PER_SOL);
     expect(policy.approvalThreshold.toNumber()).to.equal(
@@ -74,7 +76,9 @@ describe("tavsin policy", () => {
           null,
           null,
           null,
-          null
+          null,
+        null,
+        null
         )
         .accounts({
           owner: fixture.agent.publicKey,
@@ -251,7 +255,9 @@ describe("tavsin policy", () => {
         null,
         null,
         new anchor.BN(start),
-        new anchor.BN(end)
+        new anchor.BN(end),
+        null,
+        null
       )
       .accounts({
         owner: owner.publicKey,
@@ -299,6 +305,8 @@ describe("tavsin policy", () => {
         null,
         null,
         [blockedMint],
+        null,
+        null,
         null,
         null,
         null
@@ -369,6 +377,8 @@ describe("tavsin policy", () => {
         null,
         null,
         null,
+        null,
+        null,
         null
       )
       .accounts({
@@ -409,6 +419,8 @@ describe("tavsin policy", () => {
       .updatePolicy(
         new anchor.BN(5 * LAMPORTS_PER_SOL),
         new anchor.BN(0.3 * LAMPORTS_PER_SOL),
+        null,
+        null,
         null,
         null,
         null,

@@ -102,6 +102,8 @@ pub mod tavsin {
         mint_rules: Option<Vec<MintRule>>,
         time_window_start: Option<i64>,
         time_window_end: Option<i64>,
+        clear_time_window: Option<bool>,
+        enforce_counterparty_policy: Option<bool>,
     ) -> Result<()> {
         instructions::update_policy::handler(
             ctx,
@@ -115,6 +117,8 @@ pub mod tavsin {
             mint_rules,
             time_window_start,
             time_window_end,
+            clear_time_window,
+            enforce_counterparty_policy,
         )
     }
 

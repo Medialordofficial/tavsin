@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 use crate::error::TavsinError;
-use crate::state::SmartWallet;
+use crate::state::{SmartWallet, WalletFrozen};
 
 #[derive(Accounts)]
 pub struct FreezeWallet<'info> {
@@ -20,5 +20,10 @@ pub struct FreezeWallet<'info> {
 pub fn handler(ctx: Context<FreezeWallet>) -> Result<()> {
     ctx.accounts.wallet.frozen = true;
     msg!("Tavsin wallet FROZEN: {}", ctx.accounts.wallet.key());
+    emit!(WalletFrozen {
+        wallet: ctx.accounts.wallet.key(),
+        owner: ctx.accounts.owner.key(),
+        timestamp: Clock::get()?.unix_timestamp,
+    });
     Ok(())
 }

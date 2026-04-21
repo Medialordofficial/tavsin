@@ -76,6 +76,10 @@ pub struct Policy {
     pub time_window_start: Option<i64>,
     /// Optional: latest unix timestamp in day the agent can transact (seconds from midnight UTC).
     pub time_window_end: Option<i64>,
+    /// When true, every submit_request must include a CounterpartyPolicy account
+    /// whose PDA matches (wallet, recipient). Closes the C2 bypass where the
+    /// agent omits the optional counterparty account to skip its checks.
+    pub enforce_counterparty_policy: bool,
     /// Bump seed for the PDA.
     pub bump: u8,
 }
@@ -241,3 +245,98 @@ pub const REQUEST_STATUS_APPROVED: u8 = 1;
 pub const REQUEST_STATUS_REJECTED: u8 = 2;
 pub const REQUEST_STATUS_EXECUTED: u8 = 3;
 pub const REQUEST_STATUS_EXPIRED: u8 = 4;
+
+// ============================================================================
+// Events — emitted on every state transition so indexers/dashboards can
+// subscribe in real-time instead of polling AuditEntry PDAs.
+// ============================================================================
+
+#[event]
+pub struct WalletCreated {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub agent: Pubkey,
+    pub max_per_tx: u64,
+    pub max_daily: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct PolicyUpdated {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub max_per_tx: u64,
+    pub max_daily: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestSubmitted {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub agent: Pubkey,
+    pub recipient: Pubkey,
+    pub asset_mint: Pubkey,
+    pub amount: u64,
+    pub status: u8,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestApproved {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub reviewer: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestRejected {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub reviewer: Pubkey,
+    pub reason: u8,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestExecuted {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub recipient: Pubkey,
+    pub asset_mint: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RequestDenied {
+    pub wallet: Pubkey,
+    pub request_id: u64,
+    pub reason: u8,
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct WalletFrozen {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct WalletUnfrozen {
+    pub wallet: Pubkey,
+    pub owner: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct CounterpartyPolicyUpserted {
+    pub wallet: Pubkey,
+    pub recipient: Pubkey,
+    pub enabled: bool,
+    pub require_approval: bool,
+    pub timestamp: i64,
+}

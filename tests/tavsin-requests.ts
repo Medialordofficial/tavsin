@@ -124,6 +124,8 @@ describe("tavsin requests", () => {
         null,
         null,
         null,
+        null,
+        null,
         null
       )
       .accounts({
@@ -205,6 +207,8 @@ describe("tavsin requests", () => {
         null,
         null,
         new anchor.BN(0.4 * LAMPORTS_PER_SOL),
+        null,
+        null,
         null,
         null,
         null,
@@ -327,6 +331,8 @@ describe("tavsin requests", () => {
         true,
         null,
         [fixture.recipient.publicKey],
+        null,
+        null,
         null,
         null,
         null,

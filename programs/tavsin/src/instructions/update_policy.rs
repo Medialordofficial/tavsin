@@ -35,6 +35,8 @@ pub fn handler(
     mint_rules: Option<Vec<MintRule>>,
     time_window_start: Option<i64>,
     time_window_end: Option<i64>,
+    clear_time_window: Option<bool>,
+    enforce_counterparty_policy: Option<bool>,
 ) -> Result<()> {
     let policy = &mut ctx.accounts.policy;
 
@@ -75,9 +77,25 @@ pub fn handler(
         require!(rules.len() <= MAX_MINT_RULES, TavsinError::TooManyMintRules);
         policy.mint_rules = rules;
     }
-    // For time window: allow explicitly setting to None to clear
-    policy.time_window_start = time_window_start;
-    policy.time_window_end = time_window_end;
+    // H1 fix: time-window updates are now opt-in. Pass clear_time_window=Some(true)
+    // to explicitly null both ends. Otherwise, only update the side(s) explicitly
+    // provided. Previously a partial policy update silently wiped the window.
+    if clear_time_window.unwrap_or(false) {
+        policy.time_window_start = None;
+        policy.time_window_end = None;
+    } else {
+        if let Some(val) = time_window_start {
+            require!((0..86_400).contains(&val), TavsinError::InvalidTimeWindow);
+            policy.time_window_start = Some(val);
+        }
+        if let Some(val) = time_window_end {
+            require!((0..86_400).contains(&val), TavsinError::InvalidTimeWindow);
+            policy.time_window_end = Some(val);
+        }
+    }
+    if let Some(flag) = enforce_counterparty_policy {
+        policy.enforce_counterparty_policy = flag;
+    }
 
     msg!(
         "Policy updated for wallet {}: max_per_tx={}, max_daily={}, recipients={}, blocked_mints={}",
@@ -87,6 +105,14 @@ pub fn handler(
         policy.allowed_recipients.len(),
         policy.blocked_mints.len()
     );
+
+    emit!(PolicyUpdated {
+        wallet: ctx.accounts.wallet.key(),
+        owner: ctx.accounts.owner.key(),
+        max_per_tx: policy.max_per_tx,
+        max_daily: policy.max_daily,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
 
     Ok(())
 }

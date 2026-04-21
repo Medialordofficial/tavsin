@@ -24,7 +24,8 @@ pub struct FundWallet<'info> {
 }
 
 pub fn handler(ctx: Context<FundWallet>, amount: u64) -> Result<()> {
-    // Transfer SOL from owner to the wallet PDA
+    // Transfer SOL from owner to the wallet PDA.
+    // Note: in Anchor 1.0, CpiContext::new takes a Pubkey for the program id.
     system_program::transfer(
         CpiContext::new(
             ctx.accounts.system_program.key(),

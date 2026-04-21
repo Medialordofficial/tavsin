@@ -60,6 +60,14 @@ pub fn handler(
         TavsinError::TooManyAllowedPrograms
     );
 
+    // Validate time-window bounds (M4): each must be in [0, 86_400) or None.
+    if let Some(start) = time_window_start {
+        require!((0..86_400).contains(&start), TavsinError::InvalidTimeWindow);
+    }
+    if let Some(end) = time_window_end {
+        require!((0..86_400).contains(&end), TavsinError::InvalidTimeWindow);
+    }
+
     let clock = Clock::get()?;
 
     // Initialize wallet
@@ -90,6 +98,7 @@ pub fn handler(
     policy.mint_rules = Vec::new();
     policy.time_window_start = time_window_start;
     policy.time_window_end = time_window_end;
+    policy.enforce_counterparty_policy = false;
     policy.bump = ctx.bumps.policy;
 
     // Initialize spend tracker
@@ -107,6 +116,15 @@ pub fn handler(
         policy.max_per_tx,
         policy.max_daily
     );
+
+    emit!(WalletCreated {
+        wallet: wallet.key(),
+        owner: wallet.owner,
+        agent: wallet.agent,
+        max_per_tx: policy.max_per_tx,
+        max_daily: policy.max_daily,
+        timestamp: clock.unix_timestamp,
+    });
 
     Ok(())
 }

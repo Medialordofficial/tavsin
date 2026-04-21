@@ -68,5 +68,13 @@ pub fn handler(ctx: Context<RejectRequest>) -> Result<()> {
     audit.timestamp = clock.unix_timestamp;
     audit.bump = ctx.bumps.audit_entry;
 
+    emit!(RequestRejected {
+        wallet: wallet.key(),
+        request_id: request.request_id,
+        reviewer: ctx.accounts.owner.key(),
+        reason: REASON_OWNER_REJECTED,
+        timestamp: clock.unix_timestamp,
+    });
+
     Ok(())
 }

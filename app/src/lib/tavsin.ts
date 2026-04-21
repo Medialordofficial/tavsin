@@ -627,6 +627,18 @@ export type Tavsin = {
           "type": {
             "option": "i64"
           }
+        },
+        {
+          "name": "clearTimeWindow",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "enforceCounterpartyPolicy",
+          "type": {
+            "option": "bool"
+          }
         }
       ]
     },
@@ -815,6 +827,138 @@ export type Tavsin = {
       ]
     }
   ],
+  "events": [
+    {
+      "name": "counterpartyPolicyUpserted",
+      "discriminator": [
+        103,
+        84,
+        183,
+        127,
+        29,
+        83,
+        152,
+        28
+      ]
+    },
+    {
+      "name": "policyUpdated",
+      "discriminator": [
+        225,
+        112,
+        112,
+        67,
+        95,
+        236,
+        245,
+        161
+      ]
+    },
+    {
+      "name": "requestApproved",
+      "discriminator": [
+        158,
+        196,
+        69,
+        207,
+        98,
+        44,
+        119,
+        187
+      ]
+    },
+    {
+      "name": "requestDenied",
+      "discriminator": [
+        21,
+        164,
+        219,
+        5,
+        34,
+        138,
+        199,
+        213
+      ]
+    },
+    {
+      "name": "requestExecuted",
+      "discriminator": [
+        254,
+        115,
+        238,
+        135,
+        55,
+        132,
+        6,
+        62
+      ]
+    },
+    {
+      "name": "requestRejected",
+      "discriminator": [
+        92,
+        222,
+        126,
+        51,
+        111,
+        175,
+        57,
+        199
+      ]
+    },
+    {
+      "name": "requestSubmitted",
+      "discriminator": [
+        113,
+        213,
+        202,
+        246,
+        213,
+        106,
+        73,
+        44
+      ]
+    },
+    {
+      "name": "walletCreated",
+      "discriminator": [
+        159,
+        189,
+        177,
+        30,
+        192,
+        157,
+        229,
+        179
+      ]
+    },
+    {
+      "name": "walletFrozen",
+      "discriminator": [
+        193,
+        14,
+        205,
+        91,
+        1,
+        121,
+        55,
+        77
+      ]
+    },
+    {
+      "name": "walletUnfrozen",
+      "discriminator": [
+        55,
+        62,
+        221,
+        216,
+        232,
+        67,
+        159,
+        210
+      ]
+    }
+  ],
   "errors": [
     {
       "code": 6000,
@@ -960,6 +1104,26 @@ export type Tavsin = {
       "code": 6028,
       "name": "invalidExecutionPayload",
       "msg": "Execution payload does not satisfy preflight validation"
+    },
+    {
+      "code": 6029,
+      "name": "arithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6030,
+      "name": "counterpartyPolicyRequired",
+      "msg": "Counterparty policy enforcement is enabled but a matching counterparty account was not provided"
+    },
+    {
+      "code": 6031,
+      "name": "invalidTimeWindow",
+      "msg": "Time window bounds must each be in [0, 86400)"
+    },
+    {
+      "code": 6032,
+      "name": "legacyExecuteDisabled",
+      "msg": "Direct execute() is deprecated; use submit_request + execute_request"
     }
   ],
   "types": [
@@ -1183,6 +1347,34 @@ export type Tavsin = {
               "Bump seed."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "counterpartyPolicyUpserted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "requireApproval",
+            "type": "bool"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }
@@ -1477,11 +1669,200 @@ export type Tavsin = {
             }
           },
           {
+            "name": "enforceCounterpartyPolicy",
+            "docs": [
+              "When true, every submit_request must include a CounterpartyPolicy account",
+              "whose PDA matches (wallet, recipient). Closes the C2 bypass where the",
+              "agent omits the optional counterparty account to skip its checks."
+            ],
+            "type": "bool"
+          },
+          {
             "name": "bump",
             "docs": [
               "Bump seed for the PDA."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "policyUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "maxPerTx",
+            "type": "u64"
+          },
+          {
+            "name": "maxDaily",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestApproved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "reviewer",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestDenied",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "assetMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestRejected",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "reviewer",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "requestSubmitted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "requestId",
+            "type": "u64"
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "assetMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }
@@ -1618,6 +1999,78 @@ export type Tavsin = {
               "Bump seed."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "maxPerTx",
+            "type": "u64"
+          },
+          {
+            "name": "maxDaily",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletFrozen",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletUnfrozen",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }

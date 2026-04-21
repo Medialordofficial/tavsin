@@ -60,5 +60,13 @@ pub fn handler(
         policy.recipient
     );
 
+    emit!(CounterpartyPolicyUpserted {
+        wallet: policy.wallet,
+        recipient: policy.recipient,
+        enabled: policy.enabled,
+        require_approval: policy.require_approval,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
+
     Ok(())
 }

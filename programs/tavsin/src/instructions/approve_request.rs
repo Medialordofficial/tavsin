@@ -82,5 +82,12 @@ pub fn handler(ctx: Context<ApproveRequest>) -> Result<()> {
     audit.approved = true;
     audit.outcome = OUTCOME_APPROVED;
 
+    emit!(RequestApproved {
+        wallet: wallet.key(),
+        request_id: request.request_id,
+        reviewer: ctx.accounts.owner.key(),
+        timestamp: clock.unix_timestamp,
+    });
+
     Ok(())
 }
