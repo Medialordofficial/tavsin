@@ -3,8 +3,9 @@ import PageFrame from "@/components/PageFrame";
 import { supportPages } from "@/lib/site-links";
 
 export const metadata: Metadata = {
-  title: "TavSin Team",
-  description: "Core contributors, roles, and accountability model behind TavSin.",
+  title: "TavSin — Team",
+  description:
+    "The builders behind TavSin: protocol engineering, product, and security ownership.",
 };
 
 const supportCards = supportPages.filter((page) => page.href !== "/team");
@@ -13,44 +14,49 @@ export default function TeamPage() {
   return (
     <PageFrame
       badge="Team"
-      title="Small team, high accountability, direct ownership."
-      lead="TavSin should not look like a faceless experiment. The project is operated by a tight group of builders who care about protocol engineering, product clarity, and deployment discipline."
+      title="A small team building the trust layer for autonomous finance."
+      lead="TavSin is built by a tight group focused on protocol engineering, product clarity, and security discipline. Public, accountable, reachable."
       stats={[
-        { label: "Operating style", value: "Hands-on" },
-        { label: "Delivery model", value: "Small and focused" },
-        { label: "Accountability", value: "Explicit roles" },
-        { label: "Surface area", value: "Protocol + product" },
+        { label: "Founders", value: "Full-time" },
+        { label: "Discipline", value: "Protocol + product" },
+        { label: "Cadence", value: "Ship weekly" },
+        { label: "Origin", value: "Solana Colosseum 2026" },
       ]}
       sections={[
         {
-          eyebrow: "Contributors",
-          title: "Who should be listed here",
-          body: "The public site should identify the builder, the operator, and the security owner once the final launch roles are confirmed. Until then, the page documents the role structure rather than inventing names.",
-        },
-        {
-          eyebrow: "Roles",
-          title: "The operating model",
-          body: "Protocol engineering handles the smart-wallet logic, product design handles the operator experience, and launch operations handle key rotation, release discipline, and incident response.",
+          eyebrow: "Founder",
+          title: "Emmanuel Mfon — Founder, Protocol Engineering",
+          body: "Designs and ships the on-chain program: policy engine, custody PDAs, request/audit lifecycle, and SDK. Sole maintainer of the Anchor program and the TypeScript client. All code is public on GitHub; the contact page lists how to reach the project directly.",
           bullets: [
-            "Protocol engineering: policy checks, account modeling, read layer, and SDK maintenance.",
-            "Product and UX: landing page, dashboard flows, and launch narrative.",
-            "Operations: deployment control, freeze authority, and incident handling.",
+            "Owns: programs/tavsin — 17 instructions, 14 events, 28 tests passing on Anchor 1.0.",
+            "Owns: @tavsin/sdk and the Next.js dashboard, live deny feed, and mobile approve UX.",
+            "Owns: deployment authority on devnet and the upcoming mainnet rollout.",
           ],
         },
         {
-          eyebrow: "Open source",
-          title: "How collaboration should work",
-          body: "A protocol this visible needs readable code, clear docs, and direct ownership. Public pages should make it obvious where issues go, how the release cycle works, and which parts are audited before wider rollout.",
+          eyebrow: "Operating model",
+          title: "Why a small team is the right team to ship this",
+          body: "TavSin is an intentionally narrow primitive: a policy-enforced smart wallet, plus the SDK and product surfaces a developer needs to adopt it. A focused team can ship the entire vertical — program, SDK, dashboard, examples — without coordination tax. We add specialists only after mainnet.",
+          bullets: [
+            "Protocol: hand-rolled Anchor program, no fork, no template.",
+            "Product: live dashboard, real-time deny feed, mobile approve flow — all wired to mainnet-shaped architecture.",
+            "Security: every privileged path is owner-gated; explicit panic_drain and rotate_agent for incident response.",
+          ],
         },
         {
-          eyebrow: "Accountability",
-          title: "Why this page matters",
-          body: "A serious protocol does not hide its operators. It makes the people and roles behind control visible enough that users can understand who is responsible for risk.",
+          eyebrow: "Hiring",
+          title: "Roles we will open after the hackathon",
+          body: "Post-hackathon, the next hires are a security engineer (Solana audit + fuzzing), a DevRel for the SDK, and a partnerships lead targeting agent platforms — Anthropic, Vercel AI SDK, LangChain, and major Solana wallets.",
+        },
+        {
+          eyebrow: "Open governance",
+          title: "How collaboration works",
+          body: "All code is on GitHub. Issues are public. The roadmap is published. Security reports follow the disclosure process in SECURITY.md. The program is upgradeable today; mainnet plans freeze the upgrade authority behind an independent Squads multisig.",
         },
       ]}
       cards={supportCards}
-      primaryCta={{ href: "/contact", label: "Contact the Project" }}
-      secondaryCta={{ href: "/security", label: "Review Security" }}
+      primaryCta={{ href: "/contact", label: "Get in touch" }}
+      secondaryCta={{ href: "/security", label: "Read the security policy" }}
     />
   );
 }

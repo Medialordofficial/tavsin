@@ -80,11 +80,11 @@ const competitors = [
 ];
 
 const protocolStats = [
-  { label: "On-chain instructions", value: "12" },
+  { label: "On-chain instructions", value: "17" },
   { label: "Policy checks per tx", value: "7" },
-  { label: "Tests passing", value: "18/18" },
-  { label: "MCP tools exposed", value: "7" },
-  { label: "USDC demo on devnet", value: "Live" },
+  { label: "Tests passing", value: "28/28" },
+  { label: "Events emitted", value: "14" },
+  { label: "Devnet deploy", value: "Live" },
   { label: "Audit trail", value: "100%" },
 ];
 
@@ -184,7 +184,7 @@ export default function Home() {
                   Solana Devnet Live · MCP Compatible
                 </div>
                 <div className="mt-2 max-w-xl text-2xl font-semibold leading-tight text-white sm:text-3xl">
-                  The compliance layer for the agent economy
+                  The trust layer for the agent economy
                 </div>
               </div>
             </div>
@@ -205,12 +205,22 @@ export default function Home() {
               The regulatory unlock for enterprises deploying agent fleets.
             </p>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
               <Link
                 href="/dashboard"
                 className="tavsin-shimmer inline-flex items-center justify-center rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 to-sky-500 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_20px_70px_rgba(56,189,248,0.22)] transition-transform hover:-translate-y-0.5"
               >
-                Enter Protocol App
+                Launch App
+              </Link>
+              <Link
+                href="/live"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-300/30 bg-emerald-400/10 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-200 shadow-[0_20px_70px_rgba(16,185,129,0.16)] transition-transform hover:-translate-y-0.5"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Live Deny Feed
               </Link>
               <a
                 href="https://explorer.solana.com/address/2VzG2545ksX8cUSggRxQ6DUpDdFb1q9vkZwFftvWcbFy?cluster=devnet"
@@ -613,6 +623,75 @@ export default function Home() {
               <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 px-3 py-2 text-sm text-emerald-200">
                 On-chain policy checks, approval workflows, audit trail, fleet dashboard
               </div>
+            </div>
+          </div>
+
+          {/* Head-to-head feature matrix */}
+          <div className="mt-12 overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.01]">
+            <div className="border-b border-white/8 bg-white/[0.02] px-6 py-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                Head-to-head
+              </div>
+              <div className="mt-1 text-lg font-semibold text-white">
+                Why TavSin is the only on-chain governance layer for agents
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-sm">
+                <thead className="bg-white/[0.02] text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <tr>
+                    <th className="px-5 py-3 font-semibold">Capability</th>
+                    <th className="px-5 py-3 font-semibold">MCPay</th>
+                    <th className="px-5 py-3 font-semibold">Latinum</th>
+                    <th className="px-5 py-3 font-semibold">Squads</th>
+                    <th className="px-5 py-3 font-semibold">Turnkey</th>
+                    <th className="px-5 py-3 font-semibold text-cyan-200">TavSin</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-slate-200">
+                  {[
+                    ["Built for autonomous AI agents", "✓", "✓", "✗", "✓", "✓"],
+                    ["On-chain spend limits (per-tx + daily)", "✗", "✗", "✗", "✗", "✓"],
+                    ["Per-recipient counterparty rules", "✗", "✗", "✗", "✗", "✓"],
+                    ["Time-window restrictions enforced on-chain", "✗", "✗", "✗", "✗", "✓"],
+                    ["Program allowlist (CPI gating)", "✗", "✗", "—", "✗", "✓"],
+                    ["Tamper-proof on-chain audit trail", "✗", "✗", "✓", "✗", "✓"],
+                    ["Instant kill switch / freeze", "✗", "✗", "✓", "—", "✓"],
+                    ["Emergency panic-drain", "✗", "✗", "—", "✗", "✓"],
+                    ["MCP-native tool surface", "✓", "—", "✗", "✗", "✓"],
+                    ["DAO / multisig as owner (Squads + Realms)", "✗", "✗", "n/a", "✗", "✓"],
+                    ["Token-2022 transfer-hook composable", "✗", "✗", "✗", "✗", "✓"],
+                  ].map(([cap, ...cells]) => (
+                    <tr key={cap} className="hover:bg-white/[0.02]">
+                      <td className="px-5 py-3 text-slate-100">{cap}</td>
+                      {cells.map((v, i) => {
+                        const isTavsin = i === cells.length - 1;
+                        const isYes = v === "✓";
+                        const isNo = v === "✗";
+                        return (
+                          <td
+                            key={i}
+                            className={`px-5 py-3 text-center font-mono text-sm ${
+                              isTavsin && isYes
+                                ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                                : isYes
+                                  ? "text-emerald-300/80"
+                                  : isNo
+                                    ? "text-rose-400/70"
+                                    : "text-slate-500"
+                            }`}
+                          >
+                            {v}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="border-t border-white/5 bg-black/20 px-5 py-3 text-[11px] uppercase tracking-[0.16em] text-slate-500">
+              ✓ available · ✗ not available · — partial / out of scope
             </div>
           </div>
         </div>

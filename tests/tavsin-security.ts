@@ -5,8 +5,11 @@ import { Keypair, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js";
 import {
   buildWalletFixture,
   getAssetTrackerPda,
+  hashInstructionData,
+  hashRemainingAccounts,
   nativeMint,
   nextAuditPda,
+  nextRequestPda,
   owner,
   program,
 } from "./helpers";
@@ -257,5 +260,157 @@ describe("tavsin security regressions", () => {
 
     const audit = await program.account.auditEntry.fetch(auditPda);
     expect(audit.approved, "wrap-around window must accept current time").to.equal(true);
+  });
+
+  it("REPLAY: an executed request cannot be re-executed", async () => {
+    const fixture = await buildWalletFixture();
+    const [assetTrackerPda] = getAssetTrackerPda(fixture.walletPda, nativeMint);
+    const instructionHash = hashInstructionData(Buffer.alloc(0));
+    const accountsHash = hashRemainingAccounts([]);
+
+    const requestPda = await nextRequestPda(fixture.walletPda);
+    const submitAuditPda = await nextAuditPda(fixture.walletPda);
+
+    await program.methods
+      .submitRequest(
+        new anchor.BN(0.1 * LAMPORTS_PER_SOL),
+        "replay-target",
+        instructionHash,
+        accountsHash,
+        null
+      )
+      .accounts({
+        agent: fixture.agent.publicKey,
+        wallet: fixture.walletPda,
+        policy: fixture.policyPda,
+        request: requestPda,
+        auditEntry: submitAuditPda,
+        recipient: fixture.recipient.publicKey,
+        assetMint: nativeMint,
+        assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
+        targetProgram: SystemProgram.programId,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([fixture.agent])
+      .rpc();
+
+    const firstAuditPda = await nextAuditPda(fixture.walletPda);
+    await program.methods
+      .executeRequest()
+      .accounts({
+        agent: fixture.agent.publicKey,
+        wallet: fixture.walletPda,
+        policy: fixture.policyPda,
+        request: requestPda,
+        assetTracker: assetTrackerPda,
+        auditEntry: firstAuditPda,
+        targetProgram: SystemProgram.programId,
+        recipient: fixture.recipient.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([fixture.agent])
+      .rpc();
+
+    const executed = await program.account.executionRequest.fetch(requestPda);
+    expect(executed.status, "request must be marked Executed after first run").to.equal(3);
+
+    // Replay attempt: same request PDA, agent attempts a second execute.
+    const replayAuditPda = await nextAuditPda(fixture.walletPda);
+    let replayed = false;
+    try {
+      await program.methods
+        .executeRequest()
+        .accounts({
+          agent: fixture.agent.publicKey,
+          wallet: fixture.walletPda,
+          policy: fixture.policyPda,
+          request: requestPda,
+          assetTracker: assetTrackerPda,
+          auditEntry: replayAuditPda,
+          targetProgram: SystemProgram.programId,
+          recipient: fixture.recipient.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([fixture.agent])
+        .rpc();
+      replayed = true;
+    } catch (err) {
+      // expected — program must reject any non-Approved request
+    }
+
+    expect(replayed, "executeRequest must refuse to re-run an Executed request").to.equal(false);
+  });
+
+  it("LIFECYCLE: approve_request cannot resurrect an Executed request", async () => {
+    const fixture = await buildWalletFixture();
+    const [assetTrackerPda] = getAssetTrackerPda(fixture.walletPda, nativeMint);
+    const instructionHash = hashInstructionData(Buffer.alloc(0));
+    const accountsHash = hashRemainingAccounts([]);
+
+    const requestPda = await nextRequestPda(fixture.walletPda);
+    const submitAuditPda = await nextAuditPda(fixture.walletPda);
+
+    await program.methods
+      .submitRequest(
+        new anchor.BN(0.05 * LAMPORTS_PER_SOL),
+        "lifecycle-test",
+        instructionHash,
+        accountsHash,
+        null
+      )
+      .accounts({
+        agent: fixture.agent.publicKey,
+        wallet: fixture.walletPda,
+        policy: fixture.policyPda,
+        request: requestPda,
+        auditEntry: submitAuditPda,
+        recipient: fixture.recipient.publicKey,
+        assetMint: nativeMint,
+        assetTracker: assetTrackerPda,
+        counterpartyPolicy: null,
+        targetProgram: SystemProgram.programId,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([fixture.agent])
+      .rpc();
+
+    const execAuditPda = await nextAuditPda(fixture.walletPda);
+    await program.methods
+      .executeRequest()
+      .accounts({
+        agent: fixture.agent.publicKey,
+        wallet: fixture.walletPda,
+        policy: fixture.policyPda,
+        request: requestPda,
+        assetTracker: assetTrackerPda,
+        auditEntry: execAuditPda,
+        targetProgram: SystemProgram.programId,
+        recipient: fixture.recipient.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([fixture.agent])
+      .rpc();
+
+    // Owner attempts to "approve" an already-executed request to re-arm it.
+    const reApproveAuditPda = await nextAuditPda(fixture.walletPda);
+    let reApproved = false;
+    try {
+      await program.methods
+        .approveRequest()
+        .accounts({
+          owner: owner.publicKey,
+          wallet: fixture.walletPda,
+          request: requestPda,
+          auditEntry: reApproveAuditPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+      reApproved = true;
+    } catch (err) {
+      // expected — approve_request must require status == Pending
+    }
+
+    expect(reApproved, "approve_request must refuse non-Pending requests").to.equal(false);
   });
 });
