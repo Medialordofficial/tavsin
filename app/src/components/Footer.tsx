@@ -63,7 +63,7 @@ export default function Footer() {
                 GitHub
               </a>
               <a
-                href="https://twitter.com/tavsin_xyz"
+                href="https://twitter.com/tavsinprotocol"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/25 hover:bg-white/10"
@@ -77,7 +77,7 @@ export default function Footer() {
                 >
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
-                @tavsin_xyz
+                @tavsinprotocol
               </a>
               <a
                 href="https://tavsin.xyz/live"
