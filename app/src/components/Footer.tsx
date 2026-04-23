@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const productLinks = [
   { href: "/", label: "Home" },
+  { href: "/demo", label: "Live demo" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/live", label: "Live deny feed" },
   { href: "/wallet", label: "Wallet" },
